@@ -42,3 +42,25 @@ var _ = Describe("Add", func() {
 		}
 	})
 })
+
+var _ = Describe("MA", func() {
+	It("test", func (){
+		data := make([]float64, 100)
+		for i := 0; i < 100; i++ {
+			data[i] = float64(i)
+		}
+		a := function.Vector(data)
+		result := function.MA(a, function.Scalar(5))
+		for i := 0; i < result.Len(); i++ {
+			fmt.Println(result.Get(i))
+		}
+
+		fmt.Println("============================")
+
+		a.Append(10)
+		result.UpdateLastValue()
+		for i := 0; i < result.Len(); i++ {
+			fmt.Println(result.Get(i))
+		}
+	})
+})
