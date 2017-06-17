@@ -2,6 +2,8 @@ package function
 
 import "github.com/chanxuehong/util/math"
 
+// MA - moving average
+
 type ma struct {
 	funcbase
 	N Value
@@ -34,11 +36,7 @@ func MA(data Value, N Value) *ma {
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
-	for i := 0; i < data.Len(); i++ {
-		v := ret.BuildValueAt(i)
-		ret.Set(i, v)
-	}
+	ret.Values = initValues(ret)
 	return ret
 }
 
@@ -81,11 +79,8 @@ func SMA(data Value, N, M Value) *sma {
 		N: N,
 		M: M,
 	}
-	ret.Values = make([]float64, data.Len())
-	for i := 0; i < data.Len(); i++ {
-		v := ret.BuildValueAt(i)
-		ret.Set(i, v)
-	}
+	ret.Values = initValues(ret)
+
 	return ret
 }
 
@@ -122,11 +117,8 @@ func DMA(data Value, A Value) *dma {
 		},
 		A: A,
 	}
-	ret.Values = make([]float64, data.Len())
-	for i := 0; i < data.Len(); i++ {
-		v := ret.BuildValueAt(i)
-		ret.Set(i, v)
-	}
+	ret.Values = initValues(ret)
+
 	return ret
 }
 
@@ -163,11 +155,8 @@ func EMA(data Value, N Value) *ema {
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
-	for i := 0; i < data.Len(); i++ {
-		v := ret.BuildValueAt(i)
-		ret.Set(i, v)
-	}
+	ret.Values = initValues(ret)
+
 	return ret
 }
 
@@ -210,10 +199,7 @@ func EXPMEMA(data Value, N Value) *expmema {
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
-	for i := 0; i < data.Len(); i++ {
-		v := ret.BuildValueAt(i)
-		ret.Set(i, v)
-	}
+	ret.Values = initValues(ret)
+
 	return ret
 }

@@ -27,3 +27,12 @@ func updateLastValue(this function) {
 		this.Append(v)
 	}
 }
+
+func initValues(this function) []float64 {
+	values := make([]float64, this.Data().Len())
+	for i := 0; i < this.Data().Len(); i++ {
+		v := this.BuildValueAt(i)
+		values[i] = v
+	}
+	return values
+}
