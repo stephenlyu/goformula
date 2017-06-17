@@ -50,7 +50,7 @@ var _ = Describe("MA", func() {
 			data[i] = float64(i)
 		}
 		a := function.Vector(data)
-		result := function.MA(a, function.Scalar(5))
+		result := function.MA(a, nil)
 		for i := 0; i < result.Len(); i++ {
 			fmt.Println(result.Get(i))
 		}
