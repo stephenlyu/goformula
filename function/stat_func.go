@@ -588,11 +588,52 @@ func (this *absf) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func ABS(data Value, data1 Value) *absf {
+func ABS(data Value) *absf {
 	ret := &absf{
 		funcbase: funcbase {
 			data: data,
 		},
+	}
+	ret.Values = initValues(ret)
+	return ret
+}
+
+// SLOPE
+
+type slopef struct {
+	funcbase
+	N Value
+}
+
+func (this slopef) BuildValueAt(index int) float64 {
+	N := int(this.N.Get(index))
+	if index < N - 1 {
+		return 0
+	}
+
+	x := make([]float64, N)
+	y := make([]float64, N)
+
+	for i := 0; i < N; i++ {
+		x[i] = float64((i + 1))
+		y[i] = this.data.Get(index + 1 - (N - i))
+	}
+
+	_, slope, _ := LinearRegression(Vector(x), Vector(y))
+
+	return slope
+}
+
+func (this *slopef) UpdateLastValue() {
+	updateLastValue(this)
+}
+
+func SLOPE(data Value, N Value) *slopef {
+	ret := &slopef{
+		funcbase: funcbase {
+			data: data,
+		},
+		N: N,
 	}
 	ret.Values = initValues(ret)
 	return ret

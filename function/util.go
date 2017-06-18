@@ -1,6 +1,9 @@
 package function
 
-import "math"
+import (
+	"math"
+	"errors"
+)
 
 func sum(values Value, start, end int) float64 {
 	sum := 0.0
@@ -79,4 +82,31 @@ func round(val float64, places int) float64 {
 	}
 
 	return t
+}
+
+func LinearRegression(x, y Value) (err error, slope float64, intercept float64) {
+	if x.Len() != y.Len() {
+		return errors.New("Length mismatch"), 0, 0
+	}
+
+	// Placeholder for the math to be done
+	var sum [5]float64
+
+	// Loop over data keeping index in place
+	i := 0
+	for ; i < x.Len(); i++ {
+		sum[0] += x.Get(i)
+		sum[1] += y.Get(i)
+		sum[2] += x.Get(i) * x.Get(i)
+		sum[3] += x.Get(i) * y.Get(i)
+		sum[4] += y.Get(i) * y.Get(i)
+	}
+
+	// Find gradient and intercept
+	f := float64(i)
+	slope = (f*sum[3] - sum[0]*sum[1]) / (f*sum[2] - sum[0]*sum[0])
+	intercept = (sum[1] / f) - (slope * sum[0] / f)
+
+	err = nil
+	return
 }

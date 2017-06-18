@@ -128,3 +128,46 @@ var _ = Describe("ROUND2", func() {
 		}
 	})
 })
+
+
+var _ = Describe("ROUND2", func() {
+	It("test", func (){
+		data := []float64{0.4949999, 0.500001, -0.4949999, -0.50000001}
+		a := function.Vector(data)
+		result := function.ROUND2(a, function.Scalar(2))
+		for i := 0; i < result.Len(); i++ {
+			fmt.Println(result.Get(i))
+		}
+
+		fmt.Println("============================")
+
+		a.Append(3.1415926)
+		result.UpdateLastValue()
+		for i := 0; i < result.Len(); i++ {
+			fmt.Println(result.Get(i))
+		}
+	})
+})
+
+
+var _ = Describe("SLOPE", func() {
+	It("test", func (){
+		data := make([]float64, 100)
+		for i := 0; i < 100; i++ {
+			data[i] = float64(i) / 2
+		}
+		a := function.Vector(data)
+		result := function.SLOPE(a, function.Scalar(5))
+		for i := 0; i < result.Len(); i++ {
+			fmt.Println(result.Get(i))
+		}
+
+		fmt.Println("============================")
+
+		a.Append(10)
+		result.UpdateLastValue()
+		for i := 0; i < result.Len(); i++ {
+			fmt.Println(result.Get(i))
+		}
+	})
+})
