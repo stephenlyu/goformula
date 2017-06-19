@@ -9,6 +9,7 @@ import (
 	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
 	"github.com/stephenlyu/goformula/stockfunc/formula"
+	"time"
 )
 
 func loadJson(jsonFile string) (error, map[string][]stockfunc.Record) {
@@ -28,10 +29,13 @@ var _ = Describe("MACD", func() {
 		_, data := loadJson("data.json")
 		rv := stockfunc.RecordVector(data["300666"])
 
+		start := time.Now().UnixNano()
+
 		var macd formula.Formula = formula.MACD(rv, nil, nil, nil)
 		for i := 0; i < macd.Len(); i++ {
 			r := macd.Get(i)
 			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\t%.02f\t%.02f\n", rv.Get(i).Date, r[0], r[1], r[2], r[3], r[4])
 		}
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
 	})
 })
