@@ -65,6 +65,20 @@ var _ = Describe("MA", func() {
 	})
 })
 
+var _ = Describe("EMA", func() {
+	It("test", func (){
+		data := make([]float64, 100)
+		for i := 0; i < 100; i++ {
+			data[i] = float64(i)
+		}
+		a := function.Vector(data)
+		result := function.EMA(a, function.Scalar(12))
+		for i := 0; i < result.Len(); i++ {
+			fmt.Println(result.Get(i))
+		}
+	})
+})
+
 var _ = Describe("LLVBARS", func() {
 	It("test", func (){
 		data := make([]float64, 100)
