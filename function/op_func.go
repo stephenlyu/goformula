@@ -23,7 +23,8 @@ func NOT(data Value) *not {
 			data: data,
 		},
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -46,7 +47,8 @@ func MINUS(data Value) *minus {
 			data: data,
 		},
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -71,7 +73,8 @@ func ADD(data Value, data1 Value) *add {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -96,7 +99,8 @@ func SUB(data Value, data1 Value) *sub {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -121,7 +125,8 @@ func MUL(data Value, data1 Value) *mul {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -149,7 +154,8 @@ func DIV(data Value, data1 Value) *div {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -179,7 +185,8 @@ func AND(data Value, data1 Value) *and {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -209,7 +216,8 @@ func OR(data Value, data1 Value) *or {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -239,7 +247,8 @@ func LT(data Value, data1 Value) *lt {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -269,7 +278,8 @@ func LE(data Value, data1 Value) *le {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -299,7 +309,8 @@ func GT(data Value, data1 Value) *gt {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -329,7 +340,8 @@ func GE(data Value, data1 Value) *ge {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -359,7 +371,8 @@ func EQ(data Value, data1 Value) *eq {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -389,7 +402,8 @@ func NEQ(data Value, data1 Value) *neq {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }

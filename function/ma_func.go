@@ -1,6 +1,8 @@
 package function
 
-import "github.com/chanxuehong/util/math"
+import (
+	"github.com/chanxuehong/util/math"
+)
 
 // MA - moving average
 
@@ -36,7 +38,8 @@ func MA(data Value, N Value) *ma {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -79,7 +82,8 @@ func SMA(data Value, N, M Value) *sma {
 		N: N,
 		M: M,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -117,7 +121,8 @@ func DMA(data Value, A Value) *dma {
 		},
 		A: A,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }
@@ -146,7 +151,7 @@ func (this *ema) UpdateLastValue() {
 
 func EMA(data Value, N Value) *ema {
 	if N == nil {
-		N = Scalar(0.5)
+		N = Scalar(5)
 	}
 
 	ret := &ema{
@@ -155,8 +160,8 @@ func EMA(data Value, N Value) *ema {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
-
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -199,7 +204,8 @@ func EXPMEMA(data Value, N Value) *expmema {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 
 	return ret
 }

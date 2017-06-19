@@ -28,11 +28,9 @@ func updateLastValue(this function) {
 	}
 }
 
-func initValues(this function) []float64 {
-	values := make([]float64, this.Data().Len())
+func initValues(this function, values []float64) {
 	for i := 0; i < this.Data().Len(); i++ {
 		v := this.BuildValueAt(i)
 		values[i] = v
 	}
-	return values
 }

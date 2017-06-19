@@ -31,7 +31,8 @@ func LLV(data Value, N Value) *llv {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -70,7 +71,8 @@ func LLVBARS(data Value, N Value) *llvbars {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -99,7 +101,8 @@ func HHV(data Value, N Value) *hhv {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -138,7 +141,8 @@ func HHVBARS(data Value, N Value) *hhvbars {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -181,7 +185,8 @@ func STD(data Value, N Value) *std {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -225,7 +230,8 @@ func AVEDEV(data Value, N Value) *avedev {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -253,7 +259,8 @@ func SUM(data Value, N Value) *sumf {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -262,7 +269,6 @@ func SUM(data Value, N Value) *sumf {
 type cross struct {
 	funcbase
 	data1 Value
-	N Value
 }
 
 func (this cross) BuildValueAt(index int) float64 {
@@ -277,15 +283,15 @@ func (this *cross) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func CROSS(data, data1 Value, N Value) *cross {
+func CROSS(data, data1 Value) *cross {
 	ret := &cross{
 		funcbase: funcbase {
 			data: data,
 		},
 		data1: data1,
-		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -324,7 +330,8 @@ func COUNT(data Value, N Value) *count {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -352,7 +359,8 @@ func IF(data, yesData, noData Value) *iff {
 		yesData: yesData,
 		noData: noData,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -389,7 +397,8 @@ func EVERY(data Value, N Value) *every {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -421,7 +430,8 @@ func BARSLAST(data Value, N Value) *barslast {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -487,7 +497,8 @@ func ROUND2(data Value, N Value) *roundf {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -518,7 +529,8 @@ func REF(data Value, N Value) *ref {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -544,7 +556,8 @@ func MIN(data Value, data1 Value) *minf {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -570,7 +583,8 @@ func MAX(data Value, data1 Value) *maxf {
 		},
 		data1: data1,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -594,7 +608,8 @@ func ABS(data Value) *absf {
 			data: data,
 		},
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
 
@@ -635,6 +650,7 @@ func SLOPE(data Value, N Value) *slopef {
 		},
 		N: N,
 	}
-	ret.Values = initValues(ret)
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
 	return ret
 }
