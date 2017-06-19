@@ -1,8 +1,8 @@
 package formula
 
 import (
-	stockfunc "github.com/stephenlyu/goformular/stockfunc/function"
-	"github.com/stephenlyu/goformular/function"
+	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
+	"github.com/stephenlyu/goformula/function"
 )
 
 type macd struct {

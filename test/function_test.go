@@ -2,7 +2,7 @@ package test
 
 import (
 . "github.com/onsi/ginkgo"
-	"github.com/stephenlyu/goformular/function"
+	"github.com/stephenlyu/goformula/function"
 	"fmt"
 )
 

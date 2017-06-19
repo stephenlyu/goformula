@@ -1,2 +1,2 @@
-# goformular
-A formular system with lua support.
+# goformula
+A formula system with lua support.

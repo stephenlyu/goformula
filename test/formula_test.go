@@ -2,13 +2,13 @@ package test
 
 import (
 	. "github.com/onsi/ginkgo"
-	//"github.com/stephenlyu/goformular/function"
+	//"github.com/stephenlyu/goformula/function"
 	//"fmt"
 	"io/ioutil"
 	"encoding/json"
-	stockfunc "github.com/stephenlyu/goformular/stockfunc/function"
+	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
-	"github.com/stephenlyu/goformular/stockfunc/formula"
+	"github.com/stephenlyu/goformula/stockfunc/formula"
 )
 
 func loadJson(jsonFile string) (error, map[string][]stockfunc.Record) {
