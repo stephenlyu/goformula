@@ -10,6 +10,8 @@ import (
 
 type LuaFormula struct {
 	L *lua.State
+
+	refValues []function.Value
 }
 
 func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
@@ -34,9 +36,14 @@ func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error,
 		return errors.New("Create formula fail"), nil
 	}
 
+	L.GetField(-1, "ref_values")
+	var values []function.Value
+	luar.LuaToGo(L, -1, &values)
+	L.Pop(1)
+
 	L.Remove(1)
 
-	return nil, &LuaFormula{L: L}
+	return nil, &LuaFormula{L: L, refValues: values}
 }
 
 func (this *LuaFormula) Destroy() {
@@ -59,14 +66,12 @@ func (this *LuaFormula) UpdateLateValue() {
 }
 
 func (this *LuaFormula) Get(index int) []float64 {
-	this.L.GetField(-1, "Get")
-	this.L.PushValue(-2)
-	this.L.PushInteger(int64(index))
-	this.L.Call(2, 1)
+	ret := make([]float64, len(this.refValues))
 
-	var ret []float64
-	luar.LuaToGo(this.L, -1, &ret)
-	this.L.Pop(1)
+	for i, refValue := range this.refValues {
+		ret[i] = refValue.Get(index)
+	}
+
 	return ret
 }
 

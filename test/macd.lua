@@ -30,6 +30,8 @@ function MACDClass:new(data, short, long, mid)
     o.macd = MUL(o.dif_sub_dea, o.const2)
     o.enter_long = CROSS(o.dif, o.dea)
     o.enter_short = CROSS(o.dea, o.dif)
+
+    o.ref_values = {o.dif, o.dea, o.macd, o.enter_long, o.enter_short}
     return o
 end
 
