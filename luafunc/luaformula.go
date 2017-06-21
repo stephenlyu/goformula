@@ -29,7 +29,7 @@ func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error,
 	L.PushValue(-2)
 	luar.GoToLuaProxy(L, data)
 	for _, arg := range args {
-		luar.GoToLuaProxy(L, function.Scalar(arg))
+		luar.GoToLua(L, arg)
 	}
 	L.Call(2 + len(args), 1)
 	if L.IsNil(-1) {

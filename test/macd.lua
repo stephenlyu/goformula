@@ -16,9 +16,9 @@ function MACDClass:new(data, short, long, mid)
     self.__index = self
 
     o.data = data
-    o.short = short
-    o.long = long
-    o.mid = mid
+    o.short = Scalar(short)
+    o.long = Scalar(long)
+    o.mid = Scalar(mid)
     o.close = CLOSE(data)
     o.const2 = Scalar(2)
     o.ema_close_short = EMA(o.close, o.short)
