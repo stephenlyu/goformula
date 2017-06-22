@@ -65,7 +65,7 @@ statement_list: statement
 
 statement: ID EQUALS expression statement_suffix {
                 $$ = AssignmentExpression(_context, $1, $3)
-                _context.addOutput($1, $4, 0, 0)
+                _context.addOutput($$.VarName(), $4, 0, 0)
            }
            | ID COLONEQUAL expression statement_suffix { $$ = AssignmentExpression(_context, $1, $3) }
            | ID PARAMEQUAL expression statement_suffix { $$ = ParamExpression(_context, $1, $3) }

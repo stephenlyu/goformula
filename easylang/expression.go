@@ -3,6 +3,7 @@ package easylang
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 type funcmap map[string]string
@@ -73,24 +74,72 @@ var funcMap = funcmap{
 	"SUM":       "SUM",
 }
 
+var (
+	CONST_SEQ = 1
+	VAR_SEQ   = 1
+)
+
+func newConstName() string {
+	ret := fmt.Sprintf("const%d", CONST_SEQ)
+	CONST_SEQ++
+	return ret
+}
+
+func newVarName() string {
+	ret := fmt.Sprintf("var%d", VAR_SEQ)
+	VAR_SEQ++
+	return ret
+}
+
 type expression interface {
 	Codes() string
 	IncrementRefCount()
 	DecrementRefCount()
 	RefCount() int
 	VarName() string
+	DisplayName() string
 }
 
 type baseexpr struct {
-	context  context
-	refCount int
-	varName  string
+	context     context
+	refCount    int
+	varName     string
+	displayName string
+}
+
+func isAlpha(c rune) bool {
+	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'
+}
+
+func isDigit(c rune) bool {
+	return c >= '0' && c <= '9'
 }
 
 func (this baseexpr) formatVarName(s string) string {
+	first := true
+	valid := true
 	s = strings.ToLower(s)
-	if s[:1] != "_" {
-		s = "_" + s
+	b := []byte(s)
+	for len(b) > 0 {
+		c, n := utf8.DecodeRune(b)
+
+		if first {
+			if c != '_' && !isAlpha(c) {
+				valid = false
+				break
+			}
+			first = false
+		} else {
+			if c != '_' && !isAlpha(c) && !isDigit(c) {
+				valid = false
+				break
+			}
+		}
+
+		b = b[n:]
+	}
+	if !valid {
+		return newVarName()
 	}
 	return s
 }
@@ -101,6 +150,10 @@ func (this baseexpr) Codes() string {
 
 func (this baseexpr) VarName() string {
 	return this.varName
+}
+
+func (this baseexpr) DisplayName() string {
+	return this.displayName
 }
 
 func (this *baseexpr) IncrementRefCount() {
@@ -124,10 +177,11 @@ func ConstantExpression(context context, value float64) *constantexpr {
 	ret := &constantexpr{
 		baseexpr: baseexpr{
 			context: context,
+			varName: newConstName(),
 		},
 		value: value,
 	}
-	ret.varName = strings.Replace(ret.formatVarName(fmt.Sprintf("const%f", value)), ".", "_", -1)
+	ret.displayName = fmt.Sprintf("const%f", value)
 	context.define(ret.varName, ret)
 	return ret
 }
@@ -156,7 +210,8 @@ func UnaryExpression(context context, operator string, operand expression) *unar
 	}
 
 	opName = strings.ToLower(opName)
-	ret.varName = ret.formatVarName(fmt.Sprintf("%s_%s", opName, operand.VarName()))
+	ret.displayName = fmt.Sprintf("%s_%s", opName, operand.VarName())
+	ret.varName = ret.formatVarName(ret.displayName)
 	context.define(ret.varName, ret)
 	return ret
 }
@@ -188,7 +243,8 @@ func BinaryExpression(context context, operator string, leftOperand, rightOperan
 	}
 
 	opName = strings.ToLower(opName)
-	ret.varName = ret.formatVarName(fmt.Sprintf("%s_%s_%s", leftOperand.VarName(), opName, rightOperand.VarName()))
+	ret.displayName = fmt.Sprintf("%s_%s_%s", leftOperand.VarName(), opName, rightOperand.VarName())
+	ret.varName = ret.formatVarName(ret.displayName)
 	context.define(ret.varName, ret)
 	return ret
 }
@@ -219,10 +275,11 @@ func FunctionExpression(context context, funcName string, arguments []expression
 		for i, arg := range arguments {
 			sa[i+1] = arg.VarName()
 		}
-		ret.varName = ret.formatVarName(strings.Join(sa, "_"))
+		ret.displayName = strings.Join(sa, "_")
 	} else {
-		ret.varName = ret.formatVarName(funcName)
+		ret.displayName = funcName
 	}
+	ret.varName = ret.formatVarName(ret.displayName)
 
 	context.define(ret.varName, ret)
 	return ret
@@ -248,12 +305,13 @@ type assignexpr struct {
 func AssignmentExpression(context context, varName string, operand expression) *assignexpr {
 	ret := &assignexpr{
 		baseexpr: baseexpr{
-			context: context,
-			varName: varName,
+			context:     context,
+			displayName: varName,
 		},
 		operand: operand,
 	}
-	if context.isDefined(varName) {
+	ret.varName = ret.formatVarName(ret.displayName)
+	if context.isDefined(ret.varName) {
 		panic("duplicate definition")
 	}
 	context.define(ret.varName, ret)
@@ -272,12 +330,13 @@ type paramexpr struct {
 func ParamExpression(context context, varName string, operand expression) *paramexpr {
 	ret := &paramexpr{
 		baseexpr: baseexpr{
-			context: context,
-			varName: varName,
+			context:     context,
+			displayName: varName,
 		},
 		operand: operand,
 	}
-	if context.isParamDefined(varName) {
+	ret.varName = ret.formatVarName(ret.displayName)
+	if context.isParamDefined(ret.varName) {
 		panic("duplicate param")
 	}
 	context.defineParam(ret.varName, ret)

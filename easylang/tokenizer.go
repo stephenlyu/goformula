@@ -112,7 +112,7 @@ yystart1:
 		goto yystate31
 	case c >= '0' && c <= '9':
 		goto yystate16
-	case c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z':
+	case c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= 0x4e00 && c <= 0x9fcb:
 		goto yystate28
 	}
 
@@ -158,7 +158,7 @@ yystate7:
 		goto yyabort
 	case c == '\'':
 		goto yystate8
-	case c >= '\x01' && c <= '&' || c >= '(' && c <= 'ÿ':
+	case c >= '\x01' && c <= '&' || c >= '(' && c <= 'ÿ' || c >= 0x4e00 && c <= 0x9fcb:
 		goto yystate7
 	}
 
@@ -284,7 +284,7 @@ yystate28:
 	switch {
 	default:
 		goto yyrule2
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z':
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= 0x4e00 && c <= 0x9fcb:
 		goto yystate28
 	}
 
@@ -295,7 +295,7 @@ yystate29:
 		goto yyabort
 	case c == '}':
 		goto yystate30
-	case c >= '\x01' && c <= '!' || c >= '#' && c <= '|' || c >= '~' && c <= 'ÿ':
+	case c >= '\x01' && c <= '!' || c >= '#' && c <= '|' || c >= '~' && c <= 'ÿ' || c >= 0x4e00 && c <= 0x9fcb:
 		goto yystate29
 	}
 

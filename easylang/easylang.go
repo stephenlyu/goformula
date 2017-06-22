@@ -512,7 +512,7 @@ yydefault:
 		//line easylang.y:66
 		{
 			yyVAL.expr = AssignmentExpression(_context, yyDollar[1].str, yyDollar[3].expr)
-			_context.addOutput(yyDollar[1].str, yyDollar[4].descriptions, 0, 0)
+			_context.addOutput(yyVAL.expr.VarName(), yyDollar[4].descriptions, 0, 0)
 		}
 	case 5:
 		yyDollar = yyS[yypt-4 : yypt+1]
