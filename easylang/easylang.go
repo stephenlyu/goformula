@@ -77,7 +77,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line easylang.y:149
+//line easylang.y:155
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -575,176 +575,182 @@ yydefault:
 			} else if funcName, ok := noArgFuncMap[yyDollar[1].str]; ok {
 				expr = FunctionExpression(_context, funcName, nil)
 			} else {
-				// TODO: handle error
+				lexer, _ := yylex.(*yylexer)
+				_context.addError(UndefinedVarError(lexer.lineno, lexer.column, yyDollar[1].str))
 				expr = ErrorExpression(_context, yyDollar[1].str)
 			}
 			yyVAL.expr = expr
 		}
 	case 14:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:101
+		//line easylang.y:102
 		{
 			yyVAL.expr = ConstantExpression(_context, yyDollar[1].value)
 		}
 	case 15:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:102
+		//line easylang.y:103
 		{
 		}
 	case 16:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:103
+		//line easylang.y:104
 		{
 			yyVAL.expr = yyDollar[2].expr
 		}
 	case 17:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:105
+		//line easylang.y:106
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 18:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line easylang.y:106
+		//line easylang.y:107
 		{
-			// TODO: handle error
-			yyVAL.expr = FunctionExpression(_context, yyDollar[1].str, yyDollar[3].arguments)
+			if _, ok := funcMap[yyDollar[1].str]; !ok {
+				lexer, _ := yylex.(*yylexer)
+				_context.addError(UndefinedFunctionError(lexer.lineno, lexer.column, yyDollar[1].str))
+				yyVAL.expr = ErrorExpression(_context, yyDollar[1].str)
+			} else {
+				yyVAL.expr = FunctionExpression(_context, yyDollar[1].str, yyDollar[3].arguments)
+			}
 		}
 	case 19:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:111
+		//line easylang.y:117
 		{
 			yyVAL.arguments = []expression{yyDollar[1].expr}
 		}
 	case 20:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:112
+		//line easylang.y:118
 		{
 			yyVAL.arguments = append(yyVAL.arguments, yyDollar[3].expr)
 		}
 	case 21:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:115
+		//line easylang.y:121
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 22:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line easylang.y:116
+		//line easylang.y:122
 		{
 			yyVAL.expr = UnaryExpression(_context, yyDollar[1].str, yyDollar[2].expr)
 		}
 	case 23:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line easylang.y:117
+		//line easylang.y:123
 		{
 			yyVAL.expr = UnaryExpression(_context, yyDollar[1].str, yyDollar[2].expr)
 		}
 	case 24:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:120
+		//line easylang.y:126
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 25:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:121
+		//line easylang.y:127
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 26:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:122
+		//line easylang.y:128
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 27:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:125
+		//line easylang.y:131
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 28:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:126
+		//line easylang.y:132
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 29:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:127
+		//line easylang.y:133
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 30:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:130
+		//line easylang.y:136
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 31:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:131
+		//line easylang.y:137
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 32:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:132
+		//line easylang.y:138
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 33:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:133
+		//line easylang.y:139
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 34:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:134
+		//line easylang.y:140
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 35:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:137
+		//line easylang.y:143
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 36:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:138
+		//line easylang.y:144
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 37:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:139
+		//line easylang.y:145
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 38:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:142
+		//line easylang.y:148
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 39:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:143
+		//line easylang.y:149
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}
 	case 40:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line easylang.y:146
+		//line easylang.y:152
 		{
 			yyVAL.expr = yyDollar[1].expr
 		}
 	case 41:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line easylang.y:147
+		//line easylang.y:153
 		{
 			yyVAL.expr = BinaryExpression(_context, yyDollar[2].str, yyDollar[1].expr, yyDollar[3].expr)
 		}

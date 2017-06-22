@@ -7,6 +7,8 @@ import (
     "log"
     "strconv"
     "bytes"
+	"unicode/utf8"
+	"fmt"
 )
 
 var keywords map[string]int = map[string]int{
@@ -22,6 +24,7 @@ type yylexer struct{
     current rune
 
     lineno  int
+    column  int
 }
 
 func addRune(b *bytes.Buffer, c rune) {
@@ -31,7 +34,7 @@ func addRune(b *bytes.Buffer, c rune) {
 }
 
 func newLexer(src *bufio.Reader) (y *yylexer) {
-    y = &yylexer{src: src, buf: &bytes.Buffer{}}
+    y = &yylexer{src: src, buf: &bytes.Buffer{}, lineno: 1, column: 0}
     if r, _, err := src.ReadRune(); err == nil {
         y.current = r
     }
@@ -50,7 +53,7 @@ func (y *yylexer) getc() rune {
 }
 
 func (y yylexer) Error(e string) {
-    log.Fatal(e)
+    fmt.Printf("Error: %s at %d:%d\n", e, y.lineno, y.column)
 }
 
 func (y *yylexer) Lex(lval *yySymType) int {
@@ -92,9 +95,18 @@ COMMA           ,
 SEMI            ;
 
 %%
+    y.column += utf8.RuneCount(y.buf.Bytes())
     y.buf.Reset()
 
-[ \t\r\n]+
+\r\n
+    y.lineno++
+    y.column = 0
+
+[\r\n]
+   y.lineno++
+   y.column = 0
+
+[ \t]+
 
 {IDENTIFIER}
     s := string(y.buf.Bytes())

@@ -29,6 +29,7 @@ type Context struct {
 	outputOtherDesc  []string
 
 	// TODO: Handle errors
+	errors []SyncError
 }
 
 func newContext() *Context {
@@ -36,6 +37,17 @@ func newContext() *Context {
 		paramMap:      map[string]expression{},
 		definedVarMap: map[string]expression{},
 	}
+}
+
+func (this *Context) addError(err SyncError) {
+	this.errors = append(this.errors, err)
+}
+
+func (this *Context) outputErrors() bool {
+	for _, err := range this.errors {
+		fmt.Println(err.String())
+	}
+	return len(this.errors) > 0
 }
 
 func (this *Context) newAnonymousVarName() string {
@@ -89,12 +101,12 @@ func (this *Context) addOutput(varName string, descriptions []string, line, colu
 }
 
 func (this *Context) defined(varName string) expression {
-	expr, _ := this.definedVarMap[varName]
+	expr, _ := this.definedVarMap[strings.ToLower(varName)]
 	return expr
 }
 
 func (this *Context) definedParam(varName string) expression {
-	expr, _ := this.paramMap[varName]
+	expr, _ := this.paramMap[strings.ToLower(varName)]
 	return expr
 }
 

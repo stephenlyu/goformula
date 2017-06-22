@@ -93,7 +93,8 @@ primary_expression: ID  {
                         } else if funcName, ok := noArgFuncMap[$1]; ok {
                             expr = FunctionExpression(_context, funcName, nil)
                         } else {
-                            // TODO: handle error
+                            lexer, _ := yylex.(*yylexer)
+                            _context.addError(UndefinedVarError(lexer.lineno, lexer.column, yyDollar[1].str))
                             expr = ErrorExpression(_context, $1)
                         }
                         $$ = expr
@@ -104,8 +105,13 @@ primary_expression: ID  {
 
 postfix_expression: primary_expression  { $$ = $1 }
                     | ID LPAREN argument_expression_list RPAREN {
-                        // TODO: handle error
-                        $$ = FunctionExpression(_context, $1, $3)
+                        if _, ok := funcMap[$1]; !ok {
+                            lexer, _ := yylex.(*yylexer)
+                            _context.addError(UndefinedFunctionError(lexer.lineno, lexer.column, yyDollar[1].str))
+                            $$ = ErrorExpression(_context, $1)
+                        } else {
+                            $$ = FunctionExpression(_context, $1, $3)
+                        }
                     }
 
 argument_expression_list: expression  { $$ = []expression{$1} }

@@ -4,7 +4,7 @@
 
 # blame: jnml, labs.nic.cz
 
-all: easylang.go tokenizer.go context.go expression.go
+all: easylang.go tokenizer.go context.go expression.go error.go
 	gofmt -l -s -w *.go
 	go build $^
 
