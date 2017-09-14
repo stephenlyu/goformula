@@ -25,7 +25,7 @@ func (this RVector) Get(index int) Record {
 	if index < 0 || index >= this.Len() {
 		panic(errors.New("index out of range"))
 	}
-	return &this.Values[index]
+	return this.Values[index]
 }
 
 func (this RVector) Set(index int, v Record) {
