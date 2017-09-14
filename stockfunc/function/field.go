@@ -36,7 +36,7 @@ type close struct {
 }
 
 func (this close) Get(index int) float64 {
-	return float64(this.data.Get(index).Close)
+	return float64(this.data.Get(index).GetClose())
 }
 
 func CLOSE(data *RVector) *close {
@@ -55,7 +55,7 @@ type open struct {
 }
 
 func (this open) Get(index int) float64 {
-	return float64(this.data.Get(index).Open)
+	return float64(this.data.Get(index).GetOpen())
 }
 
 func OPEN(data *RVector) *open {
@@ -74,7 +74,7 @@ type low struct {
 }
 
 func (this low) Get(index int) float64 {
-	return float64(this.data.Get(index).Low)
+	return float64(this.data.Get(index).GetLow())
 }
 
 func LOW(data *RVector) *low {
@@ -93,7 +93,7 @@ type high struct {
 }
 
 func (this high) Get(index int) float64 {
-	return float64(this.data.Get(index).High)
+	return float64(this.data.Get(index).GetHigh())
 }
 
 func HIGH(data *RVector) *high {
@@ -112,7 +112,7 @@ type amount struct {
 }
 
 func (this amount) Get(index int) float64 {
-	return float64(this.data.Get(index).Amount)
+	return float64(this.data.Get(index).GetAmount())
 }
 
 func AMOUNT(data *RVector) *amount {
@@ -131,7 +131,7 @@ type volume struct {
 }
 
 func (this volume) Get(index int) float64 {
-	return float64(this.data.Get(index).Volume)
+	return float64(this.data.Get(index).GetVolume())
 }
 
 func VOLUME(data *RVector) *volume {

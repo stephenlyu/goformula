@@ -49,7 +49,7 @@ var _ = Describe("EasyLangMACD", func() {
 		fmt.Println("macd.len:", len, "data len:", rv.Len())
 		for i := 0; i < len; i++ {
 			r := formula.Get(i)
-			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\t%.02f\t%.02f\n", rv.Get(i).Date, r[0], r[1], r[2], r[3], r[4])
+			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\t%.02f\t%.02f\n", rv.Get(i).GetDate(), r[0], r[1], r[2], r[3], r[4])
 		}
 
 		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, (time.Now().UnixNano() - start1) / 1000000, "ms")
