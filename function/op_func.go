@@ -138,7 +138,7 @@ type div struct {
 
 func (this div) BuildValueAt(index int) float64 {
 	if this.data1.Get(index) == 0 {
-		return 0
+		return NaN
 	}
 	return this.data.Get(index) / this.data1.Get(index)
 }

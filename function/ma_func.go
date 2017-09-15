@@ -14,7 +14,7 @@ type ma struct {
 func (this ma) BuildValueAt(index int) float64 {
 	n := int(this.N.Get(index))
 	if index < n -1 {
-		return 0
+		return NaN
 	}
 
 	end := index + 1
