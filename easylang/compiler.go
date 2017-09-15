@@ -17,6 +17,7 @@ func CompileFile(sourceFile string) (error, string) {
 	}
 	defer file.Close()
 
+	_context = newContext()
 	ret := yyParse(newLexer(bufio.NewReader(file)))
 	if ret == 1 {
 		return errors.New("compile failure"), ""

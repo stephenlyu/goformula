@@ -36,6 +36,7 @@ var noArgFuncMap = funcmap{
 	"H":      "HIGH",
 	"A":      "AMOUNT",
 	"V":      "VOLUME",
+	"VOL":    "VOLUME",
 	"CLOSE":  "CLOSE",
 	"OPEN":   "OPEN",
 	"LOW":    "LOW",
@@ -276,10 +277,11 @@ func FunctionExpression(context context, funcName string, arguments []expression
 			sa[i+1] = arg.VarName()
 		}
 		ret.displayName = strings.Join(sa, "_")
+		ret.varName = ret.formatVarName(ret.displayName)
 	} else {
 		ret.displayName = funcName
+		ret.varName = context.newAnonymousVarName()
 	}
-	ret.varName = ret.formatVarName(ret.displayName)
 
 	context.define(ret.varName, ret)
 	return ret
@@ -312,7 +314,7 @@ func AssignmentExpression(context context, varName string, operand expression) *
 	}
 	ret.varName = ret.formatVarName(ret.displayName)
 	if context.isDefined(ret.varName) {
-		panic("duplicate definition")
+		panic(fmt.Sprintf("duplicate definition %s", ret.varName))
 	}
 	context.define(ret.varName, ret)
 	return ret
@@ -337,7 +339,7 @@ func ParamExpression(context context, varName string, operand expression) *param
 	}
 	ret.varName = ret.formatVarName(ret.displayName)
 	if context.isParamDefined(ret.varName) {
-		panic("duplicate param")
+		panic(fmt.Sprintf("duplicate param %s", ret.varName))
 	}
 	context.defineParam(ret.varName, ret)
 	return ret

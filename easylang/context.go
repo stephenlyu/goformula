@@ -6,6 +6,7 @@ import (
 )
 
 type context interface {
+	newAnonymousVarName() string
 	define(varName string, expr expression)
 	defineParam(varName string, expr expression)
 	isDefined(varName string) bool
