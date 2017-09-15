@@ -31,23 +31,34 @@ var _ = Describe("EasyLangMACD", func() {
 		_, data := loadJson("data.json")
 		rv := function.RecordVector(data["300666"])
 
-		factory := stockfunc.NewFormulaFactory()
-		start := time.Now().UnixNano()
+		factory := stockfunc.NewFormulaFactory(false)
 
-		err, formula := factory.NewEasyLangFormula("MACD.d", rv, []float64{12, 26, 9})
-		if err != nil {
-			panic(err)
-		}
-		defer formula.Destroy()
-
-		start1 := time.Now().UnixNano()
-		len := formula.Len()
-		fmt.Println("macd.len:", len, "data len:", rv.Len())
-		for i := 0; i < len; i++ {
-			r := formula.Get(i)
-			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\t%.02f\t%.02f\n", rv.Get(i).GetDate(), r[0], r[1], r[2], r[3], r[4])
+		formulas := []string {"MACD.d", "MA.d", "VOL.d"}
+		args := [][]float64{
+			[]float64{12, 26, 9},
+			[]float64{5, 10, 20, 60},
+			[]float64{5, 10},
 		}
 
-		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, (time.Now().UnixNano() - start1) / 1000000, "ms")
+		for i, name := range formulas {
+			fmt.Println("Test formula", name, "...")
+			start := time.Now().UnixNano()
+
+			err, formula := factory.NewEasyLangFormula(name, rv, args[i])
+			if err != nil {
+				panic(err)
+			}
+			defer formula.Destroy()
+
+			start1 := time.Now().UnixNano()
+			len := formula.Len()
+			fmt.Println("formula.len:", len, "data len:", rv.Len())
+			for i := 0; i < len; i++ {
+				r := formula.Get(i)
+				fmt.Printf("%s %+v\n", rv.Get(i).GetDate(), r)
+			}
+
+			fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, (time.Now().UnixNano() - start1) / 1000000, "ms")
+		}
 	})
 })

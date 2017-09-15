@@ -14,7 +14,7 @@ var _ = Describe("LuaMACD", func() {
 
 		start := time.Now().UnixNano()
 
-		factory := stockfunc.NewFormulaFactory()
+		factory := stockfunc.NewFormulaFactory(false)
 
 		err, formula := factory.NewLuaFormula("macd.lua", rv, []float64{12, 26, 9})
 		if err != nil {
