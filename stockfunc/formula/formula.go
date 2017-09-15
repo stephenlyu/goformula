@@ -5,4 +5,6 @@ type Formula interface {
 	UpdateLastValue()
 	Get(index int) []float64
 	Ref(offset int) []float64
+
+	Destroy()
 }

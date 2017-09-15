@@ -1,20 +1,22 @@
 package test
 import (
 	. "github.com/onsi/ginkgo"
-	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
-	"github.com/stephenlyu/goformula/luafunc"
+	"github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
 	"time"
+	"github.com/stephenlyu/goformula/stockfunc"
 )
 
 var _ = Describe("LuaMACD", func() {
 	It("test", func () {
 		_, data := loadJson("data.json")
-		rv := stockfunc.RecordVector(data["300666"])
+		rv := function.RecordVector(data["300666"])
 
 		start := time.Now().UnixNano()
 
-		err, formula := luafunc.NewFormula("macd.lua", rv, []float64{12, 26, 9})
+		factory := stockfunc.NewFormulaFactory()
+
+		err, formula := factory.NewLuaFormula("macd.lua", rv, []float64{12, 26, 9})
 		if err != nil {
 			panic(err)
 		}

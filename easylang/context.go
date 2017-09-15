@@ -2,7 +2,6 @@ package easylang
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 )
 
@@ -178,7 +177,7 @@ func (this *Context) removeUnusedParams() {
 	}
 }
 
-func (this *Context) generateCode(name string, filePath string) error {
+func (this *Context) generateCode(name string) string {
 	name = strings.ToUpper(name)
 
 	this.removeUnusedParams()
@@ -232,5 +231,5 @@ FormulaClass = %sClass
 		this.getCodes("        "),
 		name)
 
-	return ioutil.WriteFile(filePath, []byte(code), 0666)
+	return code
 }

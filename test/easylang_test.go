@@ -2,10 +2,10 @@ package test
 import (
 	. "github.com/onsi/ginkgo"
 	"github.com/stephenlyu/goformula/easylang"
-	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
+	"github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
 	"time"
-	"github.com/stephenlyu/goformula/luafunc"
+	"github.com/stephenlyu/goformula/stockfunc"
 )
 
 var _ = Describe("Compile", func() {
@@ -29,16 +29,12 @@ var _ = Describe("Token", func() {
 var _ = Describe("EasyLangMACD", func() {
 	It("test", func () {
 		_, data := loadJson("data.json")
-		rv := stockfunc.RecordVector(data["300666"])
+		rv := function.RecordVector(data["300666"])
 
-		err := easylang.Compile("MACD.d", "output.lua")
-		if err != nil {
-			panic(err)
-		}
-
+		factory := stockfunc.NewFormulaFactory()
 		start := time.Now().UnixNano()
 
-		err, formula := luafunc.NewFormula("output.lua", rv, []float64{12, 26, 9})
+		err, formula := factory.NewEasyLangFormula("MACD.d", rv, []float64{12, 26, 9})
 		if err != nil {
 			panic(err)
 		}

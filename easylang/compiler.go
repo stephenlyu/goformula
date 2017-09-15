@@ -7,30 +7,38 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"io/ioutil"
 )
 
-func Compile(sourceFile string, destFile string) error {
+func CompileFile(sourceFile string) (error, string) {
 	file, err := os.Open(sourceFile)
 	if err != nil {
-		return err
+		return err, ""
 	}
 	defer file.Close()
 
 	ret := yyParse(newLexer(bufio.NewReader(file)))
 	if ret == 1 {
-		return errors.New("compile failure")
+		return errors.New("compile failure"), ""
 	}
 
 	if _context.outputErrors() {
-		return errors.New("compile failure")
+		return errors.New("compile failure"), ""
 	}
 
 	baseName := filepath.Base(sourceFile)
 	mainName := strings.Split(baseName, ".")[0]
 
-	err = _context.generateCode(mainName, destFile)
+	return nil, _context.generateCode(mainName)
+}
 
-	return nil
+func Compile(sourceFile string, destFile string) error {
+	err, code := CompileFile(sourceFile)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(destFile, []byte(code), 0666)
 }
 
 func Tokenizer(sourceFile string) error {

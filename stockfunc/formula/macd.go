@@ -86,3 +86,6 @@ func (this macd) Ref(offset int) []float64 {
 	index := this.data.Len() - 1 - offset
 	return this.Get(index)
 }
+
+func (this *macd) Destroy() {
+}

@@ -14,16 +14,7 @@ type LuaFormula struct {
 	refValues []function.Value
 }
 
-func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
-	L := luar.Init()
-
-	luar.Register(L, "", GetFunctionMap(luar.Map{}))
-
-	err := L.DoFile(luaFile)
-	if err != nil {
-		return err, nil
-	}
-
+func newFormulaByLuaState(L *lua.State, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
 	L.GetGlobal("FormulaClass")
 	L.GetField(-1, "new")
 	L.PushValue(-2)
@@ -46,6 +37,32 @@ func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error,
 	return nil, &LuaFormula{L: L, refValues: values}
 }
 
+func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+	L := luar.Init()
+
+	luar.Register(L, "", GetFunctionMap(luar.Map{}))
+
+	err := L.DoFile(luaFile)
+	if err != nil {
+		return err, nil
+	}
+
+	return newFormulaByLuaState(L, data, args)
+}
+
+func NewFormulaFromCode(luaCode string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+	L := luar.Init()
+
+	luar.Register(L, "", GetFunctionMap(luar.Map{}))
+
+	err := L.DoString(luaCode)
+	if err != nil {
+		return err, nil
+	}
+
+	return newFormulaByLuaState(L, data, args)
+}
+
 func (this *LuaFormula) Destroy() {
 	this.L.Close()
 }
@@ -59,7 +76,7 @@ func (this *LuaFormula) Len() int {
 	return ret
 }
 
-func (this *LuaFormula) UpdateLateValue() {
+func (this *LuaFormula) UpdateLastValue() {
 	this.L.GetField(-1, "updateLastValue")
 	this.L.PushValue(-2)
 	this.L.Call(1, 0)
