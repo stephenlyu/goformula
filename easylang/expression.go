@@ -326,16 +326,18 @@ func (this assignexpr) Codes() string {
 
 type paramexpr struct {
 	baseexpr
-	operand expression
+	defaultValue, min, max float64
 }
 
-func ParamExpression(context context, varName string, operand expression) *paramexpr {
+func ParamExpression(context context, varName string, defaultValue float64, min float64, max float64) *paramexpr {
 	ret := &paramexpr{
 		baseexpr: baseexpr{
 			context:     context,
 			displayName: varName,
 		},
-		operand: operand,
+		defaultValue: defaultValue,
+		min: min,
+		max: max,
 	}
 	ret.varName = ret.formatVarName(ret.displayName)
 	if context.isParamDefined(ret.varName) {

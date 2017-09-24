@@ -11,8 +11,6 @@ The Copyright License for the GNU Bison Manual can be found in the "fdl-1.3" fil
 
 %{
 
-// +build ignore
-
 package easylang
 
 var _context = newContext()
@@ -68,7 +66,9 @@ statement: ID EQUALS expression statement_suffix {
                 _context.addOutput($$.VarName(), $4, 0, 0)
            }
            | ID COLONEQUAL expression statement_suffix { $$ = AssignmentExpression(_context, $1, $3) }
-           | ID PARAMEQUAL expression statement_suffix { $$ = ParamExpression(_context, $1, $3) }
+           | ID PARAMEQUAL LPAREN NUM COMMA NUM COMMA NUM RPAREN SEMI {
+                $$ = ParamExpression(_context, $1, $4, $6, $8)
+           }
            | expression statement_suffix  {
                 varName := _context.newAnonymousVarName()
                 $$ = AssignmentExpression(_context, varName, $1)
@@ -94,7 +94,7 @@ primary_expression: ID  {
                             expr = FunctionExpression(_context, funcName, nil)
                         } else {
                             lexer, _ := yylex.(*yylexer)
-                            _context.addError(UndefinedVarError(lexer.lineno, lexer.column, yyDollar[1].str))
+                            _context.addError(UndefinedVarError(lexer.lineno, lexer.column, $1))
                             expr = ErrorExpression(_context, $1)
                         }
                         $$ = expr
@@ -107,7 +107,7 @@ postfix_expression: primary_expression  { $$ = $1 }
                     | ID LPAREN argument_expression_list RPAREN {
                         if _, ok := funcMap[$1]; !ok {
                             lexer, _ := yylex.(*yylexer)
-                            _context.addError(UndefinedFunctionError(lexer.lineno, lexer.column, yyDollar[1].str))
+                            _context.addError(UndefinedFunctionError(lexer.lineno, lexer.column, $1))
                             $$ = ErrorExpression(_context, $1)
                         } else {
                             $$ = FunctionExpression(_context, $1, $3)

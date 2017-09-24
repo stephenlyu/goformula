@@ -150,6 +150,15 @@ func (this *Context) refValuesCodes() string {
 	return strings.Join(items, ", ")
 }
 
+func (this *Context) varNames() string {
+	items := make([]string, len(this.outputVars))
+	for i, varName := range this.outputVars {
+		exp := this.definedVarMap[varName]
+		items[i] = fmt.Sprintf("'%s'", exp.DisplayName())
+	}
+	return strings.Join(items, ", ")
+}
+
 func (this *Context) getCodes(indent string) string {
 	lines := make([]string, len(this.outputVars))
 	for i, varName := range this.outputVars {
@@ -167,15 +176,25 @@ func (this *Context) paramCodes() string {
 	return strings.Join(sa, ", ")
 }
 
-func (this *Context) removeUnusedParams() {
-	for _, expr := range this.paramMap {
-		pExpr, _ := expr.(*paramexpr)
-		if pExpr.operand.RefCount() == 1 {
-			if _, ok := this.definedVarMap[pExpr.operand.VarName()]; ok {
-				delete(this.definedVarMap, pExpr.operand.VarName())
-			}
-		}
+func (this *Context) paramNames() string {
+	sa := make([]string, len(this.params))
+	for i, p := range this.params {
+		sa[i] = fmt.Sprintf("'%s'", p)
 	}
+	return strings.Join(sa, ", ")
+}
+
+func (this *Context) paramMetaData(name string) string {
+	sa := make([]string, len(this.params))
+	for i, p := range this.params {
+		exp := this.paramMap[p].(*paramexpr)
+		sa[i] = fmt.Sprintf("%sClass['%s'] = {%f, %f, %f}", name, p, exp.defaultValue, exp.min, exp.max)
+	}
+	return strings.Join(sa, "\n")
+}
+
+
+func (this *Context) removeUnusedParams() {
 }
 
 func (this *Context) generateCode(name string) string {
@@ -191,6 +210,13 @@ func (this *Context) generateCode(name string) string {
 
 %sClass = {}
 
+%sClass['name'] = '%s'
+%sClass['argName'] = {%s}
+%s
+%sClass['vars'] = {%s}
+%sClass['noDraw'] = {0, 0, 0}
+%sClass['color'] = {'', '', ''}
+%sClass['lineThick'] = {1, 1, 1}
 
 function %sClass:new(%s)
     o = {}
@@ -221,6 +247,16 @@ end
 
 FormulaClass = %sClass
 	`, name,
+		name,
+		name,
+		name,
+		this.paramNames(),
+		this.paramMetaData(name),
+		name,
+		this.varNames(),
+		name,
+		name,
+		name,
 		name,
 		this.paramCodes(),
 		this.definedCodes(indent),

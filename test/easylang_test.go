@@ -31,7 +31,7 @@ var _ = Describe("EasyLangMACD", func() {
 		_, data := loadJson("data.json")
 		rv := function.RecordVector(data["300666"])
 
-		factory := stockfunc.NewFormulaFactory(false)
+		factory := stockfunc.NewFormulaFactory(true)
 
 		formulas := []string {"MACD.d", "MA.d", "VOL.d"}
 		args := [][]float64{

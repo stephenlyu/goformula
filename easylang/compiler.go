@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"io/ioutil"
 )
 
 func CompileFile(sourceFile string) (error, string) {
