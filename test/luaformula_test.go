@@ -22,6 +22,15 @@ var _ = Describe("LuaMACD", func() {
 		}
 		defer formula.Destroy()
 
+		fmt.Println("Name:", formula.Name())
+		for i := 0; i < formula.ArgCount(); i++ {
+			min, max := formula.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", formula.ArgDefault(i), min, max)
+		}
+		for i := 0; i < formula.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %d lineThick: %d color: %s\n", formula.VarName(i), formula.NoDraw(i), formula.LineThick(i), formula.Color(i))
+		}
+
 		start1 := time.Now().UnixNano()
 		len := formula.Len()
 		fmt.Println("macd.len:", len, "data len:", rv.Len())

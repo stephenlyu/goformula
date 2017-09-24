@@ -22,6 +22,18 @@ type macd struct {
 	enter_short function.Value
 }
 
+var (
+	vars = []string{"DIF", "DEA", "MACD"}
+	colors = []string{"", "", ""}
+	noDraws = []int{0, 0, 0}
+	lineThicks = []int{1, 1,1}
+	args = [][]float64{
+		[]float64{12, 2, 200},
+		[]float64{26, 2, 200},
+		[]float64{9, 2, 200},
+	}
+)
+
 func MACD(data *stockfunc.RVector, short, long, mid function.Value) *macd {
 	if short == nil {
 		short = function.Scalar(12)
@@ -88,4 +100,67 @@ func (this macd) Ref(offset int) []float64 {
 }
 
 func (this *macd) Destroy() {
+}
+
+
+func (this *macd) Name() string {
+	return "MACD"
+}
+
+// 输出变量
+
+func (this *macd) VarCount() int {
+	return len(vars)
+}
+
+func (this *macd) VarName(index int) string {
+	if index < 0 || index >= len(vars) {
+		return ""
+	}
+	return vars[index]
+}
+
+func (this *macd) NoDraw(index int) int {
+	if index < 0 || index >= len(noDraws) {
+		return 0
+	}
+	return noDraws[index]
+}
+
+func (this *macd) Color(index int) string {
+	if index < 0 || index >= len(colors) {
+		return ""
+	}
+	return colors[index]
+}
+
+func (this *macd) LineThick(index int) int {
+	if index < 0 || index >= len(lineThicks) {
+		return 1
+	}
+	return lineThicks[index]
+}
+
+// 公式参数
+
+func (this *macd) ArgCount() int {
+	return len(args)
+}
+
+func (this *macd) ArgRange(index int) (float64, float64) {
+	if index < 0 || index >= len(args) {
+		return 0, 0
+	}
+	return args[index][1], args[index][2]
+}
+
+func (this *macd) ArgDefault(index int) float64 {
+	if index < 0 || index >= len(args) {
+		return 0
+	}
+	return args[index][0]
+}
+
+func (this *macd) DrawActions() []DrawAction {
+	return nil
 }

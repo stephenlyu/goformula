@@ -83,6 +83,16 @@ var _ = Describe("MACD", func() {
 		start := time.Now().UnixNano()
 
 		var macd formula.Formula = formula.MACD(rv, nil, nil, nil)
+
+		fmt.Println("Name:", macd.Name())
+		for i := 0; i < macd.ArgCount(); i++ {
+			min, max := macd.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", macd.ArgDefault(i), min, max)
+		}
+		for i := 0; i < macd.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %d lineThick: %d color: %s\n", macd.VarName(i), macd.NoDraw(i), macd.LineThick(i), macd.Color(i))
+		}
+
 		for i := 0; i < macd.Len(); i++ {
 			r := macd.Get(i)
 			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\t%.02f\t%.02f\n", rv.Get(i).GetDate(), r[0], r[1], r[2], r[3], r[4])

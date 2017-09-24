@@ -7,8 +7,18 @@
 --
 
 
-MACDClass = {}
+MACDClass = {
+}
 
+MACDClass['name'] = "MACD"
+MACDClass['argName'] = {'short', 'long', 'mid'}
+MACDClass['short'] = {12, 2, 200}
+MACDClass['long'] = {26, 2, 200}
+MACDClass['mid'] = {9, 2, 200}
+MACDClass['vars'] = {'DIF', 'DEA', 'MACD'}
+MACDClass['noDraw'] = {0, 0, 0}
+MACDClass['color'] = {'', '', ''}
+MACDClass['lineThick'] = {1, 1, 1}
 
 function MACDClass:new(data, short, long, mid)
     o = {}
@@ -32,6 +42,7 @@ function MACDClass:new(data, short, long, mid)
     o.enter_short = CROSS(o.dea, o.dif)
 
     o.ref_values = {o.dif, o.dea, o.macd, o.enter_long, o.enter_short}
+
     return o
 end
 
