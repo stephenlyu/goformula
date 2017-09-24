@@ -7,6 +7,9 @@ import (
 	"github.com/stephenlyu/goformula/function"
 	"errors"
 	"github.com/stephenlyu/goformula/stockfunc/formula"
+	"fmt"
+	"math"
+	"strings"
 )
 
 type Arg struct {
@@ -16,17 +19,18 @@ type Arg struct {
 }
 
 type LuaFormula struct {
-	L *lua.State
+	L          *lua.State
 
-	name string
-	ArgNames []string
-	Args []Arg
-	NoDraws []int
-	Colors []string
+	name       string
+	ArgNames   []string
+	ArgMeta    []Arg
+	NoDraws    []int
+	Colors     []string
 	LineThicks []int
-	Vars []string
+	Vars       []string
 
-	refValues []function.Value
+	args []float64
+	refValues  []function.Value
 }
 
 func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, noDraw []int, colors []string, lineThick []int, vars []string) {
@@ -99,12 +103,13 @@ func newFormulaByLuaState(L *lua.State, data *stockfunc.RVector, args []float64)
 
 		name: name,
 		ArgNames: argNames,
-		Args: argDefs,
+		ArgMeta: argDefs,
 		NoDraws: noDraw,
 		Colors: colors,
 		LineThicks: lineThick,
 		Vars: vars,
 
+		args: args,
 		refValues: values,
 	}
 }
@@ -170,7 +175,36 @@ func (this *LuaFormula) Ref(offset int) []float64 {
 }
 
 func (this *LuaFormula) Name() string {
-	return this.name
+	if len(this.ArgMeta) == 0 {
+		return this.name
+	}
+
+	formatValue := func (v float64) string {
+		if float64(int(v)) == v {
+			return fmt.Sprintf("%d", int(v))
+		}
+
+		n := math.Log(math.Abs(v))
+		switch {
+		case n > 4:
+			return fmt.Sprintf("%.0f", v)
+		case n == 3:
+			return fmt.Sprintf("%.1f", v)
+		case n > -2:
+			return fmt.Sprintf("%.2f", v)
+		case n == -3:
+			return fmt.Sprintf("%.3f", v)
+		default:
+			return fmt.Sprintf("%.4f", v)
+		}
+	}
+
+	items := make([]string, len(this.ArgMeta))
+	for i, arg := range this.args {
+		items[i] = fmt.Sprintf(formatValue(arg))
+	}
+
+	return fmt.Sprintf("%s(%s)", this.name, strings.Join(items, ", "))
 }
 
 // 输出变量
@@ -214,17 +248,17 @@ func (this *LuaFormula) ArgCount() int {
 }
 
 func (this *LuaFormula) ArgRange(index int) (float64, float64) {
-	if index < 0 || index >= len(this.Args) {
+	if index < 0 || index >= len(this.ArgMeta) {
 		return 0, 0
 	}
-	return this.Args[index].Min, this.Args[index].Max
+	return this.ArgMeta[index].Min, this.ArgMeta[index].Max
 }
 
 func (this *LuaFormula) ArgDefault(index int) float64 {
-	if index < 0 || index >= len(this.Args) {
+	if index < 0 || index >= len(this.ArgMeta) {
 		return 0
 	}
-	return this.Args[index].Default
+	return this.ArgMeta[index].Default
 }
 
 func (this *LuaFormula) DrawActions() []formula.DrawAction {
