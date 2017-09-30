@@ -336,8 +336,8 @@ func ParamExpression(context context, varName string, defaultValue float64, min 
 			displayName: varName,
 		},
 		defaultValue: defaultValue,
-		min: min,
-		max: max,
+		min:          min,
+		max:          max,
 	}
 	ret.varName = ret.formatVarName(ret.displayName)
 	if context.isParamDefined(ret.varName) {

@@ -24,16 +24,18 @@ type LuaFormula struct {
 	name       string
 	ArgNames   []string
 	ArgMeta    []Arg
-	NoDraws    []int
+	Flags    []int
 	Colors     []string
 	LineThicks []int
+	LineStyles []int
+	GraphTypes []int
 	Vars       []string
 
 	args []float64
 	refValues  []function.Value
 }
 
-func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, noDraw []int, colors []string, lineThick []int, vars []string) {
+func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, flags []int, colors []string, lineThick []int, lineStyles []int, graphTypes []int, vars []string) {
 	L.GetField(-1, "name")
 	luar.LuaToGo(L, -1, &name)
 	L.Pop(1)
@@ -56,8 +58,8 @@ func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, n
 		}
 	}
 
-	L.GetField(-1, "noDraw")
-	luar.LuaToGo(L, -1, &noDraw)
+	L.GetField(-1, "flags")
+	luar.LuaToGo(L, -1, &flags)
 	L.Pop(1)
 
 	L.GetField(-1, "colors")
@@ -66,6 +68,14 @@ func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, n
 
 	L.GetField(-1, "lineThick")
 	luar.LuaToGo(L, -1, &lineThick)
+	L.Pop(1)
+
+	L.GetField(-1, "lineStyle")
+	luar.LuaToGo(L, -1, &lineStyles)
+	L.Pop(1)
+
+	L.GetField(-1, "graphType")
+	luar.LuaToGo(L, -1, &graphTypes)
 	L.Pop(1)
 
 	L.GetField(-1, "vars")
@@ -78,7 +88,7 @@ func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, n
 func newFormulaByLuaState(L *lua.State, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
 	L.GetGlobal("FormulaClass")
 
-	name, argNames, argDefs, noDraw, colors, lineThick, vars := getFormulaDesc(L)
+	name, argNames, argDefs, flags, colors, lineThick, lineStyles, graphTypes, vars := getFormulaDesc(L)
 
 	L.GetField(-1, "new")
 	L.PushValue(-2)
@@ -104,9 +114,11 @@ func newFormulaByLuaState(L *lua.State, data *stockfunc.RVector, args []float64)
 		name: name,
 		ArgNames: argNames,
 		ArgMeta: argDefs,
-		NoDraws: noDraw,
+		Flags: flags,
 		Colors: colors,
 		LineThicks: lineThick,
+		LineStyles: lineStyles,
+		GraphTypes: graphTypes,
 		Vars: vars,
 
 		args: args,
@@ -220,11 +232,32 @@ func (this *LuaFormula) VarName(index int) string {
 	return this.Vars[index]
 }
 
-func (this *LuaFormula) NoDraw(index int) int {
-	if index < 0 || index >= len(this.NoDraws) {
-		return 0
+func (this *LuaFormula) NoDraw(index int) bool {
+	if index < 0 || index >= len(this.Flags) {
+		return false
 	}
-	return this.NoDraws[index]
+	return (this.Flags[index] & formula.FORMULA_VAR_FLAG_NO_DRAW) != 0
+}
+
+func (this *LuaFormula) NoText(index int) bool {
+	if index < 0 || index >= len(this.Flags) {
+		return false
+	}
+	return (this.Flags[index] & formula.FORMULA_VAR_FLAG_NO_TEXT) != 0
+}
+
+func (this *LuaFormula) DrawAbove(index int) bool {
+	if index < 0 || index >= len(this.Flags) {
+		return false
+	}
+	return this.Flags[index] & formula.FORMULA_VAR_FLAG_DRAW_ABOVE != 0
+}
+
+func (this *LuaFormula) NoFrame(index int) bool {
+	if index < 0 || index >= len(this.Flags) {
+		return false
+	}
+	return this.Flags[index] & formula.FORMULA_VAR_FLAG_NO_FRAME != 0
 }
 
 func (this *LuaFormula) Color(index int) string {
@@ -239,6 +272,20 @@ func (this *LuaFormula) LineThick(index int) int {
 		return 1
 	}
 	return this.LineThicks[index]
+}
+
+func (this *LuaFormula) LineStyle(index int) int {
+	if index < 0 || index >= len(this.LineStyles) {
+		return 1
+	}
+	return this.LineStyles[index]
+}
+
+func (this *LuaFormula) GraphType(index int) int {
+	if index < 0 || index >= len(this.GraphTypes) {
+		return 1
+	}
+	return this.GraphTypes[index]
 }
 
 // 公式参数

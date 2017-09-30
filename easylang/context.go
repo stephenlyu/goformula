@@ -2,6 +2,8 @@ package easylang
 
 import (
 	"fmt"
+	"github.com/stephenlyu/goformula/stockfunc/formula"
+	"strconv"
 	"strings"
 )
 
@@ -22,11 +24,11 @@ type Context struct {
 	definedVars   []string
 	definedVarMap map[string]expression
 
-	outputVars       []string
-	outputLineWidth  []int
-	outputColors     []string
-	outputLineStyles []string
-	outputOtherDesc  []string
+	outputVars         []string
+	outputDescriptions map[string][]string
+
+	notOutputVars         []string
+	notOutputDescriptions map[string][]string
 
 	// TODO: Handle errors
 	errors []SyncError
@@ -34,8 +36,10 @@ type Context struct {
 
 func newContext() *Context {
 	return &Context{
-		paramMap:      map[string]expression{},
-		definedVarMap: map[string]expression{},
+		paramMap:              map[string]expression{},
+		definedVarMap:         map[string]expression{},
+		outputDescriptions:    map[string][]string{},
+		notOutputDescriptions: map[string][]string{},
 	}
 }
 
@@ -98,6 +102,18 @@ func (this *Context) addOutput(varName string, descriptions []string, line, colu
 		}
 	}
 	this.outputVars = append(this.outputVars, varName)
+	this.outputDescriptions[varName] = descriptions
+}
+
+func (this *Context) addNotOutputVar(varName string, descriptions []string, line, column int) {
+	varName = strings.ToLower(varName)
+	for _, v := range this.notOutputVars {
+		if v == varName {
+			panic("duplicate output variable")
+		}
+	}
+	this.notOutputVars = append(this.notOutputVars, varName)
+	this.notOutputDescriptions[varName] = descriptions
 }
 
 func (this *Context) defined(varName string) expression {
@@ -159,6 +175,74 @@ func (this *Context) varNames() string {
 	return strings.Join(items, ", ")
 }
 
+func (this *Context) translateDescriptions(desciptions []string) (flag int, graphType int, lineThick int, color string, lineStyle int) {
+	flag = 0
+	graphType = formula.FORMULA_GRAPH_LINE
+	lineThick = 1
+	lineStyle = formula.FORMULA_LINE_STYLE_SOLID
+	color = ""
+
+	for _, desc := range desciptions {
+		switch {
+		case desc == "DRAWABOVE":
+			flag |= formula.FORMULA_VAR_FLAG_DRAW_ABOVE
+		case desc == "NOFRAME":
+			flag |= formula.FORMULA_VAR_FLAG_NO_FRAME
+		case desc == "NODRAW":
+			flag |= formula.FORMULA_VAR_FLAG_NO_DRAW
+		case desc == "NOTEXT":
+			flag |= formula.FORMULA_VAR_FLAG_NO_TEXT
+		case desc == "COLORSTICK":
+			graphType = formula.FORMULA_GRAPH_COLOR_STICK
+		case desc == "STICK":
+			graphType = formula.FORMULA_GRAPH_STICK
+		case desc == "LINESTICK":
+			graphType = formula.FORMULA_GRAPH_LINE_STICK
+		case desc == "VOLSTICK":
+			graphType = formula.FORMULA_GRAPH_VOL_STICK
+		case desc == "DOTLINE":
+			lineStyle = formula.FORMULA_LINE_STYLE_DOT
+		case desc == "CROSSDOT":
+			lineStyle = formula.FORMULA_LINE_STYLE_CROSS_DOT
+		case desc == "CIRCLEDOT":
+			lineStyle = formula.FORMULA_LINE_STYLE_CIRCLE_DOT
+		case desc == "POINTDOT":
+			lineStyle = formula.FORMULA_LINE_STYLE_POINT_DOT
+		case strings.HasPrefix(desc, "COLOR"):
+			color = desc
+		case strings.HasPrefix(desc, "LINETHICK"):
+			lineThick, _ = strconv.Atoi(desc[len("LINETHICK"):])
+		}
+	}
+	return
+}
+
+func (this *Context) varProperties() (flags string, graphTypes string, lineThicks string, colors string, lineStyles string) {
+	sFlags := make([]string, len(this.outputVars))
+	sGraphTypes := make([]string, len(this.outputVars))
+	sLineThicks := make([]string, len(this.outputVars))
+	sLineStyles := make([]string, len(this.outputVars))
+	sColors := make([]string, len(this.outputVars))
+
+	for i, varName := range this.outputVars {
+		descriptions := this.outputDescriptions[varName]
+		flag, graphType, lineThick, color, lineStyle := this.translateDescriptions(descriptions)
+
+		sFlags[i] = fmt.Sprintf("0x%08x", flag)
+		sGraphTypes[i] = fmt.Sprintf("%d", graphType)
+		sLineThicks[i] = fmt.Sprintf("%d", lineThick)
+		sColors[i] = fmt.Sprintf("'%s'", color)
+		sLineStyles[i] = fmt.Sprintf("%d", lineStyle)
+	}
+	flags = strings.Join(sFlags, ", ")
+	graphTypes = strings.Join(sGraphTypes, ", ")
+	lineThicks = strings.Join(sLineThicks, ", ")
+	colors = strings.Join(sColors, ", ")
+	lineStyles = strings.Join(sLineStyles, ", ")
+
+	return
+}
+
 func (this *Context) getCodes(indent string) string {
 	lines := make([]string, len(this.outputVars))
 	for i, varName := range this.outputVars {
@@ -193,7 +277,6 @@ func (this *Context) paramMetaData(name string) string {
 	return strings.Join(sa, "\n")
 }
 
-
 func (this *Context) removeUnusedParams() {
 }
 
@@ -201,6 +284,8 @@ func (this *Context) generateCode(name string) string {
 	name = strings.ToUpper(name)
 
 	this.removeUnusedParams()
+
+	flags, graphTypes, lineThicks, colors, lineStyles := this.varProperties()
 
 	const indent = "    "
 	code := fmt.Sprintf(`-----------------------------------------------------------
@@ -214,9 +299,11 @@ func (this *Context) generateCode(name string) string {
 %sClass['argName'] = {%s}
 %s
 %sClass['vars'] = {%s}
-%sClass['noDraw'] = {0, 0, 0}
-%sClass['color'] = {'', '', ''}
-%sClass['lineThick'] = {1, 1, 1}
+%sClass['flags'] = {%s}
+%sClass['color'] = {%s}
+%sClass['lineThick'] = {%s}
+%sClass['lineStyle'] = {%s}
+%sClass['graphType'] = {%s}
 
 function %sClass:new(%s)
     o = {}
@@ -255,8 +342,15 @@ FormulaClass = %sClass
 		name,
 		this.varNames(),
 		name,
+		flags,
 		name,
+		colors,
 		name,
+		lineThicks,
+		name,
+		lineStyles,
+		name,
+		graphTypes,
 		name,
 		this.paramCodes(),
 		this.definedCodes(indent),

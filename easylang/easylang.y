@@ -65,7 +65,10 @@ statement: ID EQUALS expression statement_suffix {
                 $$ = AssignmentExpression(_context, $1, $3)
                 _context.addOutput($$.VarName(), $4, 0, 0)
            }
-           | ID COLONEQUAL expression statement_suffix { $$ = AssignmentExpression(_context, $1, $3) }
+           | ID COLONEQUAL expression statement_suffix {
+                $$ = AssignmentExpression(_context, $1, $3)
+                _context.addNotOutputVar($$.VarName(), $4, 0, 0)
+           }
            | ID PARAMEQUAL LPAREN NUM COMMA NUM COMMA NUM RPAREN SEMI {
                 $$ = ParamExpression(_context, $1, $4, $6, $8)
            }

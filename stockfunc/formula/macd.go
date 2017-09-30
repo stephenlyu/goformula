@@ -25,8 +25,10 @@ type macd struct {
 var (
 	vars = []string{"DIF", "DEA", "MACD"}
 	colors = []string{"", "", ""}
-	noDraws = []int{0, 0, 0}
+	flags = []int{0, 0, 0}
 	lineThicks = []int{1, 1,1}
+	lineStyles = []int{FORMULA_LINE_STYLE_SOLID, FORMULA_LINE_STYLE_SOLID, FORMULA_LINE_STYLE_SOLID}
+	graphTypes = []int{FORMULA_GRAPH_LINE, FORMULA_GRAPH_LINE, FORMULA_GRAPH_COLOR_STICK}
 	args = [][]float64{
 		[]float64{12, 2, 200},
 		[]float64{26, 2, 200},
@@ -120,12 +122,34 @@ func (this *macd) VarName(index int) string {
 	return vars[index]
 }
 
-func (this *macd) NoDraw(index int) int {
-	if index < 0 || index >= len(noDraws) {
-		return 0
+func (this *macd) NoDraw(index int) bool {
+	if index < 0 || index >= len(flags) {
+		return false
 	}
-	return noDraws[index]
+	return (flags[index] & FORMULA_VAR_FLAG_NO_DRAW) != 0
 }
+
+func (this *macd) NoText(index int) bool {
+	if index < 0 || index >= len(flags) {
+		return false
+	}
+	return (flags[index] & FORMULA_VAR_FLAG_NO_TEXT) != 0
+}
+
+func (this *macd) DrawAbove(index int) bool {
+	if index < 0 || index >= len(flags) {
+		return false
+	}
+	return flags[index] & FORMULA_VAR_FLAG_DRAW_ABOVE != 0
+}
+
+func (this *macd) NoFrame(index int) bool {
+	if index < 0 || index >= len(flags) {
+		return false
+	}
+	return flags[index] & FORMULA_VAR_FLAG_NO_FRAME != 0
+}
+
 
 func (this *macd) Color(index int) string {
 	if index < 0 || index >= len(colors) {
@@ -139,6 +163,20 @@ func (this *macd) LineThick(index int) int {
 		return 1
 	}
 	return lineThicks[index]
+}
+
+func (this *macd) LineStyle(index int) int {
+	if index < 0 || index >= len(lineStyles) {
+		return 1
+	}
+	return lineStyles[index]
+}
+
+func (this *macd) GraphType(index int) int {
+	if index < 0 || index >= len(graphTypes) {
+		return 1
+	}
+	return graphTypes[index]
 }
 
 // 公式参数

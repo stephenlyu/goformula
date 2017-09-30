@@ -526,6 +526,7 @@ yynewstate:
 	case 5:
 		{
 			yyVAL.expr = AssignmentExpression(_context, yyS[yypt-3].str, yyS[yypt-1].expr)
+			_context.addNotOutputVar(yyVAL.expr.VarName(), yyS[yypt-0].descriptions, 0, 0)
 		}
 	case 6:
 		{

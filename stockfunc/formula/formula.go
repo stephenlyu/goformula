@@ -2,10 +2,29 @@ package formula
 
 const (
 	FORMULA_VAR_FLAG_NO_DRAW = 1
+	FORMULA_VAR_FLAG_NO_TEXT = 2
+	FORMULA_VAR_FLAG_DRAW_ABOVE = 4
+	FORMULA_VAR_FLAG_NO_FRAME = 8
 )
 
 const (
 	FORMULA_NO_COLOR = ""
+)
+
+const (
+	FORMULA_GRAPH_LINE = iota
+	FORMULA_GRAPH_COLOR_STICK
+	FORMULA_GRAPH_STICK
+	FORMULA_GRAPH_VOL_STICK
+	FORMULA_GRAPH_LINE_STICK
+)
+
+const (
+	FORMULA_LINE_STYLE_SOLID = iota
+	FORMULA_LINE_STYLE_DOT
+	FORMULA_LINE_STYLE_CROSS_DOT
+	FORMULA_LINE_STYLE_CIRCLE_DOT
+	FORMULA_LINE_STYLE_POINT_DOT
 )
 
 type DrawAction interface {
@@ -72,9 +91,14 @@ type Formula interface {
 	// 输出变量
 	VarCount() int
 	VarName(index int) string					// Ref变量名列表
-	NoDraw(index int) int 						// 是否绘制
+	NoDraw(index int) bool 						// 是否绘制图形
+	NoText(index int) bool 						// 是否绘制文本
+	DrawAbove(index int) bool
+	NoFrame(index int) bool
 	Color(index int) string						// 变量颜色, 形如black或FFFFFF
 	LineThick(index int) int 					// 线宽，1-9
+	LineStyle(index int) int 					// 线宽，1-9
+	GraphType(index int) int
 
 	// 公式参数
 	ArgCount() int
