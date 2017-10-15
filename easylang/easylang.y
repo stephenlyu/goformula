@@ -82,8 +82,20 @@ statement: ID EQUALS expression statement_suffix {
 statement_suffix: SEMI {}
                   | graph_description_list SEMI { $$ = $1 }
 
-graph_description_list: COMMA graph_description { $$ = append($$, $2) }
-                        | graph_description_list COMMA graph_description { $$ = append($1, $3) }
+graph_description_list: COMMA graph_description {
+                            if !IsValidDescription($2) {
+                                lexer, _ := yylex.(*yylexer)
+                                _context.addError(BadGraphDescError(lexer.lineno, lexer.column, $2))
+                            }
+                            $$ = append($$, $2)
+                        }
+                        | graph_description_list COMMA graph_description {
+                            if !IsValidDescription($3) {
+                                lexer, _ := yylex.(*yylexer)
+                                _context.addError(BadGraphDescError(lexer.lineno, lexer.column, $3))
+                            }
+                            $$ = append($1, $3)
+                        }
 
 graph_description : ID  { $$ = $1 }
 

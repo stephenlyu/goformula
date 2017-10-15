@@ -231,7 +231,12 @@ func (this *Context) varProperties() (flags string, graphTypes string, lineThick
 		sFlags[i] = fmt.Sprintf("0x%08x", flag)
 		sGraphTypes[i] = fmt.Sprintf("%d", graphType)
 		sLineThicks[i] = fmt.Sprintf("%d", lineThick)
-		sColors[i] = fmt.Sprintf("'%s'", color)
+		if color == "" {
+			sColors[i] = fmt.Sprintf("{Red=-1, Green=-1, Blue=-1}")
+		} else {
+			colorObject := ParseColorLiteral(color)
+			sColors[i] = fmt.Sprintf("{Red=%d, Green=%d, Blue=%d}", colorObject.Red, colorObject.Green, colorObject.Blue)
+		}
 		sLineStyles[i] = fmt.Sprintf("%d", lineStyle)
 	}
 	flags = strings.Join(sFlags, ", ")

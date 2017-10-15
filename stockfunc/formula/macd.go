@@ -24,7 +24,7 @@ type macd struct {
 
 var (
 	vars = []string{"DIF", "DEA", "MACD"}
-	colors = []string{"", "", ""}
+	colors = []*Color{nil, nil, nil}
 	flags = []int{0, 0, 0}
 	lineThicks = []int{1, 1,1}
 	lineStyles = []int{FORMULA_LINE_STYLE_SOLID, FORMULA_LINE_STYLE_SOLID, FORMULA_LINE_STYLE_SOLID}
@@ -151,9 +151,9 @@ func (this *macd) NoFrame(index int) bool {
 }
 
 
-func (this *macd) Color(index int) string {
+func (this *macd) Color(index int) *Color {
 	if index < 0 || index >= len(colors) {
-		return ""
+		return nil
 	}
 	return colors[index]
 }

@@ -8,10 +8,6 @@ const (
 )
 
 const (
-	FORMULA_NO_COLOR = ""
-)
-
-const (
 	FORMULA_GRAPH_LINE = iota
 	FORMULA_GRAPH_COLOR_STICK
 	FORMULA_GRAPH_STICK
@@ -27,8 +23,14 @@ const (
 	FORMULA_LINE_STYLE_POINT_DOT
 )
 
+type Color struct {
+	Red int
+	Green int
+	Blue int
+}
+
 type DrawAction interface {
-	Color() string
+	Color() *Color
 	LineThick() int
 	NoDraw() bool
 }
@@ -95,7 +97,7 @@ type Formula interface {
 	NoText(index int) bool 						// 是否绘制文本
 	DrawAbove(index int) bool
 	NoFrame(index int) bool
-	Color(index int) string						// 变量颜色, 形如black或FFFFFF
+	Color(index int) *Color						// 变量颜色
 	LineThick(index int) int 					// 线宽，1-9
 	LineStyle(index int) int 					// 线宽，1-9
 	GraphType(index int) int

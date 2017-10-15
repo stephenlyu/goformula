@@ -17,7 +17,7 @@ MACDClass['long'] = {26, 2, 200}
 MACDClass['mid'] = {9, 2, 200}
 MACDClass['vars'] = {'DIF', 'DEA', 'MACD'}
 MACDClass['noDraw'] = {0, 0, 0}
-MACDClass['color'] = {'', '', ''}
+MACDClass['color'] = {{Red=255, Green=255, Blue=255}, {}, {}}
 MACDClass['lineThick'] = {1, 1, 1}
 
 function MACDClass:new(data, short, long, mid)

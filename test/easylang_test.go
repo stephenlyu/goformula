@@ -49,6 +49,9 @@ var _ = Describe("EasyLangMACD", func() {
 				panic(err)
 			}
 			defer formula.Destroy()
+			for i := 0; i < formula.VarCount(); i++ {
+				fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", formula.VarName(i), formula.NoDraw(i), formula.LineThick(i), formula.Color(i))
+			}
 
 			start1 := time.Now().UnixNano()
 			len := formula.Len()

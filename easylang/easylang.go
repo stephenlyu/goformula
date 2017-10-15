@@ -544,10 +544,18 @@ yynewstate:
 		}
 	case 10:
 		{
+			if !IsValidDescription(yyS[yypt-0].str) {
+				lexer, _ := yylex.(*yylexer)
+				_context.addError(BadGraphDescError(lexer.lineno, lexer.column, yyS[yypt-0].str))
+			}
 			yyVAL.descriptions = append(yyVAL.descriptions, yyS[yypt-0].str)
 		}
 	case 11:
 		{
+			if !IsValidDescription(yyS[yypt-0].str) {
+				lexer, _ := yylex.(*yylexer)
+				_context.addError(BadGraphDescError(lexer.lineno, lexer.column, yyS[yypt-0].str))
+			}
 			yyVAL.descriptions = append(yyS[yypt-2].descriptions, yyS[yypt-0].str)
 		}
 	case 12:

@@ -25,7 +25,7 @@ type LuaFormula struct {
 	ArgNames   []string
 	ArgMeta    []Arg
 	Flags    []int
-	Colors     []string
+	Colors     []*formula.Color
 	LineThicks []int
 	LineStyles []int
 	GraphTypes []int
@@ -35,7 +35,7 @@ type LuaFormula struct {
 	refValues  []function.Value
 }
 
-func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, flags []int, colors []string, lineThick []int, lineStyles []int, graphTypes []int, vars []string) {
+func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, flags []int, colors []*formula.Color, lineThick []int, lineStyles []int, graphTypes []int, vars []string) {
 	L.GetField(-1, "name")
 	luar.LuaToGo(L, -1, &name)
 	L.Pop(1)
@@ -62,8 +62,13 @@ func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, f
 	luar.LuaToGo(L, -1, &flags)
 	L.Pop(1)
 
-	L.GetField(-1, "colors")
+	L.GetField(-1, "color")
 	luar.LuaToGo(L, -1, &colors)
+	for i, color := range colors {
+		if color.Red == - 1 {
+			colors[i] = nil
+		}
+	}
 	L.Pop(1)
 
 	L.GetField(-1, "lineThick")
@@ -260,9 +265,9 @@ func (this *LuaFormula) NoFrame(index int) bool {
 	return this.Flags[index] & formula.FORMULA_VAR_FLAG_NO_FRAME != 0
 }
 
-func (this *LuaFormula) Color(index int) string {
+func (this *LuaFormula) Color(index int) *formula.Color {
 	if index < 0 || index >= len(this.Colors) {
-		return ""
+		return nil
 	}
 	return this.Colors[index]
 }
