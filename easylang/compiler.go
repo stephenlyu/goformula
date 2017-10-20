@@ -27,6 +27,8 @@ func CompileFile(sourceFile string) (error, string) {
 		return errors.New("compile failure"), ""
 	}
 
+	_context.Epilog()
+
 	baseName := filepath.Base(sourceFile)
 	mainName := strings.Split(baseName, ".")[0]
 

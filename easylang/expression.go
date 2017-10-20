@@ -82,14 +82,28 @@ var funcMap = funcmap{
 	"STICKLINE":	"STICKLINE",
 }
 
+var voidFuncMap = map[string]bool {
+	"DRAWTEXT":  	true,
+	"DRAWICON":		true,
+	"DRAWKLINE": 	true,
+	"STICKLINE":	true,
+}
+
 var (
 	CONST_SEQ = 1
+	STRING_SEQ = 1
 	VAR_SEQ   = 1
 )
 
 func newConstName() string {
 	ret := fmt.Sprintf("const%d", CONST_SEQ)
 	CONST_SEQ++
+	return ret
+}
+
+func newStringName() string {
+	ret := fmt.Sprintf("string%d", STRING_SEQ)
+	STRING_SEQ++
 	return ret
 }
 
@@ -106,6 +120,9 @@ type expression interface {
 	RefCount() int
 	VarName() string
 	DisplayName() string
+
+	IsVoid() bool				// DRAWTEXT等没有返回值
+	IsValid() bool 				// 如果一个表达式的子表示IsVoid()或者!IsValid()，则该表达式不合法。不合法的表达式再生成代码过程中会被忽略
 }
 
 type baseexpr struct {
@@ -176,6 +193,14 @@ func (this *baseexpr) RefCount() int {
 	return this.refCount
 }
 
+func (this *baseexpr) IsVoid() bool {
+	return false
+}
+
+func (this *baseexpr) IsValid() bool {
+	return true
+}
+
 type constantexpr struct {
 	baseexpr
 	value float64
@@ -207,7 +232,7 @@ func StringExpression(context context, value string) *stringexpr {
 	ret := &stringexpr{
 		baseexpr: baseexpr{
 			context: context,
-			varName: newConstName(),
+			varName: newStringName(),
 		},
 		value: value,
 	}
@@ -251,6 +276,10 @@ func (this unaryexpr) Codes() string {
 	return fmt.Sprintf("%s(o.%s)", funcName, this.operand.VarName())
 }
 
+func (this *unaryexpr) IsValid() bool {
+	return this.operand.IsValid() && !this.operand.IsVoid()
+}
+
 type binaryexpr struct {
 	baseexpr
 	operator     string
@@ -282,6 +311,10 @@ func BinaryExpression(context context, operator string, leftOperand, rightOperan
 func (this binaryexpr) Codes() string {
 	funcName, _ := binaryFuncMap[this.operator]
 	return fmt.Sprintf("%s(o.%s, o.%s)", funcName, this.leftOperand.VarName(), this.rightOperand.VarName())
+}
+
+func (this *binaryexpr) IsValid() bool {
+	return this.leftOperand.IsValid() && !this.leftOperand.IsVoid() && this.rightOperand.IsValid() && !this.rightOperand.IsVoid()
 }
 
 type functionexpr struct {
@@ -328,6 +361,19 @@ func (this functionexpr) Codes() string {
 	}
 }
 
+func (this functionexpr) IsVoid() bool {
+	return voidFuncMap[this.funcName]
+}
+
+func (this *functionexpr) IsValid() bool {
+	for _, e := range this.arguments {
+		if !e.IsValid() || e.IsVoid() {
+			return false
+		}
+	}
+	return true
+}
+
 type assignexpr struct {
 	baseexpr
 	operand expression
@@ -351,6 +397,10 @@ func AssignmentExpression(context context, varName string, operand expression) *
 
 func (this assignexpr) Codes() string {
 	return fmt.Sprintf("o.%s", this.operand.VarName())
+}
+
+func (this assignexpr) IsValid() bool {
+	return this.operand.IsValid() && !this.operand.IsVoid()
 }
 
 type paramexpr struct {

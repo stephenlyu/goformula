@@ -127,15 +127,20 @@ func (this *Context) definedParam(varName string) expression {
 }
 
 func (this *Context) definedCodes(indent string) string {
-	lines := make([]string, len(this.definedVarMap))
-	i := 0
+	var lines []string
 	for _, varName := range this.definedVars {
 		expr, ok := this.definedVarMap[varName]
 		if !ok {
 			continue
 		}
-		lines[i] = fmt.Sprintf("%so.%s = %s", indent, varName, expr.Codes())
-		i++
+		if !expr.IsValid() {
+			continue
+		}
+		if expr.IsVoid() {
+			lines = append(lines, fmt.Sprintf("%s%s", indent, expr.Codes()))
+		} else {
+			lines = append(lines, fmt.Sprintf("%so.%s = %s", indent, varName, expr.Codes()))
+		}
 	}
 	return strings.Join(lines, "\n")
 }
@@ -153,6 +158,9 @@ func (this *Context) updateLastValueCodes(indent string) string {
 		case *paramexpr:
 		case *stringexpr:
 		default:
+			if !expr.IsValid() || expr.IsVoid() {
+				continue
+			}
 			lines = append(lines, fmt.Sprintf("%so.%s.updateLastValue()", indent, varName))
 		}
 	}
@@ -284,6 +292,18 @@ func (this *Context) paramMetaData(name string) string {
 }
 
 func (this *Context) removeUnusedParams() {
+}
+
+func (this *Context) Epilog() {
+	var outputVars []string
+	for _, varName := range this.outputVars {
+		exp := this.definedVarMap[varName]
+		if !exp.IsValid() {
+			continue
+		}
+		outputVars = append(outputVars, varName)
+	}
+	this.outputVars = outputVars
 }
 
 func (this *Context) generateCode(name string) string {
