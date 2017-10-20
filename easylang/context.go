@@ -11,6 +11,7 @@ type context interface {
 	newAnonymousVarName() string
 	define(varName string, expr expression)
 	defineParam(varName string, expr expression)
+	addDrawFunction(expr *functionexpr)
 	isDefined(varName string) bool
 	isParamDefined(varName string) bool
 }
@@ -29,6 +30,8 @@ type Context struct {
 
 	notOutputVars         []string
 	notOutputDescriptions map[string][]string
+
+	drawFunctions		  []*functionexpr
 
 	// TODO: Handle errors
 	errors []SyncError
@@ -126,6 +129,10 @@ func (this *Context) definedParam(varName string) expression {
 	return expr
 }
 
+func (this *Context) addDrawFunction(expr *functionexpr) {
+	this.drawFunctions = append(this.drawFunctions, expr)
+}
+
 func (this *Context) definedCodes(indent string) string {
 	var lines []string
 	for _, varName := range this.definedVars {
@@ -137,7 +144,7 @@ func (this *Context) definedCodes(indent string) string {
 			continue
 		}
 		if expr.IsVoid() {
-			lines = append(lines, fmt.Sprintf("%s%s", indent, expr.Codes()))
+			// DO NOTHING
 		} else {
 			lines = append(lines, fmt.Sprintf("%so.%s = %s", indent, varName, expr.Codes()))
 		}
@@ -257,6 +264,160 @@ func (this *Context) varProperties() (flags string, graphTypes string, lineThick
 	return
 }
 
+//o.drawTextActions = {
+//{Cond=o.__anonymous_0_div___anonymous_1_gt_const1, Price=o.__anonymous_2, Text=o.string1, Color={Red=-1, Green=-1, Blue=-1}, NoDraw=0}
+//}
+//
+//o.drawIconActions = {
+//{Cond=o.__anonymous_19_gt___anonymous_20, Price=o.__anonymous_21, Type=o.const8, NoDraw=0}
+//}
+//
+//o.drawLineActions = {
+//{Cond1=o.__anonymous_3_ge_hhv___anonymous_4_const2, Price1=o.__anonymous_5, Cond2=o.__anonymous_6_le_llv___anonymous_7_const3, Price2=o.__anonymous_8, Expand=o.const4, NoDraw=0, Color={Red=-1, Green=-1, Blue=-1}, LineThick=1}
+//}
+//
+//o.drawKLineActions = {
+//{High=o.__anonymous_23, Open=o.__anonymous_24, Low=o.__anonymous_25, Close=o.__anonymous_26, NoDraw=0}
+//}
+//
+//o.stickLineActions = {
+//{Cond=o.__anonymous_14_gt___anonymous_15, Price1=o.__anonymous_16, Price2=o.__anonymous_17, Width=o.const6, Empty=o.const7, NoDraw=0, Color={Red=-1, Green=-1, Blue=-1}, LineThick=1}
+//}
+//
+//o.ployLineActions = {
+//{Cond=o.__anonymous_10_ge_hhv___anonymous_11_const5, Price=o.__anonymous_12, NoDraw=0, Color={Red=-1, Green=-1, Blue=-1}, LineThick=1}
+//}
+func (this *Context) drawFunctionCodes() string {
+	var drawTexts []string
+	var drawIcons []string
+	var drawLines []string
+	var drawKLines []string
+	var stickLines []string
+	var ployLines []string
+
+	relatedDescriptions := func (expr expression) []string {
+		for varName := range this.outputDescriptions {
+			iExpr := this.definedVarMap[varName]
+			aExpr, ok := iExpr.(*assignexpr)
+			if !ok {
+				continue
+			}
+			if aExpr.operand == expr {
+				return this.outputDescriptions[varName]
+			}
+		}
+
+		for varName := range this.notOutputDescriptions {
+			expr := this.definedVarMap[varName]
+			aExpr, ok := expr.(*assignexpr)
+			if !ok {
+				continue
+			}
+
+			if aExpr.operand == expr {
+				return this.notOutputDescriptions[varName]
+			}
+		}
+		return []string{}
+	}
+
+	for _, expr := range this.drawFunctions {
+		descriptions := relatedDescriptions(expr)
+		flag, _, lineThick, colorStr, _ := this.translateDescriptions(descriptions)
+
+		var color *formula.Color
+		if colorStr == "" {
+			color = &formula.Color{Red: -1, Green: - 1, Blue: -1}
+		} else {
+			color = ParseColorLiteral(colorStr)
+		}
+
+		var noDraw int
+		if flag & formula.FORMULA_VAR_FLAG_NO_DRAW != 0 {
+			noDraw = 1
+		}
+
+		switch expr.funcName {
+		case "DRAWTEXT":
+			drawTexts = append(drawTexts, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Text=o.%s, Color={Red=%d, Green=%d, Blue=%d}, NoDraw=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				color.Red, color.Green, color.Green,
+				noDraw))
+		case "DRAWICON":
+			drawIcons = append(drawIcons, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Type=o.%s, NoDraw=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				noDraw))
+		case "DRAWLINE":
+			drawLines = append(drawLines, fmt.Sprintf("        {Cond1=o.%s, Price1=o.%s, Cond1=o.%s, Price1=o.%s, Expand=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				expr.arguments[3].VarName(),
+				expr.arguments[4].VarName(),
+				noDraw,
+				color.Red, color.Green, color.Green,
+				lineThick))
+		case "DRAWKLINE":
+			drawKLines = append(drawKLines, fmt.Sprintf("        {High=o.%s, Open=o.%s, Low=o.%s, Close=o.%s, NoDraw=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				expr.arguments[3].VarName(),
+				noDraw))
+		case "STICKLINE":
+			stickLines = append(stickLines, fmt.Sprintf("        {Cond=o.%s, Price1=o.%s, Price2=o.%s, Width=o.%s, Empty=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				expr.arguments[3].VarName(),
+				expr.arguments[4].VarName(),
+				noDraw,
+				color.Red, color.Green, color.Green,
+				lineThick))
+		case "PLOYLINE":
+			ployLines = append(ployLines, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				noDraw,
+				color.Red, color.Green, color.Green,
+				lineThick))
+		}
+	}
+
+	return fmt.Sprintf(`    o.drawTextActions = {
+%s
+    }
+
+    o.drawIconActions = {
+%s
+    }
+
+    o.drawLineActions = {
+%s
+    }
+
+    o.drawKLineActions = {
+%s
+    }
+
+    o.stickLineActions = {
+%s
+    }
+
+    o.ployLineActions = {
+%s
+    }`, strings.Join(drawTexts, ",\n"),
+		strings.Join(drawIcons, ",\n"),
+		strings.Join(drawLines, ",\n"),
+		strings.Join(drawKLines, ",\n"),
+		strings.Join(stickLines, ",\n"),
+		strings.Join(ployLines, ",\n"))
+}
+
 func (this *Context) getCodes(indent string) string {
 	lines := make([]string, len(this.outputVars))
 	for i, varName := range this.outputVars {
@@ -339,6 +500,8 @@ function %sClass:new(%s)
     o.data = data
 %s
 
+%s
+
     o.ref_values = {%s}
     return o
 end
@@ -380,6 +543,7 @@ FormulaClass = %sClass
 		name,
 		this.paramCodes(),
 		this.definedCodes(indent),
+		this.drawFunctionCodes(),
 		this.refValuesCodes(),
 		name,
 		this.updateLastValueCodes(indent),
