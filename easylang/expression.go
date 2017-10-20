@@ -49,30 +49,37 @@ var noArgFuncMap = funcmap{
 }
 
 var funcMap = funcmap{
-	"REF":       "REF",
-	"BARSCOUNT": "BARSCOUNT",
-	"BARSLAST":  "BARSLAST",
-	"HHV":       "HHV",
-	"LLV":       "LLV",
-	"HHVBARS":   "HHVBARS",
-	"LLVBARS":   "LLVBARS",
-	"ROUND2":    "ROUND2",
-	"DRAWLINE":  "DRAWLINE",
-	"IF":        "IF",
-	"EMA":       "EMA",
-	"MA":        "MA",
-	"SMA":       "SMA",
-	"DMA":       "DMA",
-	"EXPMEMA":   "EXPMEMA",
-	"COUNT":     "COUNT",
-	"EVERY":     "EVERY",
-	"CROSS":     "CROSS",
-	"MIN":       "MIN",
-	"MAX":       "MAX",
-	"ABS":       "ABS",
-	"AVEDEV":    "AVEDEV",
-	"STD":       "STD",
-	"SUM":       "SUM",
+	"REF":       	"REF",
+	"BARSCOUNT": 	"BARSCOUNT",
+	"BARSLAST":  	"BARSLAST",
+	"HHV":       	"HHV",
+	"LLV":       	"LLV",
+	"HHVBARS":   	"HHVBARS",
+	"LLVBARS":   	"LLVBARS",
+	"ROUND2":    	"ROUND2",
+	"IF":        	"IF",
+	"EMA":       	"EMA",
+	"MA":        	"MA",
+	"SMA":       	"SMA",
+	"DMA":       	"DMA",
+	"EXPMEMA":   	"EXPMEMA",
+	"COUNT":     	"COUNT",
+	"EVERY":     	"EVERY",
+	"CROSS":     	"CROSS",
+	"MIN":       	"MIN",
+	"MAX":       	"MAX",
+	"ABS":       	"ABS",
+	"AVEDEV":    	"AVEDEV",
+	"STD":       	"STD",
+	"SUM":       	"SUM",
+
+	// 绘制函数
+	"DRAWTEXT":  	"DRAWTEXT",
+	"DRAWLINE":		"DRAWLINE",
+	"PLOYLINE":		"PLOYLINE",
+	"DRAWICON":		"DRAWICON",
+	"DRAWKLINE": 	"DRAWKLINE",
+	"STICKLINE":	"STICKLINE",
 }
 
 var (
@@ -189,6 +196,28 @@ func ConstantExpression(context context, value float64) *constantexpr {
 
 func (this constantexpr) Codes() string {
 	return fmt.Sprintf("Scalar(%f)", this.value)
+}
+
+type stringexpr struct {
+	baseexpr
+	value string
+}
+
+func StringExpression(context context, value string) *stringexpr {
+	ret := &stringexpr{
+		baseexpr: baseexpr{
+			context: context,
+			varName: newConstName(),
+		},
+		value: value,
+	}
+	ret.displayName = fmt.Sprintf("string%s", value)
+	context.define(ret.varName, ret)
+	return ret
+}
+
+func (this stringexpr) Codes() string {
+	return fmt.Sprintf("'%s'", this.value)
 }
 
 type unaryexpr struct {

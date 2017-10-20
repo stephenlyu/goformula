@@ -151,6 +151,7 @@ func (this *Context) updateLastValueCodes(indent string) string {
 		case *constantexpr:
 		case *assignexpr:
 		case *paramexpr:
+		case *stringexpr:
 		default:
 			lines = append(lines, fmt.Sprintf("%so.%s.updateLastValue()", indent, varName))
 		}

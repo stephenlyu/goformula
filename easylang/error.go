@@ -64,3 +64,21 @@ func BadGraphDescError(line, column int, desc string) *badGraphDescError {
 func (this badGraphDescError) String() string {
 	return fmt.Sprintf("bad graph description '%s' at line %d column %d", this.desc, this.line, this.column)
 }
+
+type generalError struct {
+	synxerror
+	desc string
+}
+
+func GeneralError(line, column int, desc string) *generalError {
+	return &generalError{
+		synxerror: synxerror{
+			line: line, column: column,
+		},
+		desc: desc,
+	}
+}
+
+func (this generalError) String() string {
+	return fmt.Sprintf("'%s' at line %d column %d", this.desc, this.line, this.column)
+}

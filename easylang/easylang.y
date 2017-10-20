@@ -58,6 +58,7 @@ var _context = newContext()
 %left	UNARY
 
 %type	<value>	NUM
+%type   <str> STRING
 %type   <str> ID graph_description OR AND EQ NE GT GE LT LE MINUS PLUS TIMES DIVIDE NOT
 %type   <expr> statement expression primary_expression postfix_expression unary_expression multiplicative_expression additive_expression relational_expression equality_expression logical_and_expression
 %type   <descriptions> statement_suffix graph_description_list
@@ -74,10 +75,18 @@ statement_list: statement
 ;
 
 statement: ID EQUALS expression statement_suffix {
+                if _, ok := $3.(*stringexpr); ok {
+                    lexer, _ := yylex.(*yylexer)
+                    _context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
+                }
                 $$ = AssignmentExpression(_context, $1, $3)
                 _context.addOutput($$.VarName(), $4, 0, 0)
            }
            | ID COLONEQUAL expression statement_suffix {
+                if _, ok := $3.(*stringexpr); ok {
+                    lexer, _ := yylex.(*yylexer)
+                    _context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
+                }
                 $$ = AssignmentExpression(_context, $1, $3)
                 _context.addNotOutputVar($$.VarName(), $4, 0, 0)
            }
@@ -85,6 +94,10 @@ statement: ID EQUALS expression statement_suffix {
                 $$ = ParamExpression(_context, $1, $4, $6, $8)
            }
            | expression statement_suffix  {
+                if _, ok := $1.(*stringexpr); ok {
+                    lexer, _ := yylex.(*yylexer)
+                    _context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
+                }
                 varName := _context.newAnonymousVarName()
                 $$ = AssignmentExpression(_context, varName, $1)
                 _context.addOutput(varName, $2, 0, 0)
@@ -127,7 +140,7 @@ primary_expression: ID  {
                         $$ = expr
                     }
                     | NUM { $$ = ConstantExpression(_context, $1) }
-                    | STRING {}
+                    | STRING { $$ = StringExpression(_context, $1[1:len($1) - 1]) }
                     | LPAREN expression RPAREN { $$ = $2 }
 
 postfix_expression: primary_expression  { $$ = $1 }
