@@ -35,7 +35,7 @@ type DrawAction interface {
 	NoDraw() bool
 }
 
-type PolyLine interface {
+type PloyLine interface {
 	DrawAction
 
 	Cond(index int) float64

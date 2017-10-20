@@ -89,6 +89,15 @@ var voidFuncMap = map[string]bool {
 	"STICKLINE":	true,
 }
 
+var drawFuncMap = map[string]bool {
+	"DRAWTEXT":  	true,
+	"DRAWLINE":		true,
+	"PLOYLINE":		true,
+	"DRAWICON":		true,
+	"DRAWKLINE": 	true,
+	"STICKLINE":	true,
+}
+
 var (
 	CONST_SEQ = 1
 	STRING_SEQ = 1
@@ -346,6 +355,10 @@ func FunctionExpression(context context, funcName string, arguments []expression
 	}
 
 	context.define(ret.varName, ret)
+
+	if drawFuncMap[funcName] {
+		context.addDrawFunction(ret)
+	}
 	return ret
 }
 

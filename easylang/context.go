@@ -11,6 +11,7 @@ type context interface {
 	newAnonymousVarName() string
 	define(varName string, expr expression)
 	defineParam(varName string, expr expression)
+	addDrawFunction(expr *functionexpr)
 	isDefined(varName string) bool
 	isParamDefined(varName string) bool
 }
@@ -29,6 +30,8 @@ type Context struct {
 
 	notOutputVars         []string
 	notOutputDescriptions map[string][]string
+
+	drawFunctions		  []*functionexpr
 
 	// TODO: Handle errors
 	errors []SyncError
@@ -124,6 +127,10 @@ func (this *Context) defined(varName string) expression {
 func (this *Context) definedParam(varName string) expression {
 	expr, _ := this.paramMap[strings.ToLower(varName)]
 	return expr
+}
+
+func (this *Context) addDrawFunction(expr *functionexpr) {
+	this.drawFunctions = append(this.drawFunctions, expr)
 }
 
 func (this *Context) definedCodes(indent string) string {
@@ -257,6 +264,100 @@ func (this *Context) varProperties() (flags string, graphTypes string, lineThick
 	return
 }
 
+//o.drawTextActions = {
+//{Cond=o.__anonymous_0_div___anonymous_1_gt_const1, Price=o.__anonymous_2, Text=o.string1, Color={Red=-1, Green=-1, Blue=-1}, NoDraw=0}
+//}
+//
+//o.drawIconActions = {
+//{Cond=o.__anonymous_19_gt___anonymous_20, Price=o.__anonymous_21, Type=o.const8, NoDraw=0}
+//}
+//
+//o.drawLineActions = {
+//{Cond1=o.__anonymous_3_ge_hhv___anonymous_4_const2, Price1=o.__anonymous_5, Cond2=o.__anonymous_6_le_llv___anonymous_7_const3, Price2=o.__anonymous_8, Expand=o.const4, NoDraw=0, Color={Red=-1, Green=-1, Blue=-1}, LineThick=1}
+//}
+//
+//o.drawKLineActions = {
+//{High=o.__anonymous_23, Open=o.__anonymous_24, Low=o.__anonymous_25, Close=o.__anonymous_26, NoDraw=0}
+//}
+//
+//o.stickLineActions = {
+//{Cond=o.__anonymous_14_gt___anonymous_15, Price1=o.__anonymous_16, Price2=o.__anonymous_17, Width=o.const6, Empty=o.const7, NoDraw=0, Color={Red=-1, Green=-1, Blue=-1}, LineThick=1}
+//}
+//
+//o.ployLineActions = {
+//{Cond=o.__anonymous_10_ge_hhv___anonymous_11_const5, Price=o.__anonymous_12, NoDraw=0, Color={Red=-1, Green=-1, Blue=-1}, LineThick=1}
+//}
+func (this *Context) drawFunctionCodes() string {
+	var drawTexts []string
+	var drawIcons []string
+	var drawLines []string
+	var drawKLines []string
+	var stickLines []string
+	var ployLines []string
+
+	relatedDescriptions := func (expr expression) []string {
+		for _, varName := range this.outputVars {
+			expr := this.definedVarMap[varName]
+			aExpr, ok := expr.(*assignexpr)
+			if !ok {
+				continue
+			}
+
+			if aExpr.operand == expr {
+				return this.outputDescriptions[varName]
+			}
+		}
+
+		for _, varName := range this.notOutputVars {
+			expr := this.definedVarMap[varName]
+			aExpr, ok := expr.(*assignexpr)
+			if !ok {
+				continue
+			}
+
+			if aExpr.operand == expr {
+				return this.notOutputDescriptions[varName]
+			}
+		}
+		return []string{}
+	}
+
+	for _, expr := range this.drawFunctions {
+		descriptions := relatedDescriptions(expr)
+		flag, _, lineThick, colorStr, _ := this.translateDescriptions(descriptions)
+
+		var color *formula.Color
+		if color == "" {
+			color = &formula.Color{Red: 255}
+		} else {
+			color = ParseColorLiteral(colorStr)
+		}
+
+		var noDraw int
+		if flag & formula.FORMULA_VAR_FLAG_NO_DRAW {
+			noDraw = 1
+		}
+
+		switch expr.funcName {
+		case "DRAWTEXT":
+			drawTexts = append(drawTexts, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Text=o.%s, Color={Red=%d, Green=%d, Blue=%d}, NoDraw=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				color.Red, color.Green, color.Green,
+				noDraw))
+
+		case "DRAWICON":
+		case "DRAWLINE":
+		case "DRAWKLINE":
+		case "STICKLINE":
+		case "DRAWKLINE":
+		}
+	}
+
+	return ""
+}
+
 func (this *Context) getCodes(indent string) string {
 	lines := make([]string, len(this.outputVars))
 	for i, varName := range this.outputVars {
@@ -339,6 +440,8 @@ function %sClass:new(%s)
     o.data = data
 %s
 
+	%s
+
     o.ref_values = {%s}
     return o
 end
@@ -380,6 +483,7 @@ FormulaClass = %sClass
 		name,
 		this.paramCodes(),
 		this.definedCodes(indent),
+		this.drawFunctionCodes(),
 		this.refValuesCodes(),
 		name,
 		this.updateLastValueCodes(indent),
