@@ -67,6 +67,11 @@ var functionMap luar.Map = luar.Map{
 	"HIGH": stockfunc.HIGH,
 	"AMOUNT": stockfunc.AMOUNT,
 	"VOLUME": stockfunc.VOLUME,
+
+	// Draw Functions
+
+	"DRAWLINE": function.DRAWLINE,
+	"PLOYLINE": function.PLOYLINE,
 }
 
 func GetFunctionMap(inMap luar.Map) luar.Map {
