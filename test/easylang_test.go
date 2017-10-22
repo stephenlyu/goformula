@@ -129,3 +129,35 @@ var _ = Describe("ELPloyLine", func() {
 		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
 	})
 })
+
+var _ = Describe("ELDrawActions", func() {
+	It("test", func (){
+		_, data := loadJson("300666.SZ.json")
+		rv := function.RecordVector(data)
+
+		fmt.Println("data len:", len(data))
+		start := time.Now().UnixNano()
+
+		factory := stockfunc.NewFormulaFactory(true)
+		err, f := factory.NewEasyLangFormula("DRAW.d", rv, []float64{})
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Name:", f.Name())
+		for i := 0; i < f.ArgCount(); i++ {
+			min, max := f.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)
+		}
+		for i := 0; i < f.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", f.VarName(i), f.NoDraw(i), f.LineThick(i), f.Color(i))
+		}
+
+		drawActions := f.DrawActions()
+		for _, action := range drawActions {
+			fmt.Printf("%+v\n", action)
+		}
+
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
+	})
+})

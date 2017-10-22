@@ -346,18 +346,18 @@ func (this *Context) drawFunctionCodes() string {
 				color.Red, color.Green, color.Green,
 				noDraw))
 		case "DRAWICON":
-			drawIcons = append(drawIcons, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Type=o.%s, NoDraw=%d}",
+			drawIcons = append(drawIcons, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Type=%d, NoDraw=%d}",
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
-				expr.arguments[2].VarName(),
+				int(expr.arguments[2].(*constantexpr).value),
 				noDraw))
 		case "DRAWLINE":
-			drawLines = append(drawLines, fmt.Sprintf("        {Cond1=o.%s, Price1=o.%s, Cond1=o.%s, Price1=o.%s, Expand=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+			drawLines = append(drawLines, fmt.Sprintf("        {Cond1=o.%s, Price1=o.%s, Cond2=o.%s, Price2=o.%s, Expand=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				expr.arguments[2].VarName(),
 				expr.arguments[3].VarName(),
-				expr.arguments[4].VarName(),
+				int(expr.arguments[4].(*constantexpr).value),
 				noDraw,
 				color.Red, color.Green, color.Green,
 				lineThick))
@@ -369,12 +369,12 @@ func (this *Context) drawFunctionCodes() string {
 				expr.arguments[3].VarName(),
 				noDraw))
 		case "STICKLINE":
-			stickLines = append(stickLines, fmt.Sprintf("        {Cond=o.%s, Price1=o.%s, Price2=o.%s, Width=o.%s, Empty=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+			stickLines = append(stickLines, fmt.Sprintf("        {Cond=o.%s, Price1=o.%s, Price2=o.%s, Width=%f, Empty=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				expr.arguments[2].VarName(),
-				expr.arguments[3].VarName(),
-				expr.arguments[4].VarName(),
+				expr.arguments[3].(*constantexpr).value,
+				int(expr.arguments[4].(*constantexpr).value),
 				noDraw,
 				color.Red, color.Green, color.Green,
 				lineThick))
