@@ -33,6 +33,9 @@ type LuaFormula struct {
 
 	args []float64
 	refValues  []function.Value
+
+	// Draw Actions
+	drawActions []formula.DrawAction
 }
 
 func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, flags []int, colors []*formula.Color, lineThick []int, lineStyles []int, graphTypes []int, vars []string) {
@@ -111,6 +114,81 @@ func newFormulaByLuaState(L *lua.State, data *stockfunc.RVector, args []float64)
 	luar.LuaToGo(L, -1, &values)
 	L.Pop(1)
 
+	L.GetField(-1, "drawTextActions")
+	var drawTexts []formula.DrawTextAction
+	luar.LuaToGo(L, -1, &drawTexts)
+	L.Pop(1)
+
+	L.GetField(-1, "drawIconActions")
+	var drawIcons []formula.DrawIconAction
+	luar.LuaToGo(L, -1, &drawIcons)
+	L.Pop(1)
+
+	L.GetField(-1, "drawLineActions")
+	var drawLines []formula.DrawLineAction
+	luar.LuaToGo(L, -1, &drawLines)
+	L.Pop(1)
+
+	L.GetField(-1, "drawKLineActions")
+	var drawKLines []formula.DrawKLineAction
+	luar.LuaToGo(L, -1, &drawKLines)
+	L.Pop(1)
+
+	L.GetField(-1, "stickLineActions")
+	var stickLines []formula.StickLineAction
+	luar.LuaToGo(L, -1, &stickLines)
+	L.Pop(1)
+
+	L.GetField(-1, "ployLineActions")
+	var ployLines []formula.PloyLineAction
+	luar.LuaToGo(L, -1, &ployLines)
+	L.Pop(1)
+
+	drawActions := make([]formula.DrawAction, len(drawTexts) + len(drawIcons) + len(drawLines) + len(drawKLines) + len(stickLines) + len(ployLines))
+	i := 0
+	for j := range drawTexts {
+		action := &drawTexts[j]
+		if action.Color != nil &&  action.Color.Red == -1 {
+			action.Color = nil
+		}
+		drawActions[i] = action
+		i++
+	}
+	for j := range drawIcons {
+		action := &drawIcons[j]
+		drawActions[i] = action
+		i++
+	}
+	for j := range drawLines {
+		action := &drawLines[j]
+		if action.Color != nil && action.Color.Red == -1 {
+			action.Color = nil
+		}
+		drawActions[i] = action
+		i++
+	}
+	for j := range drawKLines {
+		action := &drawKLines[j]
+		drawActions[i] = action
+		i++
+	}
+	for j := range stickLines {
+		action := &stickLines[j]
+		if action.Color != nil && action.Color.Red == -1 {
+			action.Color = nil
+		}
+		drawActions[i] = action
+		i++
+	}
+	for j := range ployLines {
+		action := &ployLines[j]
+		if action.Color != nil && action.Color.Red == -1 {
+			action.Color = nil
+		}
+		drawActions[i] = action
+		i++
+	}
+
 	L.Remove(1)
 
 	return nil, &LuaFormula{
@@ -128,6 +206,8 @@ func newFormulaByLuaState(L *lua.State, data *stockfunc.RVector, args []float64)
 
 		args: args,
 		refValues: values,
+
+		drawActions: drawActions,
 	}
 }
 
@@ -314,6 +394,5 @@ func (this *LuaFormula) ArgDefault(index int) float64 {
 }
 
 func (this *LuaFormula) DrawActions() []formula.DrawAction {
-	return nil
+	return this.drawActions
 }
-

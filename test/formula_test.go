@@ -50,26 +50,22 @@ func (this *Record) GetVolume() float32 {
 }
 
 
-func loadJson(jsonFile string) (error, map[string][]function.Record) {
+func loadJson(jsonFile string) (error, []function.Record) {
 	bytes, err := ioutil.ReadFile(jsonFile)
 	if err != nil {
 		return err, nil
 	}
 
-	var result map[string][]Record
+	var result []Record
 	err = json.Unmarshal(bytes, &result)
 	if err != nil {
 		return err, nil
 	}
 
-	ret := make(map[string][]function.Record)
+	ret := make([]function.Record, len(result))
 
-	for code, records := range result {
-		objs := make([]function.Record, len(records))
-		for i := range records {
-			objs[i] = &records[i]
-		}
-		ret[code] = objs
+	for i := range result {
+		ret[i] = &result[i]
 	}
 
 	return err, ret
@@ -78,7 +74,7 @@ func loadJson(jsonFile string) (error, map[string][]function.Record) {
 var _ = Describe("MACD", func() {
 	It("test", func (){
 		_, data := loadJson("data.json")
-		rv := stockfunc.RecordVector(data["300666"])
+		rv := stockfunc.RecordVector(data)
 
 		start := time.Now().UnixNano()
 

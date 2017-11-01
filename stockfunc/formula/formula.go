@@ -30,61 +30,61 @@ type Color struct {
 }
 
 type DrawAction interface {
-	Color() *Color
-	LineThick() int
-	NoDraw() bool
+	GetColor() *Color
+	GetLineThick() int
+	IsNoDraw() bool
 }
 
 type PloyLine interface {
 	DrawAction
 
-	Cond(index int) float64
-	Price(index int) float64
+	GetCond(index int) float64
+	GetPrice(index int) float64
 }
 
 type DrawLine interface {
 	DrawAction
 
-	Cond1(index int) float64
-	Price1(index int) float64
-	Cond2(index int) float64
-	Price2(index int) float64
-	Expand() int
+	GetCond1(index int) float64
+	GetPrice1(index int) float64
+	GetCond2(index int) float64
+	GetPrice2(index int) float64
+	GetExpand() int
 }
 
 type DrawKLine interface {
 	DrawAction
 
-	High(index int) float64
-	Open(index int) float64
-	Low(index int) float64
-	Close(index int) float64
+	GetHigh(index int) float64
+	GetOpen(index int) float64
+	GetLow(index int) float64
+	GetClose(index int) float64
 }
 
 type StickLine interface {
 	DrawAction
 
-	Cond(index int) float64
-	Price1(index int) float64
-	Price2(index int) float64
-	Width() float64
-	Empty() float64
+	GetCond(index int) float64
+	GetPrice1(index int) float64
+	GetPrice2(index int) float64
+	GetWidth() float64
+	GetEmpty() float64
 }
 
 type DrawIcon interface {
 	DrawAction
 
-	Cond(index int) float64
-	Price(index int) float64
-	Type() int
+	GetCond(index int) float64
+	GetPrice(index int) float64
+	GetType() int
 }
 
 type DrawText interface {
 	DrawAction
 
-	Cond(index int) float64
-	Price(index int) float64
-	Text() string
+	GetCond(index int) float64
+	GetPrice(index int) float64
+	GetText() string
 }
 
 type Formula interface {

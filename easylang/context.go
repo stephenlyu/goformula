@@ -144,7 +144,7 @@ func (this *Context) definedCodes(indent string) string {
 			continue
 		}
 		if expr.IsVoid() {
-			lines = append(lines, fmt.Sprintf("%s%s", indent, expr.Codes()))
+			// DO NOTHING
 		} else {
 			lines = append(lines, fmt.Sprintf("%so.%s = %s", indent, varName, expr.Codes()))
 		}
@@ -296,19 +296,18 @@ func (this *Context) drawFunctionCodes() string {
 	var ployLines []string
 
 	relatedDescriptions := func (expr expression) []string {
-		for _, varName := range this.outputVars {
-			expr := this.definedVarMap[varName]
-			aExpr, ok := expr.(*assignexpr)
+		for varName := range this.outputDescriptions {
+			iExpr := this.definedVarMap[varName]
+			aExpr, ok := iExpr.(*assignexpr)
 			if !ok {
 				continue
 			}
-
 			if aExpr.operand == expr {
 				return this.outputDescriptions[varName]
 			}
 		}
 
-		for _, varName := range this.notOutputVars {
+		for varName := range this.notOutputDescriptions {
 			expr := this.definedVarMap[varName]
 			aExpr, ok := expr.(*assignexpr)
 			if !ok {
@@ -327,14 +326,14 @@ func (this *Context) drawFunctionCodes() string {
 		flag, _, lineThick, colorStr, _ := this.translateDescriptions(descriptions)
 
 		var color *formula.Color
-		if color == "" {
-			color = &formula.Color{Red: 255}
+		if colorStr == "" {
+			color = &formula.Color{Red: -1, Green: - 1, Blue: -1}
 		} else {
 			color = ParseColorLiteral(colorStr)
 		}
 
 		var noDraw int
-		if flag & formula.FORMULA_VAR_FLAG_NO_DRAW {
+		if flag & formula.FORMULA_VAR_FLAG_NO_DRAW != 0 {
 			noDraw = 1
 		}
 
@@ -346,16 +345,77 @@ func (this *Context) drawFunctionCodes() string {
 				expr.arguments[2].VarName(),
 				color.Red, color.Green, color.Green,
 				noDraw))
-
 		case "DRAWICON":
+			drawIcons = append(drawIcons, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Type=%d, NoDraw=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				int(expr.arguments[2].(*constantexpr).value),
+				noDraw))
 		case "DRAWLINE":
+			drawLines = append(drawLines, fmt.Sprintf("        {Cond1=o.%s, Price1=o.%s, Cond2=o.%s, Price2=o.%s, Expand=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				expr.arguments[3].VarName(),
+				int(expr.arguments[4].(*constantexpr).value),
+				noDraw,
+				color.Red, color.Green, color.Green,
+				lineThick))
 		case "DRAWKLINE":
+			drawKLines = append(drawKLines, fmt.Sprintf("        {High=o.%s, Open=o.%s, Low=o.%s, Close=o.%s, NoDraw=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				expr.arguments[3].VarName(),
+				noDraw))
 		case "STICKLINE":
-		case "DRAWKLINE":
+			stickLines = append(stickLines, fmt.Sprintf("        {Cond=o.%s, Price1=o.%s, Price2=o.%s, Width=%f, Empty=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				expr.arguments[2].VarName(),
+				expr.arguments[3].(*constantexpr).value,
+				int(expr.arguments[4].(*constantexpr).value),
+				noDraw,
+				color.Red, color.Green, color.Green,
+				lineThick))
+		case "PLOYLINE":
+			ployLines = append(ployLines, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+				expr.arguments[0].VarName(),
+				expr.arguments[1].VarName(),
+				noDraw,
+				color.Red, color.Green, color.Green,
+				lineThick))
 		}
 	}
 
-	return ""
+	return fmt.Sprintf(`    o.drawTextActions = {
+%s
+    }
+
+    o.drawIconActions = {
+%s
+    }
+
+    o.drawLineActions = {
+%s
+    }
+
+    o.drawKLineActions = {
+%s
+    }
+
+    o.stickLineActions = {
+%s
+    }
+
+    o.ployLineActions = {
+%s
+    }`, strings.Join(drawTexts, ",\n"),
+		strings.Join(drawIcons, ",\n"),
+		strings.Join(drawLines, ",\n"),
+		strings.Join(drawKLines, ",\n"),
+		strings.Join(stickLines, ",\n"),
+		strings.Join(ployLines, ",\n"))
 }
 
 func (this *Context) getCodes(indent string) string {
@@ -440,7 +500,7 @@ function %sClass:new(%s)
     o.data = data
 %s
 
-	%s
+%s
 
     o.ref_values = {%s}
     return o

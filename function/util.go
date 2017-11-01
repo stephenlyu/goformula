@@ -5,6 +5,12 @@ import (
 	"errors"
 )
 
+func Assert(cond bool, msg string) {
+	if !cond {
+		panic(msg)
+	}
+}
+
 func sum(values Value, start, end int) float64 {
 	sum := 0.0
 	for i := start; i < end; i++ {
@@ -109,4 +115,21 @@ func LinearRegression(x, y Value) (err error, slope float64, intercept float64) 
 
 	err = nil
 	return
+}
+
+func Interpolate(values []float64, from int, to int, fromValue float64, toValue float64){
+	Assert(from >= 0, "from >= 0 required")
+	Assert(to < len(values), "to < len(values) required")
+
+	if from == to {
+		values[from] = fromValue
+		return
+	}
+
+	slope := (toValue - fromValue) / float64(to - from)
+	values[from] = fromValue
+	values[to] = toValue
+	for i := from + 1; i < to; i++ {
+		values[i] = fromValue + float64(i - from) * slope
+	}
 }
