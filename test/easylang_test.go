@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	"github.com/stephenlyu/goformula/stockfunc"
+	"github.com/stephenlyu/goformula/stockfunc/formula"
 )
 
 var _ = Describe("Compile", func() {
@@ -87,6 +88,11 @@ var _ = Describe("ELDrawLine", func() {
 		}
 		for i := 0; i < f.VarCount(); i++ {
 			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", f.VarName(i), f.NoDraw(i), f.LineThick(i), f.Color(i))
+		}
+
+		for i := 0; i < len(f.DrawActions()); i++ {
+			a := f.DrawActions()[i].(formula.DrawLine)
+			fmt.Println(a.GetColor(), a.GetLineThick(), a.GetVarIndex())
 		}
 
 		fmt.Println(f.Len())

@@ -41,6 +41,7 @@ type PloyLine interface {
 
 	GetCond(index int) float64
 	GetPrice(index int) float64
+	GetVarIndex() int
 }
 
 type DrawLine interface {
@@ -51,6 +52,7 @@ type DrawLine interface {
 	GetCond2(index int) float64
 	GetPrice2(index int) float64
 	GetExpand() int
+	GetVarIndex() int
 }
 
 type DrawKLine interface {

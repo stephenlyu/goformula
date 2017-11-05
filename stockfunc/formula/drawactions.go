@@ -90,6 +90,7 @@ type DrawLineAction struct {
 	NoDraw    int
 	Color     *Color
 	LineThick int
+	VarIndex int
 
 	Cond1  function.Value
 	Price1 function.Value
@@ -108,6 +109,10 @@ func (this *DrawLineAction) GetLineThick() int {
 
 func (this *DrawLineAction) IsNoDraw() bool {
 	return this.NoDraw != 0
+}
+
+func (this *DrawLineAction) GetVarIndex() int {
+	return this.VarIndex
 }
 
 func (this *DrawLineAction) GetCond1(index int) float64 {
@@ -203,6 +208,7 @@ type PloyLineAction struct {
 	NoDraw    int
 	Color     *Color
 	LineThick int
+	VarIndex int
 
 	Cond  function.Value
 	Price function.Value
@@ -218,6 +224,10 @@ func (this *PloyLineAction) GetLineThick() int {
 
 func (this *PloyLineAction) IsNoDraw() bool {
 	return this.NoDraw != 0
+}
+
+func (this *PloyLineAction) GetVarIndex() int {
+	return this.VarIndex
 }
 
 func (this *PloyLineAction) GetCond(index int) float64 {

@@ -310,7 +310,7 @@ func (this *Context) drawFunctionCodes() string {
 	var stickLines []string
 	var ployLines []string
 
-	relatedDescriptions := func (expr expression) []string {
+	relatedDescriptions := func (expr expression) ([]string, string) {
 		for varName := range this.outputDescriptions {
 			iExpr := this.definedVarMap[varName]
 			aExpr, ok := iExpr.(*assignexpr)
@@ -318,7 +318,7 @@ func (this *Context) drawFunctionCodes() string {
 				continue
 			}
 			if aExpr.operand == expr {
-				return this.outputDescriptions[varName]
+				return this.outputDescriptions[varName], varName
 			}
 		}
 
@@ -330,15 +330,26 @@ func (this *Context) drawFunctionCodes() string {
 			}
 
 			if aExpr.operand == expr {
-				return this.notOutputDescriptions[varName]
+				return this.notOutputDescriptions[varName], varName
 			}
 		}
-		return []string{}
+		return []string{}, ""
+	}
+
+	outputVarIndexOf := func (varName string) int {
+		for i, n := range this.outputVars {
+			if n == varName {
+				return i
+			}
+		}
+		return -1
 	}
 
 	for _, expr := range this.drawFunctions {
-		descriptions := relatedDescriptions(expr)
+		descriptions, leftVarName := relatedDescriptions(expr)
 		flag, _, lineThick, colorStr, _ := this.translateDescriptions(descriptions)
+
+		varIndex := outputVarIndexOf(leftVarName)
 
 		var color *formula.Color
 		if colorStr == "" {
@@ -367,7 +378,7 @@ func (this *Context) drawFunctionCodes() string {
 				int(expr.arguments[2].(*constantexpr).value),
 				noDraw))
 		case "DRAWLINE":
-			drawLines = append(drawLines, fmt.Sprintf("        {Cond1=o.%s, Price1=o.%s, Cond2=o.%s, Price2=o.%s, Expand=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+			drawLines = append(drawLines, fmt.Sprintf("        {Cond1=o.%s, Price1=o.%s, Cond2=o.%s, Price2=o.%s, Expand=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				expr.arguments[2].VarName(),
@@ -375,7 +386,8 @@ func (this *Context) drawFunctionCodes() string {
 				int(expr.arguments[4].(*constantexpr).value),
 				noDraw,
 				color.Red, color.Green, color.Green,
-				lineThick))
+				lineThick,
+				varIndex))
 		case "DRAWKLINE":
 			drawKLines = append(drawKLines, fmt.Sprintf("        {High=o.%s, Open=o.%s, Low=o.%s, Close=o.%s, NoDraw=%d}",
 				expr.arguments[0].VarName(),
@@ -394,12 +406,13 @@ func (this *Context) drawFunctionCodes() string {
 				color.Red, color.Green, color.Green,
 				lineThick))
 		case "PLOYLINE":
-			ployLines = append(ployLines, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+			ployLines = append(ployLines, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				noDraw,
 				color.Red, color.Green, color.Green,
-				lineThick))
+				lineThick,
+				varIndex))
 		}
 	}
 
