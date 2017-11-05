@@ -79,7 +79,7 @@ statement: ID EQUALS expression statement_suffix {
                     lexer, _ := yylex.(*yylexer)
                     _context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
                 }
-                $$ = AssignmentExpression(_context, $1, $3)
+                $$ = AssignmentExpression(_context, $1, $3, false)
                 _context.addOutput($$.VarName(), $4, 0, 0)
            }
            | ID COLONEQUAL expression statement_suffix {
@@ -87,7 +87,7 @@ statement: ID EQUALS expression statement_suffix {
                     lexer, _ := yylex.(*yylexer)
                     _context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
                 }
-                $$ = AssignmentExpression(_context, $1, $3)
+                $$ = AssignmentExpression(_context, $1, $3, false)
                 _context.addNotOutputVar($$.VarName(), $4, 0, 0)
            }
            | ID PARAMEQUAL LPAREN NUM COMMA NUM COMMA NUM RPAREN SEMI {
@@ -99,7 +99,7 @@ statement: ID EQUALS expression statement_suffix {
                     _context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
                 }
                 varName := _context.newAnonymousVarName()
-                $$ = AssignmentExpression(_context, varName, $1)
+                $$ = AssignmentExpression(_context, varName, $1, true)
                 _context.addOutput(varName, $2, 0, 0)
            }
 ;

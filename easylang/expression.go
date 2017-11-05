@@ -49,59 +49,59 @@ var noArgFuncMap = funcmap{
 }
 
 var funcMap = funcmap{
-	"REF":       	"REF",
-	"BARSCOUNT": 	"BARSCOUNT",
-	"BARSLAST":  	"BARSLAST",
-	"HHV":       	"HHV",
-	"LLV":       	"LLV",
-	"HHVBARS":   	"HHVBARS",
-	"LLVBARS":   	"LLVBARS",
-	"ROUND2":    	"ROUND2",
-	"IF":        	"IF",
-	"EMA":       	"EMA",
-	"MA":        	"MA",
-	"SMA":       	"SMA",
-	"DMA":       	"DMA",
-	"EXPMEMA":   	"EXPMEMA",
-	"COUNT":     	"COUNT",
-	"EVERY":     	"EVERY",
-	"CROSS":     	"CROSS",
-	"MIN":       	"MIN",
-	"MAX":       	"MAX",
-	"ABS":       	"ABS",
-	"AVEDEV":    	"AVEDEV",
-	"STD":       	"STD",
-	"SUM":       	"SUM",
+	"REF":       "REF",
+	"BARSCOUNT": "BARSCOUNT",
+	"BARSLAST":  "BARSLAST",
+	"HHV":       "HHV",
+	"LLV":       "LLV",
+	"HHVBARS":   "HHVBARS",
+	"LLVBARS":   "LLVBARS",
+	"ROUND2":    "ROUND2",
+	"IF":        "IF",
+	"EMA":       "EMA",
+	"MA":        "MA",
+	"SMA":       "SMA",
+	"DMA":       "DMA",
+	"EXPMEMA":   "EXPMEMA",
+	"COUNT":     "COUNT",
+	"EVERY":     "EVERY",
+	"CROSS":     "CROSS",
+	"MIN":       "MIN",
+	"MAX":       "MAX",
+	"ABS":       "ABS",
+	"AVEDEV":    "AVEDEV",
+	"STD":       "STD",
+	"SUM":       "SUM",
 
 	// 绘制函数
-	"DRAWTEXT":  	"DRAWTEXT",
-	"DRAWLINE":		"DRAWLINE",
-	"PLOYLINE":		"PLOYLINE",
-	"DRAWICON":		"DRAWICON",
-	"DRAWKLINE": 	"DRAWKLINE",
-	"STICKLINE":	"STICKLINE",
+	"DRAWTEXT":  "DRAWTEXT",
+	"DRAWLINE":  "DRAWLINE",
+	"PLOYLINE":  "PLOYLINE",
+	"DRAWICON":  "DRAWICON",
+	"DRAWKLINE": "DRAWKLINE",
+	"STICKLINE": "STICKLINE",
 }
 
-var voidFuncMap = map[string]bool {
-	"DRAWTEXT":  	true,
-	"DRAWICON":		true,
-	"DRAWKLINE": 	true,
-	"STICKLINE":	true,
+var voidFuncMap = map[string]bool{
+	"DRAWTEXT":  true,
+	"DRAWICON":  true,
+	"DRAWKLINE": true,
+	"STICKLINE": true,
 }
 
-var drawFuncMap = map[string]bool {
-	"DRAWTEXT":  	true,
-	"DRAWLINE":		true,
-	"PLOYLINE":		true,
-	"DRAWICON":		true,
-	"DRAWKLINE": 	true,
-	"STICKLINE":	true,
+var drawFuncMap = map[string]bool{
+	"DRAWTEXT":  true,
+	"DRAWLINE":  true,
+	"PLOYLINE":  true,
+	"DRAWICON":  true,
+	"DRAWKLINE": true,
+	"STICKLINE": true,
 }
 
 var (
-	CONST_SEQ = 1
+	CONST_SEQ  = 1
 	STRING_SEQ = 1
-	VAR_SEQ   = 1
+	VAR_SEQ    = 1
 )
 
 func newConstName() string {
@@ -130,8 +130,8 @@ type expression interface {
 	VarName() string
 	DisplayName() string
 
-	IsVoid() bool				// DRAWTEXT等没有返回值
-	IsValid() bool 				// 如果一个表达式的子表示IsVoid()或者!IsValid()，则该表达式不合法。不合法的表达式再生成代码过程中会被忽略
+	IsVoid() bool  // DRAWTEXT等没有返回值
+	IsValid() bool // 如果一个表达式的子表示IsVoid()或者!IsValid()，则该表达式不合法。不合法的表达式再生成代码过程中会被忽略
 }
 
 type baseexpr struct {
@@ -392,15 +392,17 @@ type assignexpr struct {
 	operand expression
 }
 
-func AssignmentExpression(context context, varName string, operand expression) *assignexpr {
+func AssignmentExpression(context context, varName string, operand expression, isAnonymous bool) *assignexpr {
 	ret := &assignexpr{
 		baseexpr: baseexpr{
-			context:     context,
-			displayName: varName,
+			context: context,
 		},
 		operand: operand,
 	}
-	ret.varName = ret.formatVarName(ret.displayName)
+	ret.varName = ret.formatVarName(varName)
+	if !isAnonymous {
+		ret.displayName = varName
+	}
 	if context.isDefined(ret.varName) {
 		panic(fmt.Sprintf("duplicate definition %s", ret.varName))
 	}

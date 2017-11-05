@@ -53,22 +53,6 @@ const (
 )
 
 var (
-	yyPrec = map[int]int{
-		OR:     0,
-		AND:    1,
-		EQ:     2,
-		NE:     2,
-		GT:     3,
-		GE:     3,
-		LT:     3,
-		LE:     3,
-		MINUS:  4,
-		PLUS:   4,
-		TIMES:  5,
-		DIVIDE: 5,
-		UNARY:  6,
-	}
-
 	yyXLAT = map[int]int{
 		57365: 0,  // MINUS (50x)
 		57354: 1,  // COMMA (40x)
@@ -540,7 +524,7 @@ yynewstate:
 				lexer, _ := yylex.(*yylexer)
 				_context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
 			}
-			yyVAL.expr = AssignmentExpression(_context, yyS[yypt-3].str, yyS[yypt-1].expr)
+			yyVAL.expr = AssignmentExpression(_context, yyS[yypt-3].str, yyS[yypt-1].expr, false)
 			_context.addOutput(yyVAL.expr.VarName(), yyS[yypt-0].descriptions, 0, 0)
 		}
 	case 5:
@@ -549,7 +533,7 @@ yynewstate:
 				lexer, _ := yylex.(*yylexer)
 				_context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
 			}
-			yyVAL.expr = AssignmentExpression(_context, yyS[yypt-3].str, yyS[yypt-1].expr)
+			yyVAL.expr = AssignmentExpression(_context, yyS[yypt-3].str, yyS[yypt-1].expr, false)
 			_context.addNotOutputVar(yyVAL.expr.VarName(), yyS[yypt-0].descriptions, 0, 0)
 		}
 	case 6:
@@ -563,7 +547,7 @@ yynewstate:
 				_context.addError(GeneralError(lexer.lineno, lexer.column, "string can't be right value"))
 			}
 			varName := _context.newAnonymousVarName()
-			yyVAL.expr = AssignmentExpression(_context, varName, yyS[yypt-1].expr)
+			yyVAL.expr = AssignmentExpression(_context, varName, yyS[yypt-1].expr, true)
 			_context.addOutput(varName, yyS[yypt-0].descriptions, 0, 0)
 		}
 	case 9:
