@@ -365,20 +365,23 @@ func (this *Context) drawFunctionCodes() string {
 
 		switch expr.funcName {
 		case "DRAWTEXT":
-			drawTexts = append(drawTexts, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Text=o.%s, Color={Red=%d, Green=%d, Blue=%d}, NoDraw=%d}",
+			drawTexts = append(drawTexts, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price=o.%s, Text=o.%s, Color={Red=%d, Green=%d, Blue=%d}, NoDraw=%d}",
+				formula.FORMULA_DRAW_ACTION_DRAWTEXT,
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				expr.arguments[2].VarName(),
 				color.Red, color.Green, color.Green,
 				noDraw))
 		case "DRAWICON":
-			drawIcons = append(drawIcons, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, Type=%d, NoDraw=%d}",
+			drawIcons = append(drawIcons, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price=o.%s, Type=%d, NoDraw=%d}",
+				formula.FORMULA_DRAW_ACTION_DRAWICON,
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				int(expr.arguments[2].(*constantexpr).value),
 				noDraw))
 		case "DRAWLINE":
-			drawLines = append(drawLines, fmt.Sprintf("        {Cond1=o.%s, Price1=o.%s, Cond2=o.%s, Price2=o.%s, Expand=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
+			drawLines = append(drawLines, fmt.Sprintf("        {ActionType=%d, Cond1=o.%s, Price1=o.%s, Cond2=o.%s, Price2=o.%s, Expand=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
+				formula.FORMULA_DRAW_ACTION_DRAWLINE,
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				expr.arguments[2].VarName(),
@@ -389,14 +392,16 @@ func (this *Context) drawFunctionCodes() string {
 				lineThick,
 				varIndex))
 		case "DRAWKLINE":
-			drawKLines = append(drawKLines, fmt.Sprintf("        {High=o.%s, Open=o.%s, Low=o.%s, Close=o.%s, NoDraw=%d}",
+			drawKLines = append(drawKLines, fmt.Sprintf("        {ActionType=%d, High=o.%s, Open=o.%s, Low=o.%s, Close=o.%s, NoDraw=%d}",
+				formula.FORMULA_DRAW_ACTION_DRAWKLINE,
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				expr.arguments[2].VarName(),
 				expr.arguments[3].VarName(),
 				noDraw))
 		case "STICKLINE":
-			stickLines = append(stickLines, fmt.Sprintf("        {Cond=o.%s, Price1=o.%s, Price2=o.%s, Width=%f, Empty=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+			stickLines = append(stickLines, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price1=o.%s, Price2=o.%s, Width=%f, Empty=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
+				formula.FORMULA_DRAW_ACTION_STICKLINE,
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				expr.arguments[2].VarName(),
@@ -406,7 +411,8 @@ func (this *Context) drawFunctionCodes() string {
 				color.Red, color.Green, color.Green,
 				lineThick))
 		case "PLOYLINE":
-			ployLines = append(ployLines, fmt.Sprintf("        {Cond=o.%s, Price=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
+			ployLines = append(ployLines, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
+				formula.FORMULA_DRAW_ACTION_PLOYLINE,
 				expr.arguments[0].VarName(),
 				expr.arguments[1].VarName(),
 				noDraw,

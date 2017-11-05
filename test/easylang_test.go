@@ -92,7 +92,7 @@ var _ = Describe("ELDrawLine", func() {
 
 		for i := 0; i < len(f.DrawActions()); i++ {
 			a := f.DrawActions()[i].(formula.DrawLine)
-			fmt.Println(a.GetColor(), a.GetLineThick(), a.GetVarIndex())
+			fmt.Println(a.GetActionType(), a.GetColor(), a.GetLineThick(), a.GetVarIndex())
 		}
 
 		fmt.Println(f.Len())

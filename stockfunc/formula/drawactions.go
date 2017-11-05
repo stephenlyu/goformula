@@ -4,6 +4,7 @@ import "github.com/stephenlyu/goformula/function"
 
 // Draw Text Action
 type DrawTextAction struct {
+	ActionType int
 	NoDraw    int
 	Color     *Color
 	LineThick int
@@ -11,6 +12,10 @@ type DrawTextAction struct {
 	Cond  function.Value
 	Price function.Value
 	Text  string
+}
+
+func (this *DrawTextAction) GetActionType() int {
+	return this.ActionType
 }
 
 func (this *DrawTextAction) GetColor() *Color {
@@ -23,6 +28,10 @@ func (this *DrawTextAction) GetLineThick() int {
 
 func (this *DrawTextAction) IsNoDraw() bool {
 	return this.NoDraw != 0
+}
+
+func (this *DrawTextAction) GetVarIndex() int {
+	return -1
 }
 
 func (this *DrawTextAction) GetCond(index int) float64 {
@@ -45,6 +54,7 @@ func (this *DrawTextAction) GetText() string {
 
 // Draw Icon Action
 type DrawIconAction struct {
+	ActionType int
 	NoDraw    int
 	Color     *Color
 	LineThick int
@@ -52,6 +62,10 @@ type DrawIconAction struct {
 	Cond  function.Value
 	Price function.Value
 	Type  int
+}
+
+func (this *DrawIconAction) GetActionType() int {
+	return this.ActionType
 }
 
 func (this *DrawIconAction) GetColor() *Color {
@@ -64,6 +78,10 @@ func (this *DrawIconAction) GetLineThick() int {
 
 func (this *DrawIconAction) IsNoDraw() bool {
 	return this.NoDraw != 0
+}
+
+func (this *DrawIconAction) GetVarIndex() int {
+	return -1
 }
 
 func (this *DrawIconAction) GetCond(index int) float64 {
@@ -87,6 +105,7 @@ func (this *DrawIconAction) GetType() int {
 // Draw Line Action
 
 type DrawLineAction struct {
+	ActionType int
 	NoDraw    int
 	Color     *Color
 	LineThick int
@@ -97,6 +116,10 @@ type DrawLineAction struct {
 	Cond2  function.Value
 	Price2 function.Value
 	Expand int
+}
+
+func (this *DrawLineAction) GetActionType() int {
+	return this.ActionType
 }
 
 func (this *DrawLineAction) GetColor() *Color {
@@ -150,6 +173,7 @@ func (this *DrawLineAction) GetExpand() int {
 // Stick Line Action
 
 type StickLineAction struct {
+	ActionType int
 	NoDraw    int
 	Color     *Color
 	LineThick int
@@ -159,6 +183,10 @@ type StickLineAction struct {
 	Price2 function.Value
 	Width  float64
 	Empty  float64
+}
+
+func (this *StickLineAction) GetActionType() int {
+	return this.ActionType
 }
 
 func (this *StickLineAction) GetColor() *Color {
@@ -171,6 +199,10 @@ func (this *StickLineAction) GetLineThick() int {
 
 func (this *StickLineAction) IsNoDraw() bool {
 	return this.NoDraw != 0
+}
+
+func (this *StickLineAction) GetVarIndex() int {
+	return -1
 }
 
 func (this *StickLineAction) GetCond(index int) float64 {
@@ -205,6 +237,7 @@ func (this *StickLineAction) GetEmpty() float64 {
 // Ploy Line Action
 
 type PloyLineAction struct {
+	ActionType int
 	NoDraw    int
 	Color     *Color
 	LineThick int
@@ -212,6 +245,10 @@ type PloyLineAction struct {
 
 	Cond  function.Value
 	Price function.Value
+}
+
+func (this *PloyLineAction) GetActionType() int {
+	return this.ActionType
 }
 
 func (this *PloyLineAction) GetColor() *Color {
@@ -247,6 +284,7 @@ func (this *PloyLineAction) GetPrice(index int) float64 {
 // Draw KLine Action
 
 type DrawKLineAction struct {
+	ActionType int
 	NoDraw    int
 	Color     *Color
 	LineThick int
@@ -255,6 +293,10 @@ type DrawKLineAction struct {
 	Open  function.Value
 	Low   function.Value
 	Close function.Value
+}
+
+func (this *DrawKLineAction) GetActionType() int {
+	return this.ActionType
 }
 
 func (this *DrawKLineAction) GetColor() *Color {
@@ -267,6 +309,10 @@ func (this *DrawKLineAction) GetLineThick() int {
 
 func (this *DrawKLineAction) IsNoDraw() bool {
 	return this.NoDraw != 0
+}
+
+func (this *DrawKLineAction) GetVarIndex() int {
+	return -1
 }
 
 func (this *DrawKLineAction) GetHigh(index int) float64 {

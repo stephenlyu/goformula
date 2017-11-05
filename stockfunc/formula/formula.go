@@ -24,6 +24,15 @@ const (
 	FORMULA_LINE_STYLE_POINT_DOT
 )
 
+const (
+	FORMULA_DRAW_ACTION_PLOYLINE = iota
+	FORMULA_DRAW_ACTION_DRAWLINE
+	FORMULA_DRAW_ACTION_DRAWKLINE
+	FORMULA_DRAW_ACTION_STICKLINE
+	FORMULA_DRAW_ACTION_DRAWICON
+	FORMULA_DRAW_ACTION_DRAWTEXT
+)
+
 type Color struct {
 	Red int
 	Green int
@@ -31,6 +40,8 @@ type Color struct {
 }
 
 type DrawAction interface {
+	GetActionType () int
+	GetVarIndex() int
 	GetColor() *Color
 	GetLineThick() int
 	IsNoDraw() bool
@@ -41,7 +52,6 @@ type PloyLine interface {
 
 	GetCond(index int) float64
 	GetPrice(index int) float64
-	GetVarIndex() int
 }
 
 type DrawLine interface {
@@ -52,7 +62,6 @@ type DrawLine interface {
 	GetCond2(index int) float64
 	GetPrice2(index int) float64
 	GetExpand() int
-	GetVarIndex() int
 }
 
 type DrawKLine interface {
