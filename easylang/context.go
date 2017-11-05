@@ -240,9 +240,24 @@ func (this *Context) varProperties() (flags string, graphTypes string, lineThick
 	sLineStyles := make([]string, len(this.outputVars))
 	sColors := make([]string, len(this.outputVars))
 
+	isDrawFunc := func (expr expression) bool {
+		aExpr := expr.(*assignexpr)
+
+		for _, f := range this.drawFunctions {
+			if aExpr.operand == expression(f) {
+				return true
+			}
+		}
+		return false
+	}
+
 	for i, varName := range this.outputVars {
 		descriptions := this.outputDescriptions[varName]
 		flag, graphType, lineThick, color, lineStyle := this.translateDescriptions(descriptions)
+		exp := this.definedVarMap[varName]
+		if isDrawFunc(exp) {
+			graphType = formula.FORMULA_GRAPH_NONE
+		}
 
 		sFlags[i] = fmt.Sprintf("0x%08x", flag)
 		sGraphTypes[i] = fmt.Sprintf("%d", graphType)
