@@ -5,8 +5,8 @@ import (
 	"github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
 	"time"
-	"github.com/stephenlyu/goformula/stockfunc"
-	"github.com/stephenlyu/goformula/stockfunc/formula"
+	"github.com/stephenlyu/goformula/formulalibrary/easylang/easylangfactory"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 var _ = Describe("Compile", func() {
@@ -32,24 +32,23 @@ var _ = Describe("EasyLangMACD", func() {
 		_, data := loadJson("300666.SZ.json")
 		rv := function.RecordVector(data)
 
-		factory := stockfunc.NewFormulaFactory(true)
-
 		formulas := []string {"MACD.d", "MA.d", "VOL.d"}
-		args := [][]float64{
-			[]float64{12, 26, 9},
-			[]float64{5, 10, 20, 60},
-			[]float64{5, 10},
-		}
-
-		for i, name := range formulas {
+		for _, name := range formulas {
 			fmt.Println("Test formula", name, "...")
 			start := time.Now().UnixNano()
 
-			err, formula := factory.NewEasyLangFormula(name, rv, args[i])
+			err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory(name, true)
+			if err != nil {
+				panic(err)
+			}
+			creator := factory.CreateFormulaCreator(nil)
+
+			err, formula := creator.CreateFormula(rv)
 			if err != nil {
 				panic(err)
 			}
 			defer formula.Destroy()
+
 			for i := 0; i < formula.VarCount(); i++ {
 				fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", formula.VarName(i), formula.NoDraw(i), formula.LineThick(i), formula.Color(i))
 			}
@@ -75,11 +74,17 @@ var _ = Describe("ELDrawLine", func() {
 		fmt.Println("data len:", len(data))
 		start := time.Now().UnixNano()
 
-		factory := stockfunc.NewFormulaFactory(true)
-		err, f := factory.NewEasyLangFormula("DRAWLINE.d", rv, []float64{})
+		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("DRAWLINE.d", true)
 		if err != nil {
 			panic(err)
 		}
+		creator := factory.CreateFormulaCreator(nil)
+
+		err, f := creator.CreateFormula(rv)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Destroy()
 
 		fmt.Println("Name:", f.Name())
 		for i := 0; i < f.ArgCount(); i++ {
@@ -112,11 +117,17 @@ var _ = Describe("ELPloyLine", func() {
 		fmt.Println("data len:", len(data))
 		start := time.Now().UnixNano()
 
-		factory := stockfunc.NewFormulaFactory(true)
-		err, f := factory.NewEasyLangFormula("PLOYLINE.d", rv, []float64{})
+		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("PLOYLINE.d", true)
 		if err != nil {
 			panic(err)
 		}
+		creator := factory.CreateFormulaCreator(nil)
+
+		err, f := creator.CreateFormula(rv)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Destroy()
 
 		fmt.Println("Name:", f.Name())
 		for i := 0; i < f.ArgCount(); i++ {
@@ -144,11 +155,17 @@ var _ = Describe("ELDrawActions", func() {
 		fmt.Println("data len:", len(data))
 		start := time.Now().UnixNano()
 
-		factory := stockfunc.NewFormulaFactory(true)
-		err, f := factory.NewEasyLangFormula("DRAW.d", rv, []float64{})
+		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("DRAW.d", true)
 		if err != nil {
 			panic(err)
 		}
+		creator := factory.CreateFormulaCreator(nil)
+
+		err, f := creator.CreateFormula(rv)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Destroy()
 
 		fmt.Println("Name:", f.Name())
 		for i := 0; i < f.ArgCount(); i++ {

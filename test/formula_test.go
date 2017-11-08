@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
-	"github.com/stephenlyu/goformula/stockfunc/formula"
 	"time"
 	"github.com/stephenlyu/goformula/stockfunc/function"
+	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
 )
 
 type Record struct {
@@ -71,14 +71,16 @@ func loadJson(jsonFile string) (error, []function.Record) {
 	return err, ret
 }
 
-var _ = Describe("MACD", func() {
+var _ = Describe("NMACD", func() {
 	It("test", func (){
 		_, data := loadJson("data.json")
 		rv := stockfunc.RecordVector(data)
 
 		start := time.Now().UnixNano()
 
-		var macd formula.Formula = formula.MACD(rv, nil, nil, nil)
+		_, factory := nativefactory.NewNativeFormulaCreatorFactory("MACD")
+		creator := factory.CreateFormulaCreator(nil)
+		_, macd := creator.CreateFormula(rv)
 
 		fmt.Println("Name:", macd.Name())
 		for i := 0; i < macd.ArgCount(); i++ {

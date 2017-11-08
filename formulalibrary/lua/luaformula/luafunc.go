@@ -1,4 +1,4 @@
-package luafunc
+package luaformula
 
 import (
 	"github.com/stevedonovan/luar"

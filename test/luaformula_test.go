@@ -4,7 +4,7 @@ import (
 	"github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
 	"time"
-	"github.com/stephenlyu/goformula/stockfunc"
+	"github.com/stephenlyu/goformula/formulalibrary/lua/luafactory"
 )
 
 var _ = Describe("LuaMACD", func() {
@@ -14,9 +14,13 @@ var _ = Describe("LuaMACD", func() {
 
 		start := time.Now().UnixNano()
 
-		factory := stockfunc.NewFormulaFactory(false)
+		err, factory := luafactory.NewLuaFormulaCreatorFactory("macd.lua")
+		if err != nil {
+			panic(err)
+		}
+		creator := factory.CreateFormulaCreator(nil)
 
-		err, formula := factory.NewLuaFormula("macd.lua", rv, []float64{12, 26, 9})
+		err, formula := creator.CreateFormula(rv)
 		if err != nil {
 			panic(err)
 		}
@@ -50,9 +54,13 @@ var _ = Describe("LuaDrawLine", func() {
 
 		start := time.Now().UnixNano()
 
-		factory := stockfunc.NewFormulaFactory(false)
+		err, factory := luafactory.NewLuaFormulaCreatorFactory("DRAWLINE.d.lua")
+		if err != nil {
+			panic(err)
+		}
+		creator := factory.CreateFormulaCreator(nil)
 
-		err, formula := factory.NewLuaFormula("DRAWLINE.d.lua", rv, []float64{})
+		err, formula := creator.CreateFormula(rv)
 		if err != nil {
 			panic(err)
 		}

@@ -100,24 +100,7 @@ type DrawText interface {
 }
 
 type Formula interface {
-	Name() string								// 公式名
-
-	// 输出变量
-	VarCount() int
-	VarName(index int) string					// Ref变量名列表
-	NoDraw(index int) bool 						// 是否绘制图形
-	NoText(index int) bool 						// 是否绘制文本
-	DrawAbove(index int) bool
-	NoFrame(index int) bool
-	Color(index int) *Color						// 变量颜色
-	LineThick(index int) int 					// 线宽，1-9
-	LineStyle(index int) int 					// 线宽，1-9
-	GraphType(index int) int
-
-	// 公式参数
-	ArgCount() int
-	ArgRange(index int) (float64, float64)		// 参数范围
-	ArgDefault(index int) float64				// 参数默认值
+	FormulaMeta
 
 	Len() int
 	UpdateLastValue()

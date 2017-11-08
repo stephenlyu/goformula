@@ -2,9 +2,9 @@ package easylang
 
 import (
 	"fmt"
-	"github.com/stephenlyu/goformula/stockfunc/formula"
 	"strconv"
 	"strings"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 type context interface {
