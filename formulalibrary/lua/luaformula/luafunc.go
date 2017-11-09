@@ -4,6 +4,7 @@ import (
 	"github.com/stevedonovan/luar"
 	"github.com/stephenlyu/goformula/function"
 	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 var functionMap luar.Map = luar.Map{
@@ -72,6 +73,10 @@ var functionMap luar.Map = luar.Map{
 
 	"DRAWLINE": function.DRAWLINE,
 	"PLOYLINE": function.PLOYLINE,
+}
+
+func SetFormulaManager(formulaManager formula.FormulaManager) {
+	functionMap["FormulaManager"] = formulaManager
 }
 
 func GetFunctionMap(inMap luar.Map) luar.Map {

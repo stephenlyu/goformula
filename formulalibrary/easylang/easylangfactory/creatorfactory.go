@@ -17,9 +17,9 @@ type easylangFormulaCreatorFactory struct {
 	Meta *formula.FormulaMetaImpl
 }
 
-func NewEasyLangFormulaCreatorFactory(easyLangFile string, debug bool) (error, factory.FormulaCreatorFactory) {
+func NewEasyLangFormulaCreatorFactory(easyLangFile string, formulaManager formula.FormulaManager, debug bool) (error, factory.FormulaCreatorFactory) {
 	// Compile Easy Lang File
-	err, code := easylang.CompileFile(easyLangFile)
+	err, code := easylang.CompileFile(easyLangFile, formulaManager)
 	if err != nil {
 		return err, nil
 	}
@@ -42,6 +42,10 @@ func NewEasyLangFormulaCreatorFactory(easyLangFile string, debug bool) (error, f
 	L.Pop(1)
 
 	return nil, &easylangFormulaCreatorFactory{easyLangFile:easyLangFile, L: L, Meta: meta}
+}
+
+func (this *easylangFormulaCreatorFactory) GetDefaultArgs() []float64 {
+	return this.Meta.DefaultArgs()
 }
 
 func (this *easylangFormulaCreatorFactory) CreateFormulaCreator(args []float64) factory.FormulaCreator {

@@ -24,7 +24,7 @@ func compile(inputFile string) {
 
 	outputFile := filepath.Join(dir, strings.ToLower(strings.Join(parts, ".")))
 
-	err := easylang.Compile(inputFile, outputFile)
+	err := easylang.Compile(inputFile, outputFile, nil)
 	if err != nil {
 		log.Errorf("compile %s fail, error: %v", inputFile, err)
 	}

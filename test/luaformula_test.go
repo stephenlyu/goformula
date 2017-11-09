@@ -4,7 +4,7 @@ import (
 	"github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
 	"time"
-	"github.com/stephenlyu/goformula/formulalibrary/lua/luafactory"
+	"github.com/stephenlyu/goformula/formulalibrary"
 )
 
 var _ = Describe("LuaMACD", func() {
@@ -14,16 +14,11 @@ var _ = Describe("LuaMACD", func() {
 
 		start := time.Now().UnixNano()
 
-		err, factory := luafactory.NewLuaFormulaCreatorFactory("macd.lua")
-		if err != nil {
-			panic(err)
-		}
-		creator := factory.CreateFormulaCreator(nil)
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.LoadLuaFormulas("luas")
 
-		err, formula := creator.CreateFormula(rv)
-		if err != nil {
-			panic(err)
-		}
+		formula := library.NewFormula("MACD", rv)
 		defer formula.Destroy()
 
 		fmt.Println("Name:", formula.Name())
@@ -54,16 +49,11 @@ var _ = Describe("LuaDrawLine", func() {
 
 		start := time.Now().UnixNano()
 
-		err, factory := luafactory.NewLuaFormulaCreatorFactory("DRAWLINE.d.lua")
-		if err != nil {
-			panic(err)
-		}
-		creator := factory.CreateFormulaCreator(nil)
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.LoadLuaFormulas("luas")
 
-		err, formula := creator.CreateFormula(rv)
-		if err != nil {
-			panic(err)
-		}
+		formula := library.NewFormula("DRAWLINE", rv)
 		defer formula.Destroy()
 
 		fmt.Println("Name:", formula.Name())

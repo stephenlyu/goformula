@@ -19,6 +19,8 @@ type context interface {
 type Context struct {
 	sequence int
 
+	formulaManager formula.FormulaManager
+
 	params   []string
 	paramMap map[string]expression
 
@@ -46,6 +48,10 @@ func newContext() *Context {
 	}
 }
 
+func (this *Context) SetFormulaManager(formulaManager formula.FormulaManager) {
+	this.formulaManager = formulaManager
+}
+
 func (this *Context) addError(err SyncError) {
 	this.errors = append(this.errors, err)
 }
@@ -61,6 +67,13 @@ func (this *Context) newAnonymousVarName() string {
 	ret := fmt.Sprintf("__anonymous_%d", this.sequence)
 	this.sequence++
 	return ret
+}
+
+func (this *Context) isFormulaSupport(name string) bool {
+	if this.formulaManager == nil {
+		return true
+	}
+	return this.formulaManager.CanSupport(name)
 }
 
 func (this *Context) define(varName string, expr expression) {

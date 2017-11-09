@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("Compile", func() {
 	It("test", func () {
-		err := easylang.Compile("MACD.d", "output.lua")
+		err := easylang.Compile("MACD.d", "output.lua", nil)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -37,7 +37,7 @@ var _ = Describe("EasyLangMACD", func() {
 			fmt.Println("Test formula", name, "...")
 			start := time.Now().UnixNano()
 
-			err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory(name, true)
+			err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory(name, nil, true)
 			if err != nil {
 				panic(err)
 			}
@@ -74,7 +74,7 @@ var _ = Describe("ELDrawLine", func() {
 		fmt.Println("data len:", len(data))
 		start := time.Now().UnixNano()
 
-		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("DRAWLINE.d", true)
+		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("DRAWLINE.d", nil, true)
 		if err != nil {
 			panic(err)
 		}
@@ -117,7 +117,7 @@ var _ = Describe("ELPloyLine", func() {
 		fmt.Println("data len:", len(data))
 		start := time.Now().UnixNano()
 
-		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("PLOYLINE.d", true)
+		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("PLOYLINE.d", nil, true)
 		if err != nil {
 			panic(err)
 		}
@@ -155,7 +155,7 @@ var _ = Describe("ELDrawActions", func() {
 		fmt.Println("data len:", len(data))
 		start := time.Now().UnixNano()
 
-		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("DRAW.d", true)
+		err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory("DRAW.d", nil, true)
 		if err != nil {
 			panic(err)
 		}

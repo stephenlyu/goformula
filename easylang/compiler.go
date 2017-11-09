@@ -8,9 +8,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
-func CompileFile(sourceFile string) (error, string) {
+func CompileFile(sourceFile string, formulaManager formula.FormulaManager) (error, string) {
 	file, err := os.Open(sourceFile)
 	if err != nil {
 		return err, ""
@@ -18,6 +19,7 @@ func CompileFile(sourceFile string) (error, string) {
 	defer file.Close()
 
 	_context = newContext()
+	_context.SetFormulaManager(formulaManager)
 	ret := yyParse(newLexer(bufio.NewReader(file)))
 	if ret == 1 {
 		return errors.New("compile failure"), ""
@@ -35,8 +37,8 @@ func CompileFile(sourceFile string) (error, string) {
 	return nil, _context.generateCode(mainName)
 }
 
-func Compile(sourceFile string, destFile string) error {
-	err, code := CompileFile(sourceFile)
+func Compile(sourceFile string, destFile string, formulaManager formula.FormulaManager) error {
+	err, code := CompileFile(sourceFile, formulaManager)
 	if err != nil {
 		return err
 	}

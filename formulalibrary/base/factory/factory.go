@@ -11,4 +11,5 @@ type FormulaCreator interface {
 
 type FormulaCreatorFactory interface {
 	CreateFormulaCreator(args []float64) FormulaCreator
+	GetDefaultArgs() []float64
 }

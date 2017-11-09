@@ -28,6 +28,9 @@ func NewNativeFormulaCreatorFactory(name string) (error, factory.FormulaCreatorF
 
 	return nil, &nativeFormulaCreatorFactory{nativeFormula: nativeFormula}
 }
+func (this *nativeFormulaCreatorFactory) GetDefaultArgs() []float64 {
+	return this.nativeFormula.Meta.DefaultArgs()
+}
 
 func (this *nativeFormulaCreatorFactory) CreateFormulaCreator(args []float64) factory.FormulaCreator {
 	if args == nil {

@@ -32,6 +32,9 @@ func NewLuaFormulaCreatorFactory(luaFile string) (error, factory.FormulaCreatorF
 
 	return nil, &luaFormulaCreatorFactory{luaFile:luaFile, L: L, Meta: meta}
 }
+func (this *luaFormulaCreatorFactory) GetDefaultArgs() []float64 {
+	return this.Meta.DefaultArgs()
+}
 
 func (this *luaFormulaCreatorFactory) CreateFormulaCreator(args []float64) factory.FormulaCreator {
 	if args == nil {
