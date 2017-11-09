@@ -380,10 +380,10 @@ yyrule4: // {IDENTIFIER}
 	{
 
 		s := string(y.buf.Bytes())
+		lval.str = s
 		if token, ok := keywords[s]; ok {
 			return token
 		}
-		lval.str = s
 		return ID
 	}
 yyrule5: // {FLOAT}

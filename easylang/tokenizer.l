@@ -113,10 +113,10 @@ DOLLAR          "$"
 
 {IDENTIFIER}
     s := string(y.buf.Bytes())
+    lval.str = s
     if token, ok := keywords[s]; ok {
         return token
     }
-    lval.str = s
     return ID
 
 {FLOAT}
