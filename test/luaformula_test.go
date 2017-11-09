@@ -21,7 +21,7 @@ var _ = Describe("LuaMACD", func() {
 		formula := library.NewFormula("MACD", rv)
 		defer formula.Destroy()
 
-		fmt.Println("Name:", formula.Name())
+		fmt.Println("Name:", formula.GetName())
 		for i := 0; i < formula.ArgCount(); i++ {
 			min, max := formula.ArgRange(i)
 			fmt.Printf("default: %f min: %f max: %f\n", formula.ArgDefault(i), min, max)
@@ -56,7 +56,7 @@ var _ = Describe("LuaDrawLine", func() {
 		formula := library.NewFormula("DRAWLINE", rv)
 		defer formula.Destroy()
 
-		fmt.Println("Name:", formula.Name())
+		fmt.Println("Name:", formula.GetName())
 		for i := 0; i < formula.ArgCount(); i++ {
 			min, max := formula.ArgRange(i)
 			fmt.Printf("default: %f min: %f max: %f\n", formula.ArgDefault(i), min, max)

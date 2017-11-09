@@ -229,11 +229,15 @@ func (this *FormulaLibrary) NotifyFormulaChanged(name string) {
 // 实现FormulaManager接口
 
 
-func (this *FormulaLibrary) CanSupport(name string) bool {
+func (this *FormulaLibrary) CanSupport(name string, varName string) bool {
 	this.lock.Lock()
 	defer this.lock.Unlock()
-	_, ok := this.formulaFactories[name]
-	return ok
+	factory, ok := this.formulaFactories[name]
+	if !ok {
+		return false
+	}
+
+	return factory.GetMeta().HasVar(varName)
 }
 
 func (this *FormulaLibrary) NewFormula(name string, data *function.RVector) formula.Formula {
@@ -242,7 +246,7 @@ func (this *FormulaLibrary) NewFormula(name string, data *function.RVector) form
 		panic(errors.New("公式不存在"))
 	}
 
-	args := factory.GetDefaultArgs()
+	args := factory.GetMeta().DefaultArgs()
 	return this.NewFormulaWithArgs(name, data, args)
 }
 

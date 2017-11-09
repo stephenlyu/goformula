@@ -82,7 +82,7 @@ var _ = Describe("NMACD", func() {
 		creator := factory.CreateFormulaCreator(nil)
 		_, macd := creator.CreateFormula(rv)
 
-		fmt.Println("Name:", macd.Name())
+		fmt.Println("Name:", macd.GetName())
 		for i := 0; i < macd.ArgCount(); i++ {
 			min, max := macd.ArgRange(i)
 			fmt.Printf("default: %f min: %f max: %f\n", macd.ArgDefault(i), min, max)

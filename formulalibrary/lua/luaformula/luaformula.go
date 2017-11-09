@@ -200,6 +200,15 @@ func (this *LuaFormula) Ref(offset int) []float64 {
 	return this.Get(index)
 }
 
+func (this *LuaFormula) GetVarValue(varName string) function.Value {
+	for i, v := range this.FormulaMetaImpl.Vars {
+		if varName == v {
+			return this.refValues[i]
+		}
+	}
+	return nil
+}
+
 func (this *LuaFormula) Name() string {
 	if len(this.ArgMeta) == 0 {
 		return this.GetName()

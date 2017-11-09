@@ -1,10 +1,10 @@
 package easylang
 
 import (
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 var ColorLiterals = []string{

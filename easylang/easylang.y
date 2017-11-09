@@ -47,6 +47,9 @@ var _context = newContext()
 %token  RPAREN
 %token  COMMA
 %token  SEMI
+%token  DOT
+%token  POUND
+%token  DOLLAR
 %token  NOT
 
 %left   OR
@@ -151,6 +154,15 @@ postfix_expression: primary_expression  { $$ = $1 }
                             $$ = ErrorExpression(_context, $1)
                         } else {
                             $$ = FunctionExpression(_context, $1, $3)
+                        }
+                    }
+                    | ID DOT ID {
+                        if !_context.isReferenceSupport($1, $3) {
+                            lexer, _ := yylex.(*yylexer)
+                            _context.addError(GeneralError(lexer.lineno, lexer.column, __yyfmt__.Sprintf("%s.%s not supported", $1, $3)))
+                            $$ = ErrorExpression(_context, $3)
+                        } else {
+                            $$ = ReferenceExpression(_context, $1, $3)
                         }
                     }
 

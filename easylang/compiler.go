@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 func CompileFile(sourceFile string, formulaManager formula.FormulaManager) (error, string) {

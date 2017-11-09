@@ -44,8 +44,8 @@ func NewEasyLangFormulaCreatorFactory(easyLangFile string, formulaManager formul
 	return nil, &easylangFormulaCreatorFactory{easyLangFile:easyLangFile, L: L, Meta: meta}
 }
 
-func (this *easylangFormulaCreatorFactory) GetDefaultArgs() []float64 {
-	return this.Meta.DefaultArgs()
+func (this *easylangFormulaCreatorFactory) GetMeta() formula.FormulaMeta {
+	return this.Meta
 }
 
 func (this *easylangFormulaCreatorFactory) CreateFormulaCreator(args []float64) factory.FormulaCreator {

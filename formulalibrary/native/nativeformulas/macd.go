@@ -23,6 +23,8 @@ type macd struct {
 	macd function.Value
 	enter_long function.Value
 	enter_short function.Value
+
+	ref_values []function.Value
 }
 
 var (
@@ -39,7 +41,7 @@ var (
 		LineThicks: []int{1, 1,1},
 		LineStyles: []int{FORMULA_LINE_STYLE_SOLID, FORMULA_LINE_STYLE_SOLID, FORMULA_LINE_STYLE_SOLID},
 		GraphTypes: []int{FORMULA_GRAPH_LINE, FORMULA_GRAPH_LINE, FORMULA_GRAPH_COLOR_STICK},
-		Vars: []string{"DIF", "DEA", "MACD"},
+		Vars: []string{"DIF", "DEA", "MACD", "", ""},
 	}
 )
 
@@ -69,6 +71,14 @@ func MACD(meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) Formul
 	ret.macd = function.MUL(ret.dif_sub_dea, ret.const2)
 	ret.enter_long = function.CROSS(ret.dif, ret.dea)
 	ret.enter_short = function.CROSS(ret.dea, ret.dif)
+
+	ret.ref_values = []function.Value {
+		ret.dif,
+		ret.dea,
+		ret.macd,
+		ret.enter_long,
+		ret.enter_short,
+	}
 	return ret
 }
 
@@ -104,6 +114,15 @@ func (this macd) Get(index int) []float64 {
 func (this macd) Ref(offset int) []float64 {
 	index := this.data.Len() - 1 - offset
 	return this.Get(index)
+}
+
+func (this macd) GetVarValue(varName string) function.Value {
+	for i, v := range this.FormulaMetaImpl.Vars {
+		if varName == v {
+			return this.ref_values[i]
+		}
+	}
+	return nil
 }
 
 func (this *macd) Destroy() {

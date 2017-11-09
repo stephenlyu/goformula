@@ -1,5 +1,7 @@
 package formula
 
+import "github.com/stephenlyu/goformula/function"
+
 const (
 	FORMULA_VAR_FLAG_NO_DRAW = 1
 	FORMULA_VAR_FLAG_NO_TEXT = 2
@@ -106,6 +108,7 @@ type Formula interface {
 	UpdateLastValue()
 	Get(index int) []float64
 	Ref(offset int) []float64
+	GetVarValue(varName string) function.Value
 
 	// 绘制图形
 	DrawActions() []DrawAction

@@ -93,6 +93,9 @@ LPAREN          "("
 RPAREN          ")"
 COMMA           ,
 SEMI            ;
+DOT             "."
+POUND           "#"
+DOLLAR          "$"
 
 %%
     y.column += utf8.RuneCount(y.buf.Bytes())
@@ -209,6 +212,18 @@ SEMI            ;
 {SEMI}
     lval.str = string(y.buf.Bytes())
     return SEMI
+
+{POUND}
+    lval.str = string(y.buf.Bytes())
+    return POUND
+
+{DOLLAR}
+    lval.str = string(y.buf.Bytes())
+    return DOLLAR
+
+{DOT}
+    lval.str = string(y.buf.Bytes())
+    return DOT
 
 %%
     y.empty = true

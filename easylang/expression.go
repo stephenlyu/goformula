@@ -351,7 +351,7 @@ func FunctionExpression(context context, funcName string, arguments []expression
 		ret.varName = ret.formatVarName(ret.displayName)
 	} else {
 		ret.displayName = funcName
-		ret.varName = context.newAnonymousVarName()
+		ret.varName = fmt.Sprintf("__no_arg_func_%s", strings.ToLower(funcName))
 	}
 
 	context.define(ret.varName, ret)
@@ -385,6 +385,34 @@ func (this *functionexpr) IsValid() bool {
 		}
 	}
 	return true
+}
+
+type referenceexpr struct {
+	baseexpr
+	formulaName string
+	refVarName  string
+}
+
+func ReferenceExpression(context context, formulaName string, refVarName string) *referenceexpr {
+	formulaName = strings.ToUpper(formulaName)
+	context.refFormula(formulaName)
+
+	ret := &referenceexpr{
+		baseexpr: baseexpr{
+			context: context,
+		},
+		formulaName: formulaName,
+		refVarName:  refVarName,
+	}
+	varName := fmt.Sprintf("%s.%s", formulaName, refVarName)
+	ret.varName = ret.formatVarName(varName)
+	ret.displayName = varName
+	context.define(ret.varName, ret)
+	return ret
+}
+
+func (this referenceexpr) Codes() string {
+	return fmt.Sprintf("o.formula_%s.GetVarValue('%s')", strings.ToLower(this.formulaName), strings.ToUpper(this.refVarName))
 }
 
 type assignexpr struct {

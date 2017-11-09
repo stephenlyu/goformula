@@ -2,15 +2,16 @@ package easylang
 
 import (
 	"fmt"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"strconv"
 	"strings"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 type context interface {
 	newAnonymousVarName() string
 	define(varName string, expr expression)
 	defineParam(varName string, expr expression)
+	refFormula(formulaName string)
 	addDrawFunction(expr *functionexpr)
 	isDefined(varName string) bool
 	isParamDefined(varName string) bool
@@ -26,6 +27,8 @@ type Context struct {
 
 	definedVars   []string
 	definedVarMap map[string]expression
+
+	refFormulas []string
 
 	outputVars         []string
 	outputDescriptions map[string][]string
@@ -69,11 +72,22 @@ func (this *Context) newAnonymousVarName() string {
 	return ret
 }
 
-func (this *Context) isFormulaSupport(name string) bool {
+func (this *Context) isReferenceSupport(formulaName string, refVarName string) bool {
 	if this.formulaManager == nil {
 		return true
 	}
-	return this.formulaManager.CanSupport(name)
+	formulaName = strings.ToUpper(formulaName)
+	refVarName = strings.ToUpper(refVarName)
+	return this.formulaManager.CanSupport(formulaName, refVarName)
+}
+
+func (this *Context) refFormula(formulaName string) {
+	for _, name := range this.refFormulas {
+		if name == formulaName {
+			return
+		}
+	}
+	this.refFormulas = append(this.refFormulas, formulaName)
 }
 
 func (this *Context) define(varName string, expr expression) {
@@ -144,6 +158,21 @@ func (this *Context) definedParam(varName string) expression {
 
 func (this *Context) addDrawFunction(expr *functionexpr) {
 	this.drawFunctions = append(this.drawFunctions, expr)
+}
+
+// Lua Code Generating Routines
+
+func (this *Context) refFormulaDefineCodes(indent string) string {
+	if len(this.refFormulas) == 0 {
+		return ""
+	}
+
+	lines := make([]string, len(this.refFormulas))
+	for i, name := range this.refFormulas {
+		name = strings.ToUpper(name)
+		lines[i] = fmt.Sprintf("%so.formula_%s = FormulaManager.NewFormula('%s', data)", indent, strings.ToLower(name), name)
+	}
+	return strings.Join(lines, "\n")
 }
 
 func (this *Context) definedCodes(indent string) string {
@@ -543,7 +572,7 @@ function %sClass:new(%s)
     o = {}
     setmetatable(o, self)
     self.__index = self
-
+%s
     o.data = data
 %s
 
@@ -589,6 +618,7 @@ FormulaClass = %sClass
 		graphTypes,
 		name,
 		this.paramCodes(),
+		this.refFormulaDefineCodes(indent),
 		this.definedCodes(indent),
 		this.drawFunctionCodes(),
 		this.refValuesCodes(),

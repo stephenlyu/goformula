@@ -7,11 +7,12 @@ import (
 	"time"
 	"github.com/stephenlyu/goformula/formulalibrary/easylang/easylangfactory"
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/formulalibrary"
 )
 
 var _ = Describe("Compile", func() {
 	It("test", func () {
-		err := easylang.Compile("MACD.d", "output.lua", nil)
+		err := easylang.Compile("MACDBUY.d", "output.lua", nil)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -66,6 +67,39 @@ var _ = Describe("EasyLangMACD", func() {
 	})
 })
 
+var _ = Describe("ELMACDBuy", func() {
+	It("test", func (){
+		_, data := loadJson("300666.SZ.json")
+		rv := function.RecordVector(data)
+
+		fmt.Println("data len:", len(data))
+		start := time.Now().UnixNano()
+
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.LoadEasyLangFormulas(".")
+
+		f := library.NewFormula("MACDBUY", rv)
+		defer f.Destroy()
+
+		fmt.Println("Name:", f.GetName())
+		for i := 0; i < f.ArgCount(); i++ {
+			min, max := f.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)
+		}
+		for i := 0; i < f.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", f.VarName(i), f.NoDraw(i), f.LineThick(i), f.Color(i))
+		}
+
+		fmt.Println(f.Len())
+		for i := 0; i < f.Len(); i++ {
+			r := f.Get(i)
+			fmt.Printf("%d. %s\t%.02f\n", i, rv.Get(i).GetDate(), r[0])
+		}
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
+	})
+})
+
 var _ = Describe("ELDrawLine", func() {
 	It("test", func (){
 		_, data := loadJson("300666.SZ.json")
@@ -86,7 +120,7 @@ var _ = Describe("ELDrawLine", func() {
 		}
 		defer f.Destroy()
 
-		fmt.Println("Name:", f.Name())
+		fmt.Println("Name:", f.GetName())
 		for i := 0; i < f.ArgCount(); i++ {
 			min, max := f.ArgRange(i)
 			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)
@@ -129,7 +163,7 @@ var _ = Describe("ELPloyLine", func() {
 		}
 		defer f.Destroy()
 
-		fmt.Println("Name:", f.Name())
+		fmt.Println("Name:", f.GetName())
 		for i := 0; i < f.ArgCount(); i++ {
 			min, max := f.ArgRange(i)
 			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)
@@ -167,7 +201,7 @@ var _ = Describe("ELDrawActions", func() {
 		}
 		defer f.Destroy()
 
-		fmt.Println("Name:", f.Name())
+		fmt.Println("Name:", f.GetName())
 		for i := 0; i < f.ArgCount(); i++ {
 			min, max := f.ArgRange(i)
 			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)

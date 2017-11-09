@@ -1,11 +1,12 @@
 package formula
 
 type FormulaMeta interface {
-	Name() string								// 公式名
+	GetName() string							// 公式名
 
 	// 输出变量
 	VarCount() int
 	VarName(index int) string					// Ref变量名列表
+	HasVar(name string) bool
 	NoDraw(index int) bool 						// 是否绘制图形
 	NoText(index int) bool 						// 是否绘制文本
 	DrawAbove(index int) bool
@@ -57,6 +58,15 @@ func (this *FormulaMetaImpl) VarName(index int) string {
 		return ""
 	}
 	return this.Vars[index]
+}
+
+func (this *FormulaMetaImpl) HasVar(varName string) bool {
+	for _, v := range this.Vars {
+		if v == varName {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *FormulaMetaImpl) NoDraw(index int) bool {

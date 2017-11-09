@@ -6,6 +6,7 @@ import (
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativeformulas"
 	"errors"
 	"fmt"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 type nativeFormulaCreatorFactory struct {
@@ -28,8 +29,8 @@ func NewNativeFormulaCreatorFactory(name string) (error, factory.FormulaCreatorF
 
 	return nil, &nativeFormulaCreatorFactory{nativeFormula: nativeFormula}
 }
-func (this *nativeFormulaCreatorFactory) GetDefaultArgs() []float64 {
-	return this.nativeFormula.Meta.DefaultArgs()
+func (this *nativeFormulaCreatorFactory) GetMeta() formula.FormulaMeta {
+	return this.nativeFormula.Meta
 }
 
 func (this *nativeFormulaCreatorFactory) CreateFormulaCreator(args []float64) factory.FormulaCreator {

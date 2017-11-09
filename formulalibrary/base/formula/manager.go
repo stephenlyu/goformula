@@ -4,7 +4,7 @@ import "github.com/stephenlyu/goformula/stockfunc/function"
 
 type FormulaManager interface {
 	// 是否支持名为name的公式
-	CanSupport(name string) bool
+	CanSupport(name string, varName string) bool
 
 	// 使用默认参数创建公式
 	NewFormula(name string, data *function.RVector) Formula
