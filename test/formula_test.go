@@ -9,6 +9,7 @@ import (
 	"time"
 	"github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
+	"github.com/stephenlyu/tds/date"
 )
 
 type Record struct {
@@ -19,6 +20,11 @@ type Record struct {
 	Low float32				`json:"low"`
 	Volume float32			`json:"volume"`
 	Amount float32			`json:"amount"`
+}
+
+func (this *Record) GetUTCDate() uint64 {
+	ret, _ := date.DayString2Timestamp(this.Date)
+	return ret
 }
 
 func (this *Record) GetDate() string {

@@ -5,6 +5,7 @@ import (
 	"github.com/stephenlyu/goformula/function"
 	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/datalibrary"
 )
 
 var functionMap luar.Map = luar.Map{
@@ -73,10 +74,19 @@ var functionMap luar.Map = luar.Map{
 
 	"DRAWLINE": function.DRAWLINE,
 	"PLOYLINE": function.PLOYLINE,
+
+	// Cross Access Routines
+
+	"IndexMap": stockfunc.IndexMap,
+	"CrossValue": stockfunc.CrossValue,
 }
 
 func SetFormulaManager(formulaManager formula.FormulaManager) {
 	functionMap["FormulaManager"] = formulaManager
+}
+
+func SetDataLibrary(dataLibrary datalibrary.DataLibrary) {
+	functionMap["DataLibrary"] = dataLibrary
 }
 
 func GetFunctionMap(inMap luar.Map) luar.Map {
