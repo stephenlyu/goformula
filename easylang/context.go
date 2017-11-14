@@ -78,7 +78,7 @@ func (this *Context) isReferenceSupport(formulaName string, refVarName string) b
 	}
 	formulaName = strings.ToUpper(formulaName)
 	refVarName = strings.ToUpper(refVarName)
-	return this.formulaManager.CanSupport(formulaName, refVarName)
+	return this.formulaManager.CanSupportVar(formulaName, refVarName)
 }
 
 func (this *Context) refFormula(formulaName string) {

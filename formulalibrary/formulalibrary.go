@@ -67,6 +67,13 @@ func (this *FormulaLibrary) Reset() {
 	this.loadEasyLang = true
 }
 
+func (this *FormulaLibrary) CanSupport(name string) bool {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	_, ok := this.formulaFactories[name]
+	return ok
+}
+
 func (this *FormulaLibrary) LoadNativeFormulas() {
 	if !this.loadNative {
 		log.Warnf("Please turn loadNative on first!")
@@ -246,7 +253,7 @@ func (this *FormulaLibrary) NotifyFormulaChanged(name string) {
 // 实现FormulaManager接口
 
 
-func (this *FormulaLibrary) CanSupport(name string, varName string) bool {
+func (this *FormulaLibrary) CanSupportVar(name string, varName string) bool {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	factory, ok := this.formulaFactories[name]
