@@ -115,14 +115,31 @@ func (this *FormulaLibrary) LoadEasyLangFormulas(dir string) {
 		return
 	}
 
-	for _, filePath := range files {
-		baseName := filepath.Base(filePath)
-		parts := strings.Split(baseName, ".")
-		name := strings.ToUpper(parts[0])
-		err = this.RegisterEasyLangFile(name, filePath, this.debug)
-		if err != nil {
-			log.Errorf("Load easy lang formula %s fail, error: %v", filePath, err)
+	var errorFiles []string
+
+	for {
+		changed := false
+		errorFiles = []string{}
+		for _, filePath := range files {
+			baseName := filepath.Base(filePath)
+			parts := strings.Split(baseName, ".")
+			name := strings.ToUpper(parts[0])
+			err = this.RegisterEasyLangFile(name, filePath, this.debug)
+			if err != nil {
+				errorFiles = append(errorFiles, filePath)
+			} else {
+				changed = true
+			}
 		}
+		if changed {
+			files = errorFiles
+		} else {
+			break
+		}
+	}
+
+	for _, errFile := range errorFiles {
+		log.Errorf("Load easy lang formula %s fail", errFile)
 	}
 }
 
