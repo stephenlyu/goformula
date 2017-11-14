@@ -106,7 +106,17 @@ var (
 
 var (
 	CONST_VAL_NAMES = make(map[float64]string)
+	FORMAT_VAR_NAMES = make(map[string]string)
 )
+
+func resetAll() {
+	CONST_SEQ  = 1
+	STRING_SEQ = 1
+	VAR_SEQ    = 1
+
+	CONST_VAL_NAMES = make(map[float64]string)
+	FORMAT_VAR_NAMES = make(map[string]string)
+}
 
 func newConstName(value float64) string {
 	ret, ok := CONST_VAL_NAMES[value]
@@ -162,10 +172,15 @@ func isDigit(c rune) bool {
 }
 
 func (this baseexpr) formatVarName(s string) string {
+	ret, ok := FORMAT_VAR_NAMES[s]
+	if ok {
+		return ret
+	}
+
 	first := true
 	valid := true
-	s = strings.ToLower(s)
-	b := []byte(s)
+	ret = strings.ToLower(s)
+	b := []byte(ret)
 	for len(b) > 0 {
 		c, n := utf8.DecodeRune(b)
 
@@ -185,9 +200,11 @@ func (this baseexpr) formatVarName(s string) string {
 		b = b[n:]
 	}
 	if !valid {
-		return newVarName()
+		ret = newVarName()
+		fmt.Println("newVarName", s, ret)
 	}
-	return s
+	FORMAT_VAR_NAMES[s] = ret
+	return ret
 }
 
 func (this baseexpr) Codes() string {

@@ -43,6 +43,7 @@ type Context struct {
 }
 
 func newContext() *Context {
+	resetAll()
 	return &Context{
 		paramMap:              map[string]expression{},
 		definedVarMap:         map[string]expression{},
