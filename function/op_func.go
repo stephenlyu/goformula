@@ -1,11 +1,16 @@
 package function
 
+import "math"
+
 type not struct {
 	funcbase
 }
 
 func (this not) BuildValueAt(index int) float64 {
 	v := this.data.Get(index)
+	if math.IsNaN(v) {
+		return math.NaN()
+	}
 	if v > 0 || v < 0 {
 		return 0
 	}
@@ -168,7 +173,7 @@ type and struct {
 func (this and) BuildValueAt(index int) float64 {
 	a := this.data.Get(index)
 	b := this.data1.Get(index)
-	if (a != 0) && (b != 0) {
+	if isTrue(a) && isTrue(b) {
 		return 1
 	}
 	return 0
@@ -199,7 +204,7 @@ type or struct {
 func (this or) BuildValueAt(index int) float64 {
 	a := this.data.Get(index)
 	b := this.data1.Get(index)
-	if (a != 0) || (b != 0) {
+	if isTrue(a) || isTrue(b) {
 		return 1
 	}
 	return 0

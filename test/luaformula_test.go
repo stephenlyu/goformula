@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"github.com/stephenlyu/goformula/formulalibrary"
+	"github.com/stephenlyu/tds/period"
 )
 
 var _ = Describe("LuaMACD", func() {
@@ -54,6 +55,42 @@ var _ = Describe("LuaDrawLine", func() {
 		library.LoadLuaFormulas("luas")
 
 		formula := library.NewFormula("DRAWLINE", rv)
+		defer formula.Destroy()
+
+		fmt.Println("Name:", formula.GetName())
+		for i := 0; i < formula.ArgCount(); i++ {
+			min, max := formula.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", formula.ArgDefault(i), min, max)
+		}
+		for i := 0; i < formula.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", formula.VarName(i), formula.NoDraw(i), formula.LineThick(i), formula.Color(i))
+		}
+
+		start1 := time.Now().UnixNano()
+		len := formula.Len()
+		fmt.Println("formula.len:", len, "data len:", rv.Len())
+		for i := 0; i < len; i++ {
+			r := formula.Get(i)
+			fmt.Printf("%d. %s\t%.02f\n", i, rv.Get(i).GetDate(), r[0])
+		}
+
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, (time.Now().UnixNano() - start1) / 1000000, "ms")
+	})
+})
+
+var _ = Describe("LuaDDGS", func() {
+	It("test", func () {
+		_, data := loadJson("300666.SZ.json")
+		_, p := period.PeriodFromString("D1")
+		rv := function.RecordVectorEx("300666", p, data)
+
+		start := time.Now().UnixNano()
+
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.LoadLuaFormulas("luas")
+
+		formula := library.NewFormula("DDGS", rv)
 		defer formula.Destroy()
 
 		fmt.Println("Name:", formula.GetName())

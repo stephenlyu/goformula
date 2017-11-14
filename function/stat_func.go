@@ -14,8 +14,12 @@ type llv struct {
 }
 
 func (this llv) BuildValueAt(index int) float64 {
+	N := this.N.Get(index)
+	if math.IsNaN(N) || N <= 0 {
+		return math.NaN()
+	}
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(this.N.Get(index)))))
+	start := int(_math.Max(0, int64(end - int(N))))
 
 	return min(this.data, start, end)
 }
@@ -44,8 +48,13 @@ type llvbars struct {
 }
 
 func (this llvbars) BuildValueAt(index int) float64 {
+	N := this.N.Get(index)
+	if math.IsNaN(N) || N <= 0 {
+		return float64(index)
+	}
+
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(this.N.Get(index)))))
+	start := int(_math.Max(0, int64(end - int(N))))
 
 	low := math.MaxFloat64
 	low_pos := -1
@@ -84,8 +93,12 @@ type hhv struct {
 }
 
 func (this hhv) BuildValueAt(index int) float64 {
+	N := this.N.Get(index)
+	if math.IsNaN(N) || N <= 0 {
+		return math.NaN()
+	}
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(this.N.Get(index)))))
+	start := int(_math.Max(0, int64(end - int(N))))
 
 	return max(this.data, start, end)
 }
@@ -114,8 +127,13 @@ type hhvbars struct {
 }
 
 func (this hhvbars) BuildValueAt(index int) float64 {
+	N := this.N.Get(index)
+	if math.IsNaN(N) || N <= 0 {
+		return float64(index)
+	}
+
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(this.N.Get(index)))))
+	start := int(_math.Max(0, int64(end - int(N))))
 
 	high := this.data.Get(start)
 	high_pos := -1
@@ -154,6 +172,9 @@ type std struct {
 }
 
 func (this std) BuildValueAt(index int) float64 {
+	if math.IsNaN(this.N.Get(index)) {
+		return math.NaN()
+	}
 	N := int(this.N.Get(index))
 	if index < N - 1 {
 		return 0
@@ -198,6 +219,9 @@ type avedev struct {
 }
 
 func (this avedev) BuildValueAt(index int) float64 {
+	if math.IsNaN(this.N.Get(index)) {
+		return math.NaN()
+	}
 	N := int(this.N.Get(index))
 	if index < N - 1 {
 		return 0
@@ -243,6 +267,9 @@ type sumf struct {
 }
 
 func (this sumf) BuildValueAt(index int) float64 {
+	if math.IsNaN(this.N.Get(index)) {
+		return math.NaN()
+	}
 	end := index + 1
 	start := int(_math.Max(0, int64(end - int(this.N.Get(index)))))
 	return sum(this.data, start, end)
@@ -303,6 +330,9 @@ type count struct {
 }
 
 func (this count) BuildValueAt(index int) float64 {
+	if math.IsNaN(this.N.Get(index)) {
+		return math.NaN()
+	}
 	N := int(this.N.Get(index))
 
 	end := index + 1
@@ -311,7 +341,7 @@ func (this count) BuildValueAt(index int) float64 {
 	c := 0
 	for i := start; i < end; i++ {
 		v := this.data.Get(i)
-		if v != 0 {
+		if isTrue(v) {
 			c++
 		}
 	}
@@ -344,7 +374,7 @@ type iff struct {
 }
 
 func (this iff) BuildValueAt(index int) float64 {
-	return iif(this.data.Get(index) != 0, this.yesData.Get(index), this.noData.Get(index))
+	return iif(isTrue(this.data.Get(index)), this.yesData.Get(index), this.noData.Get(index))
 }
 
 func (this *iff) UpdateLastValue() {
@@ -372,13 +402,16 @@ type every struct {
 }
 
 func (this every) BuildValueAt(index int) float64 {
+	if math.IsNaN(this.N.Get(index)) {
+		return math.NaN()
+	}
 	N := int(this.N.Get(index))
 
 	end := index + 1
 	start := int(_math.Max(0, int64(end - N)))
 
 	for i := start; i < end; i++ {
-		if this.data.Get(i) == 0 {
+		if !isTrue(this.data.Get(i)) {
 			return 0
 		}
 	}
@@ -406,29 +439,26 @@ func EVERY(data Value, N Value) *every {
 
 type barslast struct {
 	funcbase
-	N Value
 }
 
 func (this barslast) BuildValueAt(index int) float64 {
 	for j := index; j >= 0; j-- {
-		if this.data.Get(j) != 0 {
+		if isTrue(this.data.Get(j)) {
 			return float64(index - j)
 		}
 	}
-	// TODO: BUGGY?
-	return float64(index + 1)
+	return math.NaN()
 }
 
 func (this *barslast) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func BARSLAST(data Value, N Value) *barslast {
+func BARSLAST(data Value) *barslast {
 	ret := &barslast{
 		funcbase: funcbase {
 			data: data,
 		},
-		N: N,
 	}
 	ret.Values = make([]float64, data.Len())
 	initValues(ret, ret.Values)
@@ -510,6 +540,9 @@ type ref struct {
 }
 
 func (this ref) BuildValueAt(index int) float64 {
+	if math.IsNaN(this.N.Get(index)) {
+		return math.NaN()
+	}
 	N := int(this.N.Get(index))
 	if index < N {
 		return 0
@@ -621,6 +654,9 @@ type slopef struct {
 }
 
 func (this slopef) BuildValueAt(index int) float64 {
+	if math.IsNaN(this.N.Get(index)) {
+		return math.NaN()
+	}
 	N := int(this.N.Get(index))
 	if index < N - 1 {
 		return 0

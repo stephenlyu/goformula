@@ -8,6 +8,7 @@ import (
 	"github.com/stephenlyu/goformula/formulalibrary/easylang/easylangfactory"
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"github.com/stephenlyu/goformula/formulalibrary"
+	"github.com/stephenlyu/tds/period"
 )
 
 var _ = Describe("Compile", func() {
@@ -70,7 +71,8 @@ var _ = Describe("EasyLangMACD", func() {
 var _ = Describe("ELMACDBuy", func() {
 	It("test", func (){
 		_, data := loadJson("300666.SZ.json")
-		rv := function.RecordVector(data)
+		_, p := period.PeriodFromString("D1")
+		rv := function.RecordVectorEx("300666", p, data)
 
 		fmt.Println("data len:", len(data))
 		start := time.Now().UnixNano()
@@ -80,6 +82,41 @@ var _ = Describe("ELMACDBuy", func() {
 		library.LoadEasyLangFormulas(".")
 
 		f := library.NewFormula("MACDBUY", rv)
+		defer f.Destroy()
+
+		fmt.Println("Name:", f.GetName())
+		for i := 0; i < f.ArgCount(); i++ {
+			min, max := f.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)
+		}
+		for i := 0; i < f.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", f.VarName(i), f.NoDraw(i), f.LineThick(i), f.Color(i))
+		}
+
+		fmt.Println(f.Len())
+		for i := 0; i < f.Len(); i++ {
+			r := f.Get(i)
+			fmt.Printf("%d. %s\t%.02f\n", i, rv.Get(i).GetDate(), r[0])
+		}
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
+	})
+})
+
+var _ = Describe("ELDDGS", func() {
+	It("test", func (){
+		_, data := loadJson("300666.SZ.json")
+		_, p := period.PeriodFromString("D1")
+		rv := function.RecordVectorEx("300666", p, data)
+
+		fmt.Println("data len:", rv.Len())
+		start := time.Now().UnixNano()
+
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.SetDebug(true)
+		library.LoadEasyLangFormulas(".")
+
+		f := library.NewFormula("DDGS", rv)
 		defer f.Destroy()
 
 		fmt.Println("Name:", f.GetName())

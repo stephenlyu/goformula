@@ -11,6 +11,10 @@ func Assert(cond bool, msg string) {
 	}
 }
 
+func isTrue(v float64) bool {
+	return v != 0 && !math.IsNaN(v)
+}
+
 func sum(values Value, start, end int) float64 {
 	sum := 0.0
 	for i := start; i < end; i++ {
@@ -120,6 +124,13 @@ func LinearRegression(x, y Value) (err error, slope float64, intercept float64) 
 func Interpolate(values []float64, from int, to int, fromValue float64, toValue float64){
 	Assert(from >= 0, "from >= 0 required")
 	Assert(to < len(values), "to < len(values) required")
+
+	if math.IsNaN(fromValue) || math.IsNaN(toValue) {
+		for i := from + 1; i < to; i++ {
+			values[i] = math.NaN()
+		}
+		return
+	}
 
 	if from == to {
 		values[from] = fromValue

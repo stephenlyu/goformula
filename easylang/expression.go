@@ -104,9 +104,21 @@ var (
 	VAR_SEQ    = 1
 )
 
-func newConstName() string {
-	ret := fmt.Sprintf("const%d", CONST_SEQ)
+var (
+	CONST_VAL_NAMES = make(map[float64]string)
+)
+
+func newConstName(value float64) string {
+	ret, ok := CONST_VAL_NAMES[value]
+	if ok {
+		return ret
+	}
+
+	ret = fmt.Sprintf("const%d", CONST_SEQ)
 	CONST_SEQ++
+
+	CONST_VAL_NAMES[value] = ret
+
 	return ret
 }
 
@@ -219,7 +231,7 @@ func ConstantExpression(context context, value float64) *constantexpr {
 	ret := &constantexpr{
 		baseexpr: baseexpr{
 			context: context,
-			varName: newConstName(),
+			varName: newConstName(value),
 		},
 		value: value,
 	}
