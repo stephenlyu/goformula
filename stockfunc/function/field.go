@@ -142,3 +142,22 @@ func VOLUME(data *RVector) *volume {
 	}
 	return ret
 }
+
+// Period
+
+type fPeriod struct {
+	fieldbase
+}
+
+func (this fPeriod) Get(index int) float64 {
+	return float64(GetPeriodIndex(this.data.period))
+}
+
+func PERIOD(data *RVector) *fPeriod {
+	ret := &fPeriod{
+		fieldbase {
+			data: data,
+		},
+	}
+	return ret
+}

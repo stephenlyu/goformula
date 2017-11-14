@@ -69,6 +69,7 @@ var functionMap luar.Map = luar.Map{
 	"HIGH": stockfunc.HIGH,
 	"AMOUNT": stockfunc.AMOUNT,
 	"VOLUME": stockfunc.VOLUME,
+	"PERIOD": stockfunc.PERIOD,
 
 	// Draw Functions
 
