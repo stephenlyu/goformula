@@ -161,3 +161,25 @@ func PERIOD(data *RVector) *fPeriod {
 	}
 	return ret
 }
+
+// ISLASTBAR
+
+type islastbar struct {
+	fieldbase
+}
+
+func (this islastbar) Get(index int) float64 {
+	if this.data.Len() - 1 == index {
+		return 1
+	}
+	return 0
+}
+
+func ISLASTBAR(data *RVector) *islastbar {
+	ret := &islastbar{
+		fieldbase{
+			data: data,
+		},
+	}
+	return ret
+}

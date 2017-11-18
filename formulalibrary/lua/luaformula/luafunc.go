@@ -52,7 +52,6 @@ var functionMap luar.Map = luar.Map{
 	"EVERY": function.EVERY,
 	"BARSLAST": function.BARSLAST,
 	"BARSCOUNT": function.BARSCOUNT,
-	"ISLASTBAR": function.ISLASTBAR,
 	"ROUND2": function.ROUND2,
 	"REF": function.REF,
 	"MIN": function.MIN,
@@ -70,6 +69,7 @@ var functionMap luar.Map = luar.Map{
 	"AMOUNT": stockfunc.AMOUNT,
 	"VOLUME": stockfunc.VOLUME,
 	"PERIOD": stockfunc.PERIOD,
+	"ISLASTBAR": stockfunc.ISLASTBAR,
 
 	// Draw Functions
 

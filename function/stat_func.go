@@ -483,24 +483,6 @@ func BARSCOUNT(data Value) *barscount {
 	return ret
 }
 
-// ISLASTBAR
-
-type islastbar struct {
-	scalar
-	data Value
-}
-
-func (this islastbar) Get(index int) float64 {
-	return iif(this.data.Len() - 1 == index, 1, 0)
-}
-
-func ISLASTBAR(data Value) *islastbar {
-	ret := &islastbar{
-		data: data,
-	}
-	return ret
-}
-
 // ROUND2
 
 type roundf struct {
