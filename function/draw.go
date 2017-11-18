@@ -18,8 +18,8 @@ type drawline struct {
 }
 
 func (this *drawline) BuildValueAt(index int) {
-	cond1 := isTrue(this.Cond1.Get(index))
-	cond2 := isTrue(this.Cond2.Get(index))
+	cond1 := IsTrue(this.Cond1.Get(index))
+	cond2 := IsTrue(this.Cond2.Get(index))
 
 	if cond1 {
 		this.lastCond1Index = index
@@ -116,7 +116,7 @@ type ployline struct {
 }
 
 func (this *ployline) BuildValueAt(index int) {
-	yes := isTrue(this.Cond.Get(index))
+	yes := IsTrue(this.Cond.Get(index))
 
 	if yes {
 		this.Values[index] = this.Price.Get(index)

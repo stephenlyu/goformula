@@ -11,7 +11,7 @@ func Assert(cond bool, msg string) {
 	}
 }
 
-func isTrue(v float64) bool {
+func IsTrue(v float64) bool {
 	return v != 0 && !math.IsNaN(v)
 }
 

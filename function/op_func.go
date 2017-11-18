@@ -173,7 +173,7 @@ type and struct {
 func (this and) BuildValueAt(index int) float64 {
 	a := this.data.Get(index)
 	b := this.data1.Get(index)
-	if isTrue(a) && isTrue(b) {
+	if IsTrue(a) && IsTrue(b) {
 		return 1
 	}
 	return 0
@@ -204,7 +204,7 @@ type or struct {
 func (this or) BuildValueAt(index int) float64 {
 	a := this.data.Get(index)
 	b := this.data1.Get(index)
-	if isTrue(a) || isTrue(b) {
+	if IsTrue(a) || IsTrue(b) {
 		return 1
 	}
 	return 0

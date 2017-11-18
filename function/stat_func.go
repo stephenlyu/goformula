@@ -341,7 +341,7 @@ func (this count) BuildValueAt(index int) float64 {
 	c := 0
 	for i := start; i < end; i++ {
 		v := this.data.Get(i)
-		if isTrue(v) {
+		if IsTrue(v) {
 			c++
 		}
 	}
@@ -374,7 +374,7 @@ type iff struct {
 }
 
 func (this iff) BuildValueAt(index int) float64 {
-	return iif(isTrue(this.data.Get(index)), this.yesData.Get(index), this.noData.Get(index))
+	return iif(IsTrue(this.data.Get(index)), this.yesData.Get(index), this.noData.Get(index))
 }
 
 func (this *iff) UpdateLastValue() {
@@ -411,7 +411,7 @@ func (this every) BuildValueAt(index int) float64 {
 	start := int(_math.Max(0, int64(end - N)))
 
 	for i := start; i < end; i++ {
-		if !isTrue(this.data.Get(i)) {
+		if !IsTrue(this.data.Get(i)) {
 			return 0
 		}
 	}
@@ -443,7 +443,7 @@ type barslast struct {
 
 func (this barslast) BuildValueAt(index int) float64 {
 	for j := index; j >= 0; j-- {
-		if isTrue(this.data.Get(j)) {
+		if IsTrue(this.data.Get(j)) {
 			return float64(index - j)
 		}
 	}
