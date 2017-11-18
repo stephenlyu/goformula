@@ -35,16 +35,10 @@ func (this *DrawTextAction) GetVarIndex() int {
 }
 
 func (this *DrawTextAction) GetCond(index int) float64 {
-	if index < 0 || index >= this.Cond.Len() {
-		return function.NaN
-	}
 	return this.Cond.Get(index)
 }
 
 func (this *DrawTextAction) GetPrice(index int) float64 {
-	if index < 0 || index >= this.Price.Len() {
-		return function.NaN
-	}
 	return this.Price.Get(index)
 }
 
@@ -85,16 +79,10 @@ func (this *DrawIconAction) GetVarIndex() int {
 }
 
 func (this *DrawIconAction) GetCond(index int) float64 {
-	if index < 0 || index >= this.Cond.Len() {
-		return function.NaN
-	}
 	return this.Cond.Get(index)
 }
 
 func (this *DrawIconAction) GetPrice(index int) float64 {
-	if index < 0 || index >= this.Price.Len() {
-		return function.NaN
-	}
 	return this.Price.Get(index)
 }
 
@@ -139,23 +127,14 @@ func (this *DrawLineAction) GetVarIndex() int {
 }
 
 func (this *DrawLineAction) GetCond1(index int) float64 {
-	if index < 0 || index >= this.Cond1.Len() {
-		return function.NaN
-	}
 	return this.Cond1.Get(index)
 }
 
 func (this *DrawLineAction) GetPrice1(index int) float64 {
-	if index < 0 || index >= this.Price1.Len() {
-		return function.NaN
-	}
 	return this.Price1.Get(index)
 }
 
 func (this *DrawLineAction) GetCond2(index int) float64 {
-	if index < 0 || index >= this.Cond2.Len() {
-		return function.NaN
-	}
 	return this.Cond2.Get(index)
 }
 
@@ -206,23 +185,14 @@ func (this *StickLineAction) GetVarIndex() int {
 }
 
 func (this *StickLineAction) GetCond(index int) float64 {
-	if index < 0 || index >= this.Cond.Len() {
-		return function.NaN
-	}
 	return this.Cond.Get(index)
 }
 
 func (this *StickLineAction) GetPrice1(index int) float64 {
-	if index < 0 || index >= this.Price1.Len() {
-		return function.NaN
-	}
 	return this.Price1.Get(index)
 }
 
 func (this *StickLineAction) GetPrice2(index int) float64 {
-	if index < 0 || index >= this.Price2.Len() {
-		return function.NaN
-	}
 	return this.Price2.Get(index)
 }
 
@@ -268,16 +238,10 @@ func (this *PloyLineAction) GetVarIndex() int {
 }
 
 func (this *PloyLineAction) GetCond(index int) float64 {
-	if index < 0 || index >= this.Cond.Len() {
-		return function.NaN
-	}
 	return this.Cond.Get(index)
 }
 
 func (this *PloyLineAction) GetPrice(index int) float64 {
-	if index < 0 || index >= this.Price.Len() {
-		return function.NaN
-	}
 	return this.Price.Get(index)
 }
 
@@ -316,29 +280,17 @@ func (this *DrawKLineAction) GetVarIndex() int {
 }
 
 func (this *DrawKLineAction) GetHigh(index int) float64 {
-	if index < 0 || index >= this.High.Len() {
-		return function.NaN
-	}
 	return this.High.Get(index)
 }
 
 func (this *DrawKLineAction) GetOpen(index int) float64 {
-	if index < 0 || index >= this.Open.Len() {
-		return function.NaN
-	}
 	return this.Open.Get(index)
 }
 
 func (this *DrawKLineAction) GetLow(index int) float64 {
-	if index < 0 || index >= this.Low.Len() {
-		return function.NaN
-	}
 	return this.Low.Get(index)
 }
 
 func (this *DrawKLineAction) GetClose(index int) float64 {
-	if index < 0 || index >= this.Close.Len() {
-		return function.NaN
-	}
 	return this.Close.Get(index)
 }
