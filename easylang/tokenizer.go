@@ -80,40 +80,42 @@ yystart1:
 		goto yyabort
 	case c == '!':
 		goto yystate6
-	case c == '#':
+	case c == '"':
 		goto yystate8
-	case c == '$':
-		goto yystate9
-	case c == '&':
+	case c == '#':
 		goto yystate10
-	case c == '(':
-		goto yystate14
-	case c == ')':
-		goto yystate15
-	case c == '*':
-		goto yystate16
-	case c == '+':
-		goto yystate17
-	case c == ',':
-		goto yystate18
-	case c == '-':
-		goto yystate19
-	case c == '.':
-		goto yystate20
-	case c == '/':
-		goto yystate21
-	case c == ':':
-		goto yystate25
-	case c == ';':
-		goto yystate27
-	case c == '<':
-		goto yystate28
-	case c == '=':
-		goto yystate30
-	case c == '>':
-		goto yystate32
-	case c == '\'':
+	case c == '$':
+		goto yystate11
+	case c == '&':
 		goto yystate12
+	case c == '(':
+		goto yystate16
+	case c == ')':
+		goto yystate17
+	case c == '*':
+		goto yystate18
+	case c == '+':
+		goto yystate19
+	case c == ',':
+		goto yystate20
+	case c == '-':
+		goto yystate21
+	case c == '.':
+		goto yystate22
+	case c == '/':
+		goto yystate23
+	case c == ':':
+		goto yystate27
+	case c == ';':
+		goto yystate29
+	case c == '<':
+		goto yystate30
+	case c == '=':
+		goto yystate32
+	case c == '>':
+		goto yystate34
+	case c == '\'':
+		goto yystate14
 	case c == '\n':
 		goto yystate3
 	case c == '\r':
@@ -121,13 +123,13 @@ yystart1:
 	case c == '\t' || c == ' ':
 		goto yystate2
 	case c == '{':
-		goto yystate35
-	case c == '|':
 		goto yystate37
+	case c == '|':
+		goto yystate39
 	case c >= '0' && c <= '9':
-		goto yystate22
+		goto yystate24
 	case c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= 0x4e00 && c <= 0x9fcb:
-		goto yystate34
+		goto yystate36
 	}
 
 yystate2:
@@ -167,63 +169,70 @@ yystate6:
 
 yystate7:
 	c = y.getc()
-	goto yyrule19
+	goto yyrule20
 
 yystate8:
-	c = y.getc()
-	goto yyrule28
-
-yystate9:
-	c = y.getc()
-	goto yyrule29
-
-yystate10:
 	c = y.getc()
 	switch {
 	default:
 		goto yyabort
-	case c == '&':
-		goto yystate11
+	case c == '"':
+		goto yystate9
+	case c >= '\x01' && c <= '!' || c >= '#' && c <= 'ÿ':
+		goto yystate8
 	}
+
+yystate9:
+	c = y.getc()
+	goto yyrule8
+
+yystate10:
+	c = y.getc()
+	goto yyrule29
 
 yystate11:
 	c = y.getc()
-	goto yyrule20
+	goto yyrule30
 
 yystate12:
 	c = y.getc()
 	switch {
 	default:
 		goto yyabort
-	case c == '\'':
+	case c == '&':
 		goto yystate13
-	case c >= '\x01' && c <= '&' || c >= '(' && c <= 'ÿ' || c >= 0x4e00 && c <= 0x9fcb:
-		goto yystate12
 	}
 
 yystate13:
 	c = y.getc()
-	goto yyrule7
+	goto yyrule21
 
 yystate14:
 	c = y.getc()
-	goto yyrule24
+	switch {
+	default:
+		goto yyabort
+	case c == '\'':
+		goto yystate15
+	case c >= '\x01' && c <= '&' || c >= '(' && c <= 'ÿ' || c >= 0x4e00 && c <= 0x9fcb:
+		goto yystate14
+	}
 
 yystate15:
 	c = y.getc()
-	goto yyrule25
+	goto yyrule7
 
 yystate16:
 	c = y.getc()
-	goto yyrule11
+	goto yyrule25
 
 yystate17:
 	c = y.getc()
-	goto yyrule9
+	goto yyrule26
 
 yystate18:
 	c = y.getc()
-	goto yyrule26
+	goto yyrule12
 
 yystate19:
 	c = y.getc()
@@ -231,37 +240,27 @@ yystate19:
 
 yystate20:
 	c = y.getc()
-	goto yyrule30
+	goto yyrule27
 
 yystate21:
 	c = y.getc()
-	goto yyrule12
+	goto yyrule11
 
 yystate22:
 	c = y.getc()
-	switch {
-	default:
-		goto yyrule6
-	case c == '.':
-		goto yystate23
-	case c >= '0' && c <= '9':
-		goto yystate22
-	}
+	goto yyrule31
 
 yystate23:
 	c = y.getc()
-	switch {
-	default:
-		goto yyabort
-	case c >= '0' && c <= '9':
-		goto yystate24
-	}
+	goto yyrule13
 
 yystate24:
 	c = y.getc()
 	switch {
 	default:
-		goto yyrule5
+		goto yyrule6
+	case c == '.':
+		goto yystate25
 	case c >= '0' && c <= '9':
 		goto yystate24
 	}
@@ -270,94 +269,112 @@ yystate25:
 	c = y.getc()
 	switch {
 	default:
-		goto yyrule22
-	case c == '=':
+		goto yyabort
+	case c >= '0' && c <= '9':
 		goto yystate26
 	}
 
 yystate26:
 	c = y.getc()
-	goto yyrule23
+	switch {
+	default:
+		goto yyrule5
+	case c >= '0' && c <= '9':
+		goto yystate26
+	}
 
 yystate27:
 	c = y.getc()
-	goto yyrule27
+	switch {
+	default:
+		goto yyrule23
+	case c == '=':
+		goto yystate28
+	}
 
 yystate28:
 	c = y.getc()
-	switch {
-	default:
-		goto yyrule14
-	case c == '=':
-		goto yystate29
-	}
+	goto yyrule24
 
 yystate29:
 	c = y.getc()
-	goto yyrule13
+	goto yyrule28
 
 yystate30:
 	c = y.getc()
 	switch {
 	default:
-		goto yyrule18
-	case c == '>':
+		goto yyrule15
+	case c == '=':
 		goto yystate31
 	}
 
 yystate31:
 	c = y.getc()
-	goto yyrule17
+	goto yyrule14
 
 yystate32:
 	c = y.getc()
 	switch {
 	default:
-		goto yyrule16
-	case c == '=':
+		goto yyrule19
+	case c == '>':
 		goto yystate33
 	}
 
 yystate33:
 	c = y.getc()
-	goto yyrule15
+	goto yyrule18
 
 yystate34:
 	c = y.getc()
 	switch {
 	default:
-		goto yyrule4
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= 0x4e00 && c <= 0x9fcb:
-		goto yystate34
+		goto yyrule17
+	case c == '=':
+		goto yystate35
 	}
 
 yystate35:
 	c = y.getc()
-	switch {
-	default:
-		goto yyabort
-	case c == '}':
-		goto yystate36
-	case c >= '\x01' && c <= '!' || c >= '#' && c <= '|' || c >= '~' && c <= 'ÿ' || c >= 0x4e00 && c <= 0x9fcb:
-		goto yystate35
-	}
+	goto yyrule16
 
 yystate36:
 	c = y.getc()
-	goto yyrule8
+	switch {
+	default:
+		goto yyrule4
+	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= 0x4e00 && c <= 0x9fcb:
+		goto yystate36
+	}
 
 yystate37:
 	c = y.getc()
 	switch {
 	default:
 		goto yyabort
-	case c == '|':
+	case c == '}':
 		goto yystate38
+	case c >= '\x01' && c <= '!' || c >= '#' && c <= '|' || c >= '~' && c <= 'ÿ' || c >= 0x4e00 && c <= 0x9fcb:
+		goto yystate37
 	}
 
 yystate38:
 	c = y.getc()
-	goto yyrule21
+	goto yyrule9
+
+yystate39:
+	c = y.getc()
+	switch {
+	default:
+		goto yyabort
+	case c == '|':
+		goto yystate40
+	}
+
+yystate40:
+	c = y.getc()
+	goto yyrule22
 
 yyrule1: // \r\n
 	{
@@ -408,136 +425,142 @@ yyrule7: // {STRING_LITERAL}
 		lval.str = string(y.buf.Bytes())
 		return STRING
 	}
-yyrule8: // {COMMENT}
+yyrule8: // {STRING_EXPR}
+	{
+
+		lval.str = string(y.buf.Bytes())
+		return STRING_EXPR
+	}
+yyrule9: // {COMMENT}
 
 	goto yystate0
-yyrule9: // {PLUS}
+yyrule10: // {PLUS}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return PLUS
 	}
-yyrule10: // {MINUS}
+yyrule11: // {MINUS}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return MINUS
 	}
-yyrule11: // {TIMES}
+yyrule12: // {TIMES}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return TIMES
 	}
-yyrule12: // {DIVIDE}
+yyrule13: // {DIVIDE}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return DIVIDE
 	}
-yyrule13: // {LE}
+yyrule14: // {LE}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return LE
 	}
-yyrule14: // {LT}
+yyrule15: // {LT}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return LT
 	}
-yyrule15: // {GE}
+yyrule16: // {GE}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return GE
 	}
-yyrule16: // {GT}
+yyrule17: // {GT}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return GT
 	}
-yyrule17: // {PARAMEQUAL}
+yyrule18: // {PARAMEQUAL}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return PARAMEQUAL
 	}
-yyrule18: // {EQ}
+yyrule19: // {EQ}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return EQ
 	}
-yyrule19: // {NE}
+yyrule20: // {NE}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return NE
 	}
-yyrule20: // {AND}
+yyrule21: // {AND}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return AND
 	}
-yyrule21: // {OR}
+yyrule22: // {OR}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return OR
 	}
-yyrule22: // {EQUALS}
+yyrule23: // {EQUALS}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return EQUALS
 	}
-yyrule23: // {COLONEQUAL}
+yyrule24: // {COLONEQUAL}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return COLONEQUAL
 	}
-yyrule24: // {LPAREN}
+yyrule25: // {LPAREN}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return LPAREN
 	}
-yyrule25: // {RPAREN}
+yyrule26: // {RPAREN}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return RPAREN
 	}
-yyrule26: // {COMMA}
+yyrule27: // {COMMA}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return COMMA
 	}
-yyrule27: // {SEMI}
+yyrule28: // {SEMI}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return SEMI
 	}
-yyrule28: // {POUND}
+yyrule29: // {POUND}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return POUND
 	}
-yyrule29: // {DOLLAR}
+yyrule30: // {DOLLAR}
 	{
 
 		lval.str = string(y.buf.Bytes())
 		return DOLLAR
 	}
-yyrule30: // {DOT}
+yyrule31: // {DOT}
 	{
 
 		lval.str = string(y.buf.Bytes())

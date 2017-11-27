@@ -10,9 +10,9 @@ The Copyright License for the GNU Bison Manual can be found in the "fdl-1.3" fil
 /* Infix notation calculator.  */
 
 /* TODO:
-    1. 支持字符串
-    2. 支持绘制函数
-    3. 支持跨公式引用 KDJ.K
+    1. 支持字符串                [DONE]
+    2. 支持绘制函数               [DONE]
+    3. 支持跨公式引用 KDJ.K        [DONE]
     4. 支持跨周期引用
         a. CLOSE#WEEK
         b. KDJ.K#WEEK
@@ -40,6 +40,7 @@ var _context = newContext()
 %token  ID
 %token	NUM
 %token  STRING
+%token  STRING_EXPR
 %token  EQUALS
 %token  PARAMEQUAL
 %token  COLONEQUAL
@@ -62,6 +63,7 @@ var _context = newContext()
 
 %type	<value>	NUM
 %type   <str> STRING
+%type   <str> STRING_EXPR
 %type   <str> ID graph_description OR AND EQ NE GT GE LT LE MINUS PLUS TIMES DIVIDE NOT
 %type   <expr> statement expression primary_expression postfix_expression unary_expression multiplicative_expression additive_expression relational_expression equality_expression logical_and_expression
 %type   <descriptions> statement_suffix graph_description_list
@@ -163,6 +165,26 @@ postfix_expression: primary_expression  { $$ = $1 }
                             $$ = ErrorExpression(_context, $3)
                         } else {
                             $$ = ReferenceExpression(_context, $1, $3)
+                        }
+                    }
+                    | ID POUND ID {
+                        period:=translatePeriod($3)
+                        if funcName, ok := noArgFuncMap[$1]; ok && _context.isPeriodSupport(period) {
+                            $$ = CrossFunctionExpression(_context, funcName, "", period)
+                        } else {
+                            lexer, _ := yylex.(*yylexer)
+                            _context.addError(GeneralError(lexer.lineno, lexer.column, __yyfmt__.Sprintf("%s#%s not supported", $1, $3)))
+                            $$ = ErrorExpression(_context, $3)
+                        }
+                    }
+                    | ID DOT ID POUND ID {
+                        period:=translatePeriod($5)
+                        if !_context.isReferenceSupport($1, $3) || !_context.isPeriodSupport(period) {
+                            lexer, _ := yylex.(*yylexer)
+                            _context.addError(GeneralError(lexer.lineno, lexer.column, __yyfmt__.Sprintf("%s.%s#%s not supported", $1, $3, $5)))
+                            $$ = ErrorExpression(_context, $3)
+                        } else {
+                            $$ = CrossReferenceExpression(_context, $1, $3, "", period)
                         }
                     }
 

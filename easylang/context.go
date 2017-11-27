@@ -7,22 +7,87 @@ import (
 	"strings"
 )
 
+var (
+	PERIOD_MAP = map[string]string{
+		"DAY":   "D1",
+		"WEEK":  "W1",
+		"MIN1":  "M1",
+		"MIN5":  "M5",
+		"MIN15": "M15",
+		"MIN30": "M30",
+		"MIN60": "M60",
+	}
+
+	CODE_MAP = map[string]int{
+		"": 0,
+	}
+)
+
+func translatePeriod(period string) string {
+	period1, ok := PERIOD_MAP[period]
+	if ok {
+		return period1
+	}
+	return ""
+}
+
 type context interface {
 	newAnonymousVarName() string
 	define(varName string, expr expression)
 	defineParam(varName string, expr expression)
-	refFormula(formulaName string)
+	refFormula(formulaName string, code string, period string)
+	refData(code string, period string)
 	addDrawFunction(expr *functionexpr)
 	isDefined(varName string) bool
 	isParamDefined(varName string) bool
 	isNumberingVar() bool
 }
 
+func getCodeId(code string) int {
+	ret, ok := CODE_MAP[code]
+	if ok {
+		return ret
+	}
+	CODE_MAP[code] = len(CODE_MAP)
+	return CODE_MAP[code]
+}
+
+func formatCode(code string) string {
+	return fmt.Sprintf("code%d", getCodeId(code))
+}
+
+func getRefFormulaVarName(name string, code string, period string) string {
+	return fmt.Sprintf("formula_%s_%s_%s", formatCode(code), strings.ToLower(period), strings.ToLower(name))
+}
+
+func getRefDataVarName(code string, period string) string {
+	return fmt.Sprintf("__data_code%d_%s__", getCodeId(code), strings.ToLower(period))
+}
+
+func getIndexMapVarName(code string, period string) string {
+	return fmt.Sprintf("__index_map_code%d_%s__", getCodeId(code), strings.ToLower(period))
+}
+
+type RefFormula struct {
+	name   string
+	code   string
+	period string
+}
+
+func (this *RefFormula) String() string {
+	return getRefFormulaVarName(this.name, this.code, this.period)
+}
+
+type RefData struct {
+	code   string
+	period string
+}
+
 type Context struct {
 	sequence int
 
 	formulaManager formula.FormulaManager
-	numberingVar bool
+	numberingVar   bool
 
 	params   []string
 	paramMap map[string]expression
@@ -30,7 +95,8 @@ type Context struct {
 	definedVars   []string
 	definedVarMap map[string]expression
 
-	refFormulas []string
+	refFormulas []RefFormula
+	refDataList []RefData
 
 	outputVars         []string
 	outputDescriptions map[string][]string
@@ -45,6 +111,10 @@ type Context struct {
 }
 
 func newContext() *Context {
+	CODE_MAP = map[string]int{
+		"": 0,
+	}
+
 	resetAll()
 	return &Context{
 		paramMap:              map[string]expression{},
@@ -92,13 +162,36 @@ func (this *Context) isReferenceSupport(formulaName string, refVarName string) b
 	return this.formulaManager.CanSupportVar(formulaName, refVarName)
 }
 
-func (this *Context) refFormula(formulaName string) {
-	for _, name := range this.refFormulas {
-		if name == formulaName {
+func (this *Context) isPeriodSupport(period string) bool {
+	if this.formulaManager == nil {
+		return true
+	}
+	return this.formulaManager.CanSupportPeriod(period)
+}
+
+func (this *Context) isSecuritySupport(code string) bool {
+	if this.formulaManager == nil {
+		return true
+	}
+	return this.formulaManager.CanSupportSecurity(code)
+}
+
+func (this *Context) refFormula(formulaName string, code string, period string) {
+	for _, r := range this.refFormulas {
+		if r.name == formulaName && r.code == code && r.period == period {
 			return
 		}
 	}
-	this.refFormulas = append(this.refFormulas, formulaName)
+	this.refFormulas = append(this.refFormulas, RefFormula{formulaName, code, period})
+}
+
+func (this *Context) refData(code string, period string) {
+	for _, r := range this.refDataList {
+		if r.code == code && r.period == period {
+			return
+		}
+	}
+	this.refDataList = append(this.refDataList, RefData{code, period})
 }
 
 func (this *Context) define(varName string, expr expression) {
@@ -179,9 +272,25 @@ func (this *Context) refFormulaDefineCodes(indent string) string {
 	}
 
 	lines := make([]string, len(this.refFormulas))
-	for i, name := range this.refFormulas {
-		name = strings.ToUpper(name)
-		lines[i] = fmt.Sprintf("%so.formula_%s = FormulaManager.NewFormula('%s', data)", indent, strings.ToLower(name), name)
+	for i, f := range this.refFormulas {
+		name := strings.ToUpper(f.name)
+		lines[i] = fmt.Sprintf("%so.%s = FormulaManager.NewFormula('%s', o.%s)", indent, f.String(), name, getRefDataVarName(f.code, f.period))
+	}
+	return strings.Join(lines, "\n")
+}
+
+func (this *Context) refDataDefineCodes(indent string) string {
+	if len(this.refDataList) == 0 {
+		return ""
+	}
+
+	lines := make([]string, len(this.refDataList)*2)
+	for i, f := range this.refDataList {
+		lines[2*i] = fmt.Sprintf("%so.%s = DataLibrary.GetData('%s', '%s')", indent, getRefDataVarName(f.code, f.period), f.code, f.period)
+		lines[2*i+1] = fmt.Sprintf("%so.%s = IndexMap(o.%s, o.%s)", indent,
+			getIndexMapVarName(f.code, f.period),
+			getRefDataVarName("", ""),
+			getRefDataVarName(f.code, f.period))
 	}
 	return strings.Join(lines, "\n")
 }
@@ -584,8 +693,9 @@ function %sClass:new(%s)
     o = {}
     setmetatable(o, self)
     self.__index = self
+    o.%s = data
 %s
-    o.data = data
+%s
 %s
 
 %s
@@ -599,7 +709,7 @@ function %sClass:updateLastValue()
 end
 
 function %sClass:Len()
-    return self.data.Len()
+    return self.%s.Len()
 end
 
 
@@ -630,6 +740,8 @@ FormulaClass = %sClass
 		graphTypes,
 		name,
 		this.paramCodes(),
+		getRefDataVarName("", ""),
+		this.refDataDefineCodes(indent),
 		this.refFormulaDefineCodes(indent),
 		this.definedCodes(indent),
 		this.drawFunctionCodes(),
@@ -637,6 +749,7 @@ FormulaClass = %sClass
 		name,
 		this.updateLastValueCodes(indent),
 		name,
+		getRefDataVarName("", ""),
 		name,
 		this.getCodes("        "),
 		name)

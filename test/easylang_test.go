@@ -20,6 +20,15 @@ var _ = Describe("Compile", func() {
 	})
 })
 
+var _ = Describe("CrossValue", func() {
+	It("test", func () {
+		err := easylang.Compile("CROSS.d", "cross.lua", nil, true, true)
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
+})
+
 var _ = Describe("Token", func() {
 	It("test", func () {
 		err := easylang.Tokenizer("MACD.d")

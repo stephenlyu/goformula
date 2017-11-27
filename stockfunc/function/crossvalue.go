@@ -40,6 +40,7 @@ func (this *crossValue) Set(index int, v float64) {
 }
 
 func (this *crossValue) UpdateLastValue() {
+	this.value.UpdateLastValue()
 }
 
 func (this *crossValue) Append(v float64) {

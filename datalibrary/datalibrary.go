@@ -20,7 +20,7 @@ type DataLibrary interface {
 	SetDataType(dataType int)
 
 	// Get data with specific code & period
-	GetData(code string, period Period) *function.RVector
+	GetData(code string, period string) *function.RVector
 
 	// Release data
 	ReleaseData(data *function.RVector)
@@ -43,9 +43,12 @@ func (this *dataLibrary) SetDataType(dataType int) {
 	this.dataType = dataType
 }
 
-func (this *dataLibrary) GetData(code string, period Period) *function.RVector {
+func (this *dataLibrary) GetData(code string, periodString string) *function.RVector {
 	security, err := entity.ParseSecurity(code)
 	util.Assert(err == nil, "bad security code")
+
+	err, period := PeriodFromString(periodString)
+	util.Assert(err == nil, "bad period")
 
 	var data []entity.Record
 	switch this.dataType {

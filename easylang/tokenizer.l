@@ -72,6 +72,7 @@ IDENTIFIER      [a-zA-Z_][a-zA-Z0-9_]*
 INTEGER         [0-9]+
 FLOAT           [0-9]+"."[0-9]+
 STRING_LITERAL  '[^\']*'
+STRING_EXPR     "\""[^"\""]*"\""
 COMMENT         "{"[^"}"]*"}"
 PLUS            "+"
 MINUS           "-"
@@ -134,6 +135,10 @@ DOLLAR          "$"
 {STRING_LITERAL}
     lval.str = string(y.buf.Bytes())
     return STRING
+
+{STRING_EXPR}
+    lval.str = string(y.buf.Bytes())
+    return STRING_EXPR
 
 {COMMENT}
 

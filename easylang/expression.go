@@ -2,11 +2,11 @@ package easylang
 
 import (
 	"fmt"
-	"strings"
-	"unicode/utf8"
-	"sort"
 	"io/ioutil"
 	"regexp"
+	"sort"
+	"strings"
+	"unicode/utf8"
 )
 
 type funcmap map[string]string
@@ -108,16 +108,16 @@ var (
 )
 
 var (
-	CONST_VAL_NAMES = make(map[float64]string)
-	FORMAT_VAR_NAMES = make(map[string]string)
-	DEFINED_NAMES = make(map[string]string)
+	CONST_VAL_NAMES     = make(map[float64]string)
+	FORMAT_VAR_NAMES    = make(map[string]string)
+	DEFINED_NAMES       = make(map[string]string)
 	VAR_NAME_PATTERN, _ = regexp.Compile(`^var[0-9]+$`)
 )
 
 func resetAll() {
-	CONST_SEQ  = 1
+	CONST_SEQ = 1
 	STRING_SEQ = 1
-	VAR_SEQ    = 1
+	VAR_SEQ = 1
 
 	CONST_VAL_NAMES = make(map[float64]string)
 	FORMAT_VAR_NAMES = make(map[string]string)
@@ -132,7 +132,7 @@ func dumpVarMapping(filePath string) {
 		vars = append(vars, v)
 	}
 
-	sort.SliceStable(vars, func (i, j int) bool {
+	sort.SliceStable(vars, func(i, j int) bool {
 		return vars[i] < vars[j]
 	})
 
@@ -420,6 +420,7 @@ type functionexpr struct {
 }
 
 func FunctionExpression(context context, funcName string, arguments []expression) *functionexpr {
+	funcName = strings.ToUpper(funcName)
 	ret := &functionexpr{
 		baseexpr: baseexpr{
 			context: context,
@@ -461,7 +462,7 @@ func (this functionexpr) Codes() string {
 		}
 		return fmt.Sprintf("%s(%s)", this.funcName, strings.Join(sa, ", "))
 	} else {
-		return fmt.Sprintf("%s(o.data)", this.funcName)
+		return fmt.Sprintf("%s(o.%s)", this.funcName, getRefDataVarName("", ""))
 	}
 }
 
@@ -486,7 +487,7 @@ type referenceexpr struct {
 
 func ReferenceExpression(context context, formulaName string, refVarName string) *referenceexpr {
 	formulaName = strings.ToUpper(formulaName)
-	context.refFormula(formulaName)
+	context.refFormula(formulaName, "", "")
 
 	ret := &referenceexpr{
 		baseexpr: baseexpr{
@@ -507,7 +508,83 @@ func (this referenceexpr) DefinedName() string {
 }
 
 func (this referenceexpr) Codes() string {
-	return fmt.Sprintf("o.formula_%s.GetVarValue('%s')", strings.ToLower(this.formulaName), strings.ToUpper(this.refVarName))
+	return fmt.Sprintf("o.%s.GetVarValue('%s')", getRefFormulaVarName(this.formulaName, "", ""), strings.ToUpper(this.refVarName))
+}
+
+type crossreferenceexpr struct {
+	baseexpr
+	formulaName string
+	refVarName  string
+	code        string
+	period      string
+}
+
+func CrossReferenceExpression(context context, formulaName string, refVarName string, code string, period string) *crossreferenceexpr {
+	fmt.Println("CrossReferenceExpression", formulaName, refVarName, code, period)
+	context.refData(code, period)
+	context.refFormula(formulaName, code, period)
+	ret := &crossreferenceexpr{
+		baseexpr: baseexpr{
+			context: context,
+		},
+		formulaName: formulaName,
+		refVarName:  refVarName,
+		code:        code,
+		period:      period,
+	}
+	varName := fmt.Sprintf("%s.%s_code%d_%s", formulaName, refVarName, getCodeId(code), strings.ToLower(period))
+	ret.varName = varName
+	ret.displayName = varName
+	context.define(ret.varName, ret)
+	return ret
+}
+
+func (this crossreferenceexpr) DefinedName() string {
+	return this.DefineName(this.varName)
+}
+
+func (this crossreferenceexpr) Codes() string {
+	return fmt.Sprintf("CrossValue(o.%s.GetVarValue('%s'), o.%s)",
+		getRefFormulaVarName(this.formulaName, this.code, this.period),
+		strings.ToUpper(this.refVarName),
+		getIndexMapVarName(this.code, this.period))
+}
+
+type crossfunctionexpr struct {
+	baseexpr
+	funcName string
+	code     string
+	period   string
+}
+
+func CrossFunctionExpression(context context, funcName string, code string, period string) *crossfunctionexpr {
+	fmt.Println("CrossFunctionExpression", funcName, code, period)
+	context.refData(code, period)
+	funcName = strings.ToUpper(funcName)
+	ret := &crossfunctionexpr{
+		baseexpr: baseexpr{
+			context: context,
+		},
+		funcName: funcName,
+		code:     code,
+		period:   period,
+	}
+	varName := fmt.Sprintf("%s_code%d_%s", strings.ToLower(funcName), getCodeId(code), strings.ToLower(period))
+	ret.varName = varName
+	ret.displayName = varName
+	context.define(ret.varName, ret)
+	return ret
+}
+
+func (this crossfunctionexpr) DefinedName() string {
+	return this.DefineName(this.varName)
+}
+
+func (this crossfunctionexpr) Codes() string {
+	return fmt.Sprintf("CrossValue(o.%s(%s), o.%s)",
+		this.funcName,
+		getRefDataVarName(this.code, this.period),
+		getIndexMapVarName(this.code, this.period))
 }
 
 type assignexpr struct {

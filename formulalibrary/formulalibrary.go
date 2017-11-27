@@ -264,6 +264,14 @@ func (this *FormulaLibrary) CanSupportVar(name string, varName string) bool {
 	return factory.GetMeta().HasVar(varName)
 }
 
+func (this *FormulaLibrary) CanSupportPeriod(period string) bool {
+	return true
+}
+
+func (this *FormulaLibrary) CanSupportSecurity(code string) bool {
+	return true
+}
+
 func (this *FormulaLibrary) NewFormula(name string, data *function.RVector) formula.Formula {
 	factory, ok := this.formulaFactories[name]
 	if !ok {
