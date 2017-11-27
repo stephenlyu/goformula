@@ -15,12 +15,14 @@ type context interface {
 	addDrawFunction(expr *functionexpr)
 	isDefined(varName string) bool
 	isParamDefined(varName string) bool
+	isNumberingVar() bool
 }
 
 type Context struct {
 	sequence int
 
 	formulaManager formula.FormulaManager
+	numberingVar bool
 
 	params   []string
 	paramMap map[string]expression
@@ -54,6 +56,14 @@ func newContext() *Context {
 
 func (this *Context) SetFormulaManager(formulaManager formula.FormulaManager) {
 	this.formulaManager = formulaManager
+}
+
+func (this *Context) SetNumberingVar(v bool) {
+	this.numberingVar = v
+}
+
+func (this *Context) isNumberingVar() bool {
+	return this.numberingVar
 }
 
 func (this *Context) addError(err SyncError) {
@@ -189,7 +199,7 @@ func (this *Context) definedCodes(indent string) string {
 		if expr.IsVoid() {
 			// DO NOTHING
 		} else {
-			lines = append(lines, fmt.Sprintf("%so.%s = %s", indent, varName, expr.Codes()))
+			lines = append(lines, fmt.Sprintf("%so.%s = %s", indent, expr.DefinedName(), expr.Codes()))
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -211,7 +221,7 @@ func (this *Context) updateLastValueCodes(indent string) string {
 			if !expr.IsValid() || expr.IsVoid() {
 				continue
 			}
-			lines = append(lines, fmt.Sprintf("%so.%s.updateLastValue()", indent, varName))
+			lines = append(lines, fmt.Sprintf("%so.%s.updateLastValue()", indent, expr.DefinedName()))
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -220,7 +230,8 @@ func (this *Context) updateLastValueCodes(indent string) string {
 func (this *Context) refValuesCodes() string {
 	items := make([]string, len(this.outputVars))
 	for i, varName := range this.outputVars {
-		items[i] = fmt.Sprintf("o.%s", varName)
+		exp := this.definedVarMap[varName]
+		items[i] = fmt.Sprintf("o.%s", exp.DefinedName())
 	}
 	return strings.Join(items, ", ")
 }
@@ -410,25 +421,25 @@ func (this *Context) drawFunctionCodes() string {
 		case "DRAWTEXT":
 			drawTexts = append(drawTexts, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price=o.%s, Text=o.%s, Color={Red=%d, Green=%d, Blue=%d}, NoDraw=%d}",
 				formula.FORMULA_DRAW_ACTION_DRAWTEXT,
-				expr.arguments[0].VarName(),
-				expr.arguments[1].VarName(),
-				expr.arguments[2].VarName(),
+				expr.arguments[0].DefinedName(),
+				expr.arguments[1].DefinedName(),
+				expr.arguments[2].DefinedName(),
 				color.Red, color.Green, color.Blue,
 				noDraw))
 		case "DRAWICON":
 			drawIcons = append(drawIcons, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price=o.%s, Type=%d, NoDraw=%d}",
 				formula.FORMULA_DRAW_ACTION_DRAWICON,
-				expr.arguments[0].VarName(),
-				expr.arguments[1].VarName(),
+				expr.arguments[0].DefinedName(),
+				expr.arguments[1].DefinedName(),
 				int(expr.arguments[2].(*constantexpr).value),
 				noDraw))
 		case "DRAWLINE":
 			drawLines = append(drawLines, fmt.Sprintf("        {ActionType=%d, Cond1=o.%s, Price1=o.%s, Cond2=o.%s, Price2=o.%s, Expand=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
 				formula.FORMULA_DRAW_ACTION_DRAWLINE,
-				expr.arguments[0].VarName(),
-				expr.arguments[1].VarName(),
-				expr.arguments[2].VarName(),
-				expr.arguments[3].VarName(),
+				expr.arguments[0].DefinedName(),
+				expr.arguments[1].DefinedName(),
+				expr.arguments[2].DefinedName(),
+				expr.arguments[3].DefinedName(),
 				int(expr.arguments[4].(*constantexpr).value),
 				noDraw,
 				color.Red, color.Green, color.Blue,
@@ -437,17 +448,17 @@ func (this *Context) drawFunctionCodes() string {
 		case "DRAWKLINE":
 			drawKLines = append(drawKLines, fmt.Sprintf("        {ActionType=%d, High=o.%s, Open=o.%s, Low=o.%s, Close=o.%s, NoDraw=%d}",
 				formula.FORMULA_DRAW_ACTION_DRAWKLINE,
-				expr.arguments[0].VarName(),
-				expr.arguments[1].VarName(),
-				expr.arguments[2].VarName(),
-				expr.arguments[3].VarName(),
+				expr.arguments[0].DefinedName(),
+				expr.arguments[1].DefinedName(),
+				expr.arguments[2].DefinedName(),
+				expr.arguments[3].DefinedName(),
 				noDraw))
 		case "STICKLINE":
 			stickLines = append(stickLines, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price1=o.%s, Price2=o.%s, Width=%f, Empty=%d, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d}",
 				formula.FORMULA_DRAW_ACTION_STICKLINE,
-				expr.arguments[0].VarName(),
-				expr.arguments[1].VarName(),
-				expr.arguments[2].VarName(),
+				expr.arguments[0].DefinedName(),
+				expr.arguments[1].DefinedName(),
+				expr.arguments[2].DefinedName(),
 				expr.arguments[3].(*constantexpr).value,
 				int(expr.arguments[4].(*constantexpr).value),
 				noDraw,
@@ -456,8 +467,8 @@ func (this *Context) drawFunctionCodes() string {
 		case "PLOYLINE":
 			ployLines = append(ployLines, fmt.Sprintf("        {ActionType=%d, Cond=o.%s, Price=o.%s, NoDraw=%d, Color={Red=%d, Green=%d, Blue=%d}, LineThick=%d, VarIndex=%d}",
 				formula.FORMULA_DRAW_ACTION_PLOYLINE,
-				expr.arguments[0].VarName(),
-				expr.arguments[1].VarName(),
+				expr.arguments[0].DefinedName(),
+				expr.arguments[1].DefinedName(),
 				noDraw,
 				color.Red, color.Green, color.Blue,
 				lineThick,

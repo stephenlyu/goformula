@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func CompileFile(sourceFile string, formulaManager formula.FormulaManager) (error, string) {
+func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numberingVar bool) (error, string) {
 	file, err := os.Open(sourceFile)
 	if err != nil {
 		return err, ""
@@ -20,6 +20,7 @@ func CompileFile(sourceFile string, formulaManager formula.FormulaManager) (erro
 
 	_context = newContext()
 	_context.SetFormulaManager(formulaManager)
+	_context.SetNumberingVar(numberingVar)
 	ret := yyParse(newLexer(bufio.NewReader(file)))
 	if ret == 1 {
 		return errors.New("compile failure"), ""
@@ -37,10 +38,14 @@ func CompileFile(sourceFile string, formulaManager formula.FormulaManager) (erro
 	return nil, _context.generateCode(mainName)
 }
 
-func Compile(sourceFile string, destFile string, formulaManager formula.FormulaManager) error {
-	err, code := CompileFile(sourceFile, formulaManager)
+func Compile(sourceFile string, destFile string, formulaManager formula.FormulaManager, numberingVar bool, debug bool) error {
+	err, code := CompileFile(sourceFile, formulaManager, numberingVar)
 	if err != nil {
 		return err
+	}
+
+	if debug {
+		dumpVarMapping(sourceFile + ".sym")
 	}
 
 	return ioutil.WriteFile(destFile, []byte(code), 0666)

@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
+	"sort"
+	"io/ioutil"
+	"regexp"
 )
 
 type funcmap map[string]string
@@ -107,6 +110,8 @@ var (
 var (
 	CONST_VAL_NAMES = make(map[float64]string)
 	FORMAT_VAR_NAMES = make(map[string]string)
+	DEFINED_NAMES = make(map[string]string)
+	VAR_NAME_PATTERN, _ = regexp.Compile(`^var[0-9]+$`)
 )
 
 func resetAll() {
@@ -116,6 +121,27 @@ func resetAll() {
 
 	CONST_VAL_NAMES = make(map[float64]string)
 	FORMAT_VAR_NAMES = make(map[string]string)
+	DEFINED_NAMES = make(map[string]string)
+}
+
+func dumpVarMapping(filePath string) {
+	varRmap := make(map[string]string)
+	vars := []string{}
+	for k, v := range DEFINED_NAMES {
+		varRmap[v] = k
+		vars = append(vars, v)
+	}
+
+	sort.SliceStable(vars, func (i, j int) bool {
+		return vars[i] < vars[j]
+	})
+
+	lines := make([]string, len(vars))
+	for i, v := range vars {
+		lines[i] = fmt.Sprintf("%s: %s", v, varRmap[v])
+	}
+
+	ioutil.WriteFile(filePath, []byte(strings.Join(lines, "\n")), 0666)
 }
 
 func newConstName(value float64) string {
@@ -151,6 +177,8 @@ type expression interface {
 	RefCount() int
 	VarName() string
 	DisplayName() string
+	DefinedName() string
+	DefineName(v string) string
 
 	IsVoid() bool  // DRAWTEXT等没有返回值
 	IsValid() bool // 如果一个表达式的子表示IsVoid()或者!IsValid()，则该表达式不合法。不合法的表达式再生成代码过程中会被忽略
@@ -217,6 +245,28 @@ func (this baseexpr) VarName() string {
 
 func (this baseexpr) DisplayName() string {
 	return this.displayName
+}
+
+func (this baseexpr) DefinedName() string {
+	return this.varName
+}
+
+func (this baseexpr) DefineName(v string) string {
+	if !this.context.isNumberingVar() {
+		return v
+	}
+
+	if VAR_NAME_PATTERN.Match([]byte(v)) {
+		return v
+	}
+
+	ret, ok := DEFINED_NAMES[v]
+	if ok {
+		return ret
+	}
+	ret = newVarName()
+	DEFINED_NAMES[v] = ret
+	return ret
 }
 
 func (this *baseexpr) IncrementRefCount() {
@@ -309,9 +359,13 @@ func UnaryExpression(context context, operator string, operand expression) *unar
 	return ret
 }
 
+func (this unaryexpr) DefinedName() string {
+	return this.DefineName(this.varName)
+}
+
 func (this unaryexpr) Codes() string {
 	funcName, _ := unaryFuncMap[this.operator]
-	return fmt.Sprintf("%s(o.%s)", funcName, this.operand.VarName())
+	return fmt.Sprintf("%s(o.%s)", funcName, this.operand.DefinedName())
 }
 
 func (this *unaryexpr) IsValid() bool {
@@ -346,9 +400,13 @@ func BinaryExpression(context context, operator string, leftOperand, rightOperan
 	return ret
 }
 
+func (this binaryexpr) DefinedName() string {
+	return this.DefineName(this.varName)
+}
+
 func (this binaryexpr) Codes() string {
 	funcName, _ := binaryFuncMap[this.operator]
-	return fmt.Sprintf("%s(o.%s, o.%s)", funcName, this.leftOperand.VarName(), this.rightOperand.VarName())
+	return fmt.Sprintf("%s(o.%s, o.%s)", funcName, this.leftOperand.DefinedName(), this.rightOperand.DefinedName())
 }
 
 func (this *binaryexpr) IsValid() bool {
@@ -391,11 +449,15 @@ func FunctionExpression(context context, funcName string, arguments []expression
 	return ret
 }
 
+func (this functionexpr) DefinedName() string {
+	return this.DefineName(this.varName)
+}
+
 func (this functionexpr) Codes() string {
 	if len(this.arguments) > 0 {
 		sa := make([]string, len(this.arguments))
 		for i, arg := range this.arguments {
-			sa[i] = "o." + arg.VarName()
+			sa[i] = "o." + arg.DefinedName()
 		}
 		return fmt.Sprintf("%s(%s)", this.funcName, strings.Join(sa, ", "))
 	} else {
@@ -440,6 +502,10 @@ func ReferenceExpression(context context, formulaName string, refVarName string)
 	return ret
 }
 
+func (this referenceexpr) DefinedName() string {
+	return this.DefineName(this.varName)
+}
+
 func (this referenceexpr) Codes() string {
 	return fmt.Sprintf("o.formula_%s.GetVarValue('%s')", strings.ToLower(this.formulaName), strings.ToUpper(this.refVarName))
 }
@@ -468,7 +534,7 @@ func AssignmentExpression(context context, varName string, operand expression, i
 }
 
 func (this assignexpr) Codes() string {
-	return fmt.Sprintf("o.%s", this.operand.VarName())
+	return fmt.Sprintf("o.%s", this.operand.DefinedName())
 }
 
 func (this assignexpr) IsValid() bool {
@@ -499,7 +565,7 @@ func ParamExpression(context context, varName string, defaultValue float64, min 
 }
 
 func (this paramexpr) Codes() string {
-	return fmt.Sprintf("Scalar(%s)", strings.ToLower(this.varName))
+	return fmt.Sprintf("Scalar(%s)", strings.ToLower(this.DefinedName()))
 }
 
 type errorexpr struct {

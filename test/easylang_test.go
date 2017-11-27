@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("Compile", func() {
 	It("test", func () {
-		err := easylang.Compile("MACDBUY.d", "output.lua", nil)
+		err := easylang.Compile("MACDBUY.d", "output.lua", nil, true, true)
 		if err != nil {
 			fmt.Println(err)
 		}
