@@ -25,6 +25,8 @@ The Copyright License for the GNU Bison Manual can be found in the "fdl-1.3" fil
 
 package easylang
 
+import "strings"
+
 var _context = newContext()
 
 %}
@@ -185,6 +187,63 @@ postfix_expression: primary_expression  { $$ = $1 }
                             $$ = ErrorExpression(_context, $3)
                         } else {
                             $$ = CrossReferenceExpression(_context, $1, $3, "", period)
+                        }
+                    }
+                    | STRING_EXPR {
+                        parts := strings.Split($1[1:len($1)-1], "$")
+                        lexer, _ := yylex.(*yylexer)
+
+                        var reportError = func(msg string) {
+                            if msg == "" {
+                                msg = __yyfmt__.Sprintf("\"%s\" not supported", $1)
+                            }
+                            _context.addError(GeneralError(lexer.lineno, lexer.column, msg))
+                            $$ = ErrorExpression(_context, $1)
+                        }
+
+                        if len(parts) != 2 {
+                            reportError("")
+                            break
+                        }
+
+                        code := parts[0]
+                        if !_context.isSecuritySupport(code) {
+                            reportError(__yyfmt__.Sprintf("code %s not supported", code))
+                            break
+                        }
+
+                        expr := parts[1]
+
+                        var period string
+
+                        parts = strings.Split(expr, "#")
+                        if len(parts) > 2 {
+                            reportError("")
+                            break
+                        } else if len(parts) == 2 {
+                            period = translatePeriod(parts[1])
+                            if !_context.isPeriodSupport(period) {
+                                reportError(__yyfmt__.Sprintf("period %s not supported", parts[1]))
+                                break
+                            }
+                        }
+
+                        parts = strings.Split(parts[0], ".")
+                        switch len(parts) {
+                        case 1:
+                            if funcName, ok := noArgFuncMap[parts[0]]; !ok {
+                                reportError(__yyfmt__.Sprintf("function %s not supported", parts[0]))
+                            } else {
+                                $$ = CrossFunctionExpression(_context, funcName, code, period)
+                            }
+                        case 2:
+                            if !_context.isReferenceSupport(parts[0], parts[1]) {
+                                reportError("")
+                            } else {
+                                $$ = CrossReferenceExpression(_context, parts[0], parts[1], code, period)
+                            }
+                        default:
+                            reportError("")
                         }
                     }
 

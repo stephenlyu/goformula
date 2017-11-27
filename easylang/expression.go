@@ -520,7 +520,6 @@ type crossreferenceexpr struct {
 }
 
 func CrossReferenceExpression(context context, formulaName string, refVarName string, code string, period string) *crossreferenceexpr {
-	fmt.Println("CrossReferenceExpression", formulaName, refVarName, code, period)
 	context.refData(code, period)
 	context.refFormula(formulaName, code, period)
 	ret := &crossreferenceexpr{
@@ -558,7 +557,6 @@ type crossfunctionexpr struct {
 }
 
 func CrossFunctionExpression(context context, funcName string, code string, period string) *crossfunctionexpr {
-	fmt.Println("CrossFunctionExpression", funcName, code, period)
 	context.refData(code, period)
 	funcName = strings.ToUpper(funcName)
 	ret := &crossfunctionexpr{
