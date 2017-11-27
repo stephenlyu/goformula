@@ -9,6 +9,7 @@ import (
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"github.com/stephenlyu/goformula/formulalibrary"
 	"github.com/stephenlyu/tds/period"
+	"github.com/stephenlyu/goformula/datalibrary"
 )
 
 var _ = Describe("Compile", func() {
@@ -259,6 +260,45 @@ var _ = Describe("ELDrawActions", func() {
 		drawActions := f.DrawActions()
 		for _, action := range drawActions {
 			fmt.Printf("%+v\n", action)
+		}
+
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
+	})
+})
+
+var _ = Describe("ELCross", func() {
+	It("test", func (){
+		dl := datalibrary.NewDataLibrary("data")
+		rv := dl.GetData("000001", "M5")
+
+		fmt.Println("data len:", rv.Len())
+		start := time.Now().UnixNano()
+
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.SetDebug(true)
+		library.SetDataLibrary(dl)
+		library.LoadEasyLangFormulas(".")
+
+		f := library.NewFormula("CROSS", rv)
+		defer f.Destroy()
+
+		fmt.Println("Name:", f.GetName())
+		for i := 0; i < f.ArgCount(); i++ {
+			min, max := f.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)
+		}
+		for i := 0; i < f.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", f.VarName(i), f.NoDraw(i), f.LineThick(i), f.Color(i))
+		}
+
+		for i := 0; i < f.Len(); i++ {
+			r := f.Get(i)
+			fmt.Printf("%d. %s", i, rv.Get(i).GetDate())
+			for _, v := range r {
+				fmt.Printf("\t%.02f", v)
+			}
+			fmt.Println("")
 		}
 
 		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")

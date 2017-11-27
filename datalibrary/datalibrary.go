@@ -8,6 +8,9 @@ import (
 	"github.com/stephenlyu/tds/datasource/tdx"
 	"github.com/stephenlyu/tds/entity"
 	"github.com/z-ray/log"
+	"strings"
+	"unicode"
+	"fmt"
 )
 
 const (
@@ -43,7 +46,31 @@ func (this *dataLibrary) SetDataType(dataType int) {
 	this.dataType = dataType
 }
 
+func (this *dataLibrary) translateCode(code string) string {
+	if strings.Index(code, ".") != -1 {
+		return code
+	}
+
+	code = strings.ToUpper(code)
+	if code[0] == '0' || code[0] == '3' {
+		return code + ".SZ"
+	} else if unicode.IsNumber(rune(code[0])) {
+		return code + ".SH"
+	}
+	if strings.HasPrefix(code, "SZ") {
+		return code[2:] + ".SZ"
+	}
+	if strings.HasPrefix(code, "SH") {
+		return code[2:] + ".SH"
+	}
+
+	return code + ".SH"
+}
+
 func (this *dataLibrary) GetData(code string, periodString string) *function.RVector {
+	code = this.translateCode(code)
+	fmt.Printf("load data: %s %s\n", code, periodString)
+
 	security, err := entity.ParseSecurity(code)
 	util.Assert(err == nil, "bad security code")
 
@@ -58,16 +85,19 @@ func (this *dataLibrary) GetData(code string, periodString string) *function.RVe
 		err, data = this.ds.GetForwardAdjustedData(security, period)
 	}
 
+	ret := make([]function.Record, len(data))
 	if err != nil {
 		log.Errorf("DataLibrary.GetData fail, error: %v", err)
+		return function.RecordVector(ret)
 	}
 
-	ret := make([]function.Record, len(data))
 	for i := range data {
 		ret[i] = &data[i]
 	}
 
-	return function.RecordVector(ret)
+	fmt.Println(data[0].GetDate(), data[len(data) - 1].GetDate())
+
+	return function.RecordVectorEx(code, period, ret)
 }
 
 func (this *dataLibrary) ReleaseData(data *function.RVector) {

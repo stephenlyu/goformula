@@ -3,6 +3,7 @@ package function
 import (
 	"github.com/stephenlyu/tds/util"
 	"github.com/stephenlyu/tds/period"
+	"fmt"
 )
 
 
@@ -29,12 +30,12 @@ func (this *indexMap) buildIndexMap() {
 	m := make(map[int]int)
 
 	for i, j := 0, 0; i < this.srcData.Len() && j < this.destData.Len(); {
-		srcDate := this.srcData.Get(i).GetUTCDate()
+		srcDate := this.srcData.Get(i).GetDate()
 		if needTrimDate {
-			srcDate = srcDate / DAY_MILLIS * DAY_MILLIS
+			srcDate = fmt.Sprintf("%s 00:00:00", srcDate[:8])
 		}
 
-		destDate := this.srcData.Get(j).GetUTCDate()
+		destDate := this.destData.Get(j).GetDate()
 
 		if srcDate <= destDate {
 			m[i] = j

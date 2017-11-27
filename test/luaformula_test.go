@@ -6,6 +6,7 @@ import (
 	"time"
 	"github.com/stephenlyu/goformula/formulalibrary"
 	"github.com/stephenlyu/tds/period"
+	"github.com/stephenlyu/goformula/datalibrary"
 )
 
 var _ = Describe("LuaMACD", func() {
@@ -144,6 +145,49 @@ var _ = Describe("LuaEMA513", func() {
 		for i := 0; i < len; i++ {
 			r := formula.Get(i)
 			fmt.Printf("%d. %s\t%.02f\n", i, rv.Get(i).GetDate(), r[0])
+		}
+
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, (time.Now().UnixNano() - start1) / 1000000, "ms")
+	})
+})
+
+var _ = Describe("LuaCross", func() {
+	It("test", func () {
+		dl := datalibrary.NewDataLibrary("data")
+		rv := dl.GetData("000001", "M5")
+
+		fmt.Println("data len:", rv.Len())
+		start := time.Now().UnixNano()
+
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.SetDebug(true)
+		library.SetDataLibrary(dl)
+		library.LoadLuaFormulas("luas")
+
+		formula := library.NewFormula("CROSS", rv)
+		defer formula.Destroy()
+
+		fmt.Println("Name:", formula.GetName())
+		for i := 0; i < formula.ArgCount(); i++ {
+			min, max := formula.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", formula.ArgDefault(i), min, max)
+		}
+		for i := 0; i < formula.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", formula.VarName(i), formula.NoDraw(i), formula.LineThick(i), formula.Color(i))
+		}
+
+		start1 := time.Now().UnixNano()
+		len := formula.Len()
+		fmt.Println("formula.len:", len, "data len:", rv.Len())
+
+		for i := 0; i < formula.Len(); i++ {
+			r := formula.Get(i)
+			fmt.Printf("%d. %s", i, rv.Get(i).GetDate())
+			for _, v := range r {
+				fmt.Printf("\t%.02f", v)
+			}
+			fmt.Println("")
 		}
 
 		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, (time.Now().UnixNano() - start1) / 1000000, "ms")

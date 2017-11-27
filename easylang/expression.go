@@ -579,7 +579,7 @@ func (this crossfunctionexpr) DefinedName() string {
 }
 
 func (this crossfunctionexpr) Codes() string {
-	return fmt.Sprintf("CrossValue(o.%s(%s), o.%s)",
+	return fmt.Sprintf("CrossValue(%s(o.%s), o.%s)",
 		this.funcName,
 		getRefDataVarName(this.code, this.period),
 		getIndexMapVarName(this.code, this.period))

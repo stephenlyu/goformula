@@ -15,6 +15,7 @@ import (
 	"strings"
 	"path/filepath"
 	"fmt"
+	"github.com/stephenlyu/goformula/datalibrary"
 )
 
 type FormulaChangeListener interface {
@@ -32,6 +33,8 @@ type FormulaLibrary struct {
 	loadEasyLang 			bool 						// 是否加载EasyLang公式
 
 	formulaChangedListeners []FormulaChangeListener
+
+	dataLibrary 			datalibrary.DataLibrary
 }
 
 func newFormulaLibrary() *FormulaLibrary {
@@ -58,6 +61,11 @@ func (this *FormulaLibrary) SetLoadEasyLang(v bool) {
 	this.loadEasyLang = v
 }
 
+func (this *FormulaLibrary) SetDataLibrary(dl datalibrary.DataLibrary) {
+	this.dataLibrary = dl
+	luaformula.SetDataLibrary(dl)
+}
+
 func (this *FormulaLibrary) Reset() {
 	this.formulaFactories = make(map[string]FormulaCreatorFactory)
 	this.formulaChangedListeners = []FormulaChangeListener{}
@@ -65,6 +73,7 @@ func (this *FormulaLibrary) Reset() {
 	this.loadNative = true
 	this.loadLua = true
 	this.loadEasyLang = true
+	this.dataLibrary = nil
 }
 
 func (this *FormulaLibrary) CanSupport(name string) bool {

@@ -286,7 +286,19 @@ func (this *Context) refDataDefineCodes(indent string) string {
 
 	lines := make([]string, len(this.refDataList)*2)
 	for i, f := range this.refDataList {
-		lines[2*i] = fmt.Sprintf("%so.%s = DataLibrary.GetData('%s', '%s')", indent, getRefDataVarName(f.code, f.period), f.code, f.period)
+		var codeStr, period string
+		if f.code == "" {
+			codeStr = "data.Code()"
+		} else {
+			codeStr = "'" + f.code + "'"
+		}
+		if f.period == "" {
+			period = "data.Period().Name()"
+		} else {
+			period = "'" + f.period + "'"
+		}
+
+		lines[2*i] = fmt.Sprintf("%so.%s = DataLibrary.GetData(%s, %s)", indent, getRefDataVarName(f.code, f.period), codeStr, period)
 		lines[2*i+1] = fmt.Sprintf("%so.%s = IndexMap(o.%s, o.%s)", indent,
 			getIndexMapVarName(f.code, f.period),
 			getRefDataVarName("", ""),
