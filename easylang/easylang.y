@@ -14,10 +14,10 @@ The Copyright License for the GNU Bison Manual can be found in the "fdl-1.3" fil
     2. 支持绘制函数               [DONE]
     3. 支持跨公式引用 KDJ.K        [DONE]
     4. 支持跨周期引用
-        a. CLOSE#WEEK
-        b. KDJ.K#WEEK
-        c. MIN1, MIN5, MIN15, MIN30, MIN60, WEEK, SEASON, DAY
-    5. 支持跨品种数据引用  "000001$CLOSE"
+        a. CLOSE#WEEK           [DONE]
+        b. KDJ.K#WEEK           [DONE]
+        c. MIN1, MIN5, MIN15, MIN30, MIN60, WEEK, SEASON, DAY       [DONE]
+    5. 支持跨品种数据引用  "000001$CLOSE"    [DONE]
     6. 支持更多函数
  */
 
