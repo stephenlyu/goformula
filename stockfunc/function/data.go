@@ -3,6 +3,7 @@ package function
 import (
 	"errors"
 	. "github.com/stephenlyu/tds/period"
+	"sync"
 )
 
 
@@ -22,13 +23,19 @@ type RVector struct {
 
 	code string
 	period Period
+
+	lock sync.RWMutex
 }
 
 func (this *RVector) Len() int {
+	this.lock.RLock()
+	defer this.lock.RUnlock()
 	return len(this.Values)
 }
 
 func (this *RVector) Get(index int) Record {
+	this.lock.RLock()
+	defer this.lock.RUnlock()
 	if index < 0 || index >= this.Len() {
 		panic(errors.New("index out of range"))
 	}
@@ -36,6 +43,8 @@ func (this *RVector) Get(index int) Record {
 }
 
 func (this *RVector) Set(index int, v Record) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
 	if index < 0 || index >= this.Len() {
 		panic(errors.New("index out of range"))
 	}
@@ -43,7 +52,22 @@ func (this *RVector) Set(index int, v Record) {
 }
 
 func (this *RVector) Append(v Record) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
 	this.Values = append(this.Values, v)
+}
+
+func (this *RVector) Update(offset int, values []Record) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+
+	for i, v := range values {
+		if offset + i < len(this.Values) {
+			this.Values[offset + i] = v
+		} else {
+			this.Values = append(this.Values, v)
+		}
+	}
 }
 
 func (this *RVector) Code() string {
