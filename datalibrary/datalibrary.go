@@ -88,7 +88,7 @@ func (this *dataLibrary) GetData(code string, periodString string) *function.RVe
 	ret := make([]function.Record, len(data))
 	if err != nil {
 		log.Errorf("DataLibrary.GetData fail, error: %v", err)
-		return function.RecordVector(ret)
+		return function.RecordVectorEx(code, period, ret)
 	}
 
 	for i := range data {

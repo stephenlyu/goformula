@@ -4,6 +4,7 @@ import (
 	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/goformula/function"
 	. "github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/tds/period"
 )
 
 type macd struct {
@@ -82,7 +83,11 @@ func MACD(meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) Formul
 	return ret
 }
 
-func (this macd) Len() int {
+func (this *macd) Period() period.Period {
+	return this.data.Period()
+}
+
+func (this *macd) Len() int {
 	return this.data.Len()
 }
 

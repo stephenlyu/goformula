@@ -10,11 +10,14 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"github.com/stephenlyu/tds/period"
 )
 
 type LuaFormula struct {
 	*FormulaMetaImpl
 	L          *lua.State
+
+	period period.Period
 
 	args []float64
 	refValues  []function.Value
@@ -127,6 +130,8 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 		FormulaMetaImpl: meta,
 		L: L,
 
+		period: data.Period(),
+
 		args: args,
 		refValues: values,
 
@@ -168,6 +173,10 @@ func NewFormulaFromCode(luaCode string, data *stockfunc.RVector, args []float64)
 
 func (this *LuaFormula) Destroy() {
 	this.L.Close()
+}
+
+func (this *LuaFormula) Period() period.Period {
+	return this.period
 }
 
 func (this *LuaFormula) Len() int {

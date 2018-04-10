@@ -1,6 +1,9 @@
 package formula
 
-import "github.com/stephenlyu/goformula/function"
+import (
+	"github.com/stephenlyu/goformula/function"
+	"github.com/stephenlyu/tds/period"
+)
 
 const (
 	FORMULA_VAR_FLAG_NO_DRAW = 1
@@ -104,6 +107,7 @@ type DrawText interface {
 type Formula interface {
 	FormulaMeta
 
+	Period() period.Period
 	Len() int
 	UpdateLastValue()
 	Get(index int) []float64
