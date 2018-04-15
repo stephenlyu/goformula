@@ -328,6 +328,13 @@ func (this *Context) definedCodes(indent string) string {
 
 func (this *Context) updateLastValueCodes(indent string) string {
 	lines := []string{}
+
+	// Add Reference Formula UpdateLastValue Calls.
+	for _, f := range this.refFormulas {
+		lines = append(lines, fmt.Sprintf("%so.%s.UpdateLastValue()", indent, f.String()))
+	}
+
+	// Add Var UpdateLastValue Calls
 	for _, varName := range this.definedVars {
 		expr, ok := this.definedVarMap[varName]
 		if !ok {
@@ -338,11 +345,12 @@ func (this *Context) updateLastValueCodes(indent string) string {
 		case *assignexpr:
 		case *paramexpr:
 		case *stringexpr:
+		case *referenceexpr:
 		default:
 			if !expr.IsValid() || expr.IsVoid() {
 				continue
 			}
-			lines = append(lines, fmt.Sprintf("%so.%s.updateLastValue()", indent, expr.DefinedName()))
+			lines = append(lines, fmt.Sprintf("%so.%s.UpdateLastValue()", indent, expr.DefinedName()))
 		}
 	}
 	return strings.Join(lines, "\n")

@@ -69,11 +69,18 @@ func (this *drawline) UpdateLastValue() {
 	if this.Data().Len() < this.Len() {
 		return
 	}
-	if this.Len() != this.Data().Len() {
-		Assert(this.Len() + 1 == this.Data().Len(), "")
-		this.Append(0)
+	if this.Data().Len() == this.Len() {
+		this.BuildValueAt(this.Data().Len() - 1)
+	} else {
+		start := this.Len()
+		for i := this.Len(); i <  this.Data().Len(); i++ {
+			this.Append(0)
+		}
+
+		for i := start; i < this.Len(); i++ {
+			this.BuildValueAt(i)
+		}
 	}
-	this.BuildValueAt(this.Data().Len() - 1)
 }
 
 func (this *drawline) initValues() {
@@ -153,11 +160,18 @@ func (this *ployline) UpdateLastValue() {
 	if this.Data().Len() < this.Len() {
 		return
 	}
-	if this.Len() != this.Data().Len() {
-		Assert(this.Len() + 1 == this.Data().Len(), "")
-		this.Append(0)
+	if this.Data().Len() == this.Len() {
+		this.BuildValueAt(this.Data().Len() - 1)
+	} else {
+		start := this.Len()
+		for i := this.Len(); i <  this.Data().Len(); i++ {
+			this.Append(0)
+		}
+
+		for i := start; i < this.Len(); i++ {
+			this.BuildValueAt(i)
+		}
 	}
-	this.BuildValueAt(this.Data().Len() - 1)
 }
 
 func (this *ployline) initValues() {

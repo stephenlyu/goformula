@@ -7,6 +7,7 @@ import (
 	"github.com/stephenlyu/goformula/formulalibrary"
 	"github.com/stephenlyu/tds/period"
 	"github.com/stephenlyu/goformula/datalibrary"
+	"github.com/stephenlyu/tds/util"
 )
 
 var _ = Describe("LuaMACD", func() {
@@ -191,5 +192,50 @@ var _ = Describe("LuaCross", func() {
 		}
 
 		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, (time.Now().UnixNano() - start1) / 1000000, "ms")
+	})
+})
+
+var _ = Describe("LuaMACDBuyIncr", func() {
+	It("test", func (){
+		_, data := loadJson("300666.SZ.json")
+		_, p := period.PeriodFromString("D1")
+
+		initData := append([]function.Record{}, data[:len(data)-10]...)
+
+		rv := function.RecordVectorEx("300666", p, initData)
+
+		fmt.Println("data len:", len(initData))
+		start := time.Now().UnixNano()
+
+		library := formulalibrary.GlobalLibrary
+		library.Reset()
+		library.LoadLuaFormulas("luas")
+
+		f := library.NewFormula("MACDBUY", rv)
+		defer f.Destroy()
+
+		util.Assert(f != nil, "")
+
+		for i := len(data) - 10; i < len(data); i++ {
+			r := data[i]
+			rv.Append(r)
+		}
+		f.UpdateLastValue()
+
+		fmt.Println("Name:", f.GetName())
+		for i := 0; i < f.ArgCount(); i++ {
+			min, max := f.ArgRange(i)
+			fmt.Printf("default: %f min: %f max: %f\n", f.ArgDefault(i), min, max)
+		}
+		for i := 0; i < f.VarCount(); i++ {
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", f.VarName(i), f.NoDraw(i), f.LineThick(i), f.Color(i))
+		}
+
+		fmt.Println(f.Len())
+		for i := 0; i < f.Len(); i++ {
+			r := f.Get(i)
+			fmt.Printf("%d. %s\t%.02f\n", i, rv.Get(i).GetDate(), r[0])
+		}
+		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
 	})
 })

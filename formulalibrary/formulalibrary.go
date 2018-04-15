@@ -115,6 +115,8 @@ func (this *FormulaLibrary) LoadLuaFormulas(dir string) {
 		err = this.RegisterLuaFile(name, filePath)
 		if err != nil {
 			log.Errorf("Load lua formula %s fail, error: %v", filePath, err)
+		} else {
+			log.Infof("Load lua formula %s success", filePath)
 		}
 	}
 }
@@ -142,6 +144,7 @@ func (this *FormulaLibrary) LoadEasyLangFormulas(dir string) {
 			name := strings.ToUpper(parts[0])
 			err = this.RegisterEasyLangFile(name, filePath, this.debug)
 			if err != nil {
+				log.Errorf("Load easy lang formula %s fail, error: %+v", filePath, err)
 				errorFiles = append(errorFiles, filePath)
 			} else {
 				changed = true
@@ -152,10 +155,6 @@ func (this *FormulaLibrary) LoadEasyLangFormulas(dir string) {
 		} else {
 			break
 		}
-	}
-
-	for _, errFile := range errorFiles {
-		log.Errorf("Load easy lang formula %s fail", errFile)
 	}
 }
 

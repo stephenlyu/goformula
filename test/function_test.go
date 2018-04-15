@@ -123,7 +123,6 @@ var _ = Describe("HHVBARS", func() {
 	})
 })
 
-
 var _ = Describe("ROUND2", func() {
 	It("test", func (){
 		data := []float64{0.4949999, 0.500001, -0.4949999, -0.50000001}
@@ -136,25 +135,6 @@ var _ = Describe("ROUND2", func() {
 		fmt.Println("============================")
 
 		a.Append(3.1415926)
-		result.UpdateLastValue()
-		for i := 0; i < result.Len(); i++ {
-			fmt.Println(result.Get(i))
-		}
-	})
-})
-
-
-var _ = Describe("ROUND2", func() {
-	It("test", func (){
-		data := []float64{0.4949999, 0.500001, -0.4949999, -0.50000001}
-		a := function.Vector(data)
-		result := function.ROUND2(a, function.Scalar(2))
-		for i := 0; i < result.Len(); i++ {
-			fmt.Println(result.Get(i))
-		}
-
-		fmt.Println("============================")
-
 		a.Append(3.1415926)
 		result.UpdateLastValue()
 		for i := 0; i < result.Len(); i++ {
@@ -179,6 +159,7 @@ var _ = Describe("SLOPE", func() {
 		fmt.Println("============================")
 
 		a.Append(10)
+		a.Append(100)
 		result.UpdateLastValue()
 		for i := 0; i < result.Len(); i++ {
 			fmt.Println(result.Get(i))

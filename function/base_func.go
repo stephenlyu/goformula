@@ -20,11 +20,15 @@ func updateLastValue(this function) {
 	if this.Data().Len() < this.Len() {
 		return
 	}
-	v := this.BuildValueAt(this.Data().Len() - 1)
+
 	if this.Len() == this.Data().Len() {
+		v := this.BuildValueAt(this.Data().Len() - 1)
 		this.Set(this.Len() - 1, v)
 	} else {
-		this.Append(v)
+		for i := this.Len(); i < this.Data().Len(); i++ {
+			v := this.BuildValueAt(i)
+			this.Append(v)
+		}
 	}
 }
 
