@@ -18,6 +18,7 @@ type LuaFormula struct {
 	L          *lua.State
 
 	period period.Period
+	code string
 
 	args []float64
 	refValues  []function.Value
@@ -131,6 +132,7 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 		L: L,
 
 		period: data.Period(),
+		code: data.Code(),
 
 		args: args,
 		refValues: values,
@@ -154,11 +156,7 @@ func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error,
 	return newFormulaByLuaState(L, nil, data, args)
 }
 
-func NewFormulaFromState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
-	return newFormulaByLuaState(L, meta, data, args)
-}
-
-func NewFormulaFromCode(luaCode string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+func NewFormulaFromCode(luaCode string, meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
 	L := luar.Init()
 
 	luar.Register(L, "", GetFunctionMap(luar.Map{}))
@@ -168,7 +166,7 @@ func NewFormulaFromCode(luaCode string, data *stockfunc.RVector, args []float64)
 		return err, nil
 	}
 
-	return newFormulaByLuaState(L, nil, data, args)
+	return newFormulaByLuaState(L, meta, data, args)
 }
 
 func (this *LuaFormula) Destroy() {
