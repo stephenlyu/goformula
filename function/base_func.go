@@ -17,7 +17,7 @@ func (this funcbase) Data() Value {
 }
 
 func updateLastValue(this function) {
-	if this.Data().Len() < this.Len() {
+	if this.Data().Len() < this.Len() || this.Data().Len() == 0 {
 		return
 	}
 
