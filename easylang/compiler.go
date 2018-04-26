@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numberingVar bool) (error, string) {
+func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numberingVar bool, debug bool) (error, string) {
 	file, err := os.Open(sourceFile)
 	if err != nil {
 		return err, ""
@@ -35,11 +35,12 @@ func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numbe
 	baseName := filepath.Base(sourceFile)
 	mainName := strings.Split(baseName, ".")[0]
 
+	DEBUG = debug
 	return nil, _context.generateCode(mainName)
 }
 
 func Compile(sourceFile string, destFile string, formulaManager formula.FormulaManager, numberingVar bool, debug bool) error {
-	err, code := CompileFile(sourceFile, formulaManager, numberingVar)
+	err, code := CompileFile(sourceFile, formulaManager, numberingVar, debug)
 	if err != nil {
 		return err
 	}

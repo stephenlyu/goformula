@@ -17,7 +17,7 @@ type easylangFormulaCreatorFactory struct {
 
 func NewEasyLangFormulaCreatorFactory(easyLangFile string, formulaManager formula.FormulaManager, debug bool) (error, factory.FormulaCreatorFactory) {
 	// Compile Easy Lang File
-	err, code := easylang.CompileFile(easyLangFile, formulaManager, true)
+	err, code := easylang.CompileFile(easyLangFile, formulaManager, true, debug)
 	if err != nil {
 		return err, nil
 	}

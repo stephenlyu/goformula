@@ -4,6 +4,7 @@ package function
 type function interface {
 	Value
 	Data() Value
+	ListOfData() []Value
 	BuildValueAt(index int) float64
 }
 
@@ -16,16 +17,28 @@ func (this funcbase) Data() Value {
 	return this.data
 }
 
+func (this funcbase) ListOfData() []Value {
+	return []Value{this.data}
+}
+
 func updateLastValue(this function) {
-	if this.Data().Len() < this.Len() || this.Data().Len() == 0 {
+	var length int
+	for _, v := range this.ListOfData() {
+		if !v.IsScalar() {
+			length = v.Len()
+			break
+		}
+	}
+
+	if length < this.Len() || length == 0 {
 		return
 	}
 
-	if this.Len() == this.Data().Len() {
-		v := this.BuildValueAt(this.Data().Len() - 1)
+	if this.Len() == length {
+		v := this.BuildValueAt(length - 1)
 		this.Set(this.Len() - 1, v)
 	} else {
-		for i := this.Len(); i < this.Data().Len(); i++ {
+		for i := this.Len(); i < length; i++ {
 			v := this.BuildValueAt(i)
 			this.Append(v)
 		}
@@ -33,7 +46,7 @@ func updateLastValue(this function) {
 }
 
 func initValues(this function, values []float64) {
-	for i := 0; i < this.Data().Len(); i++ {
+	for i := 0; i < len(values); i++ {
 		v := this.BuildValueAt(i)
 		values[i] = v
 	}

@@ -75,6 +75,7 @@ var funcMap = funcmap{
 	"AVEDEV":    "AVEDEV",
 	"STD":       "STD",
 	"SUM":       "SUM",
+	"SLOPE": 	 "SLOPE",
 
 	// 绘制函数
 	"DRAWTEXT":  "DRAWTEXT",

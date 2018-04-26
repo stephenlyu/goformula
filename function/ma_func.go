@@ -27,7 +27,11 @@ func (this *ma) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func MA(data Value, N Value) *ma {
+func MA(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
+
 	if N == nil {
 		N = Scalar(5)
 	}
@@ -66,7 +70,10 @@ func (this *sma) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func SMA(data Value, N, M Value) *sma {
+func SMA(data Value, N, M Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
 	if N == nil {
 		N = Scalar(12)
 	}
@@ -110,7 +117,10 @@ func (this *dma) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func DMA(data Value, A Value) *dma {
+func DMA(data Value, A Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
 	if A == nil {
 		A = Scalar(0.5)
 	}
@@ -149,7 +159,10 @@ func (this *ema) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func EMA(data Value, N Value) *ema {
+func EMA(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
 	if N == nil {
 		N = Scalar(5)
 	}
@@ -193,7 +206,10 @@ func (this *expmema) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func EXPMEMA(data Value, N Value) *expmema {
+func EXPMEMA(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
 	if N == nil {
 		N = Scalar(0.5)
 	}

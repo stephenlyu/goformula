@@ -21,6 +21,7 @@ var (
 	CODE_MAP = map[string]int{
 		"": 0,
 	}
+	DEBUG = false
 )
 
 func translatePeriod(period string) string {
@@ -307,8 +308,9 @@ func (this *Context) refDataDefineCodes(indent string) string {
 	return strings.Join(lines, "\n")
 }
 
-func (this *Context) definedCodes(indent string) string {
+func (this *Context) definedCodes(indent string, formulaName string) string {
 	var lines []string
+	i := 0
 	for _, varName := range this.definedVars {
 		expr, ok := this.definedVarMap[varName]
 		if !ok {
@@ -322,16 +324,26 @@ func (this *Context) definedCodes(indent string) string {
 		} else {
 			lines = append(lines, fmt.Sprintf("%so.%s = %s", indent, expr.DefinedName(), expr.Codes()))
 		}
+		if DEBUG {
+			lines = append(lines, fmt.Sprintf("%sprint('%sClass:New %d...')", indent, formulaName, i))
+			i++
+		}
 	}
 	return strings.Join(lines, "\n")
 }
 
-func (this *Context) updateLastValueCodes(indent string) string {
+func (this *Context) updateLastValueCodes(indent string, formulaName string) string {
 	lines := []string{}
+
+	i := 0
 
 	// Add Reference Formula UpdateLastValue Calls.
 	for _, f := range this.refFormulas {
 		lines = append(lines, fmt.Sprintf("%so.%s.UpdateLastValue()", indent, f.String()))
+		if DEBUG {
+			lines = append(lines, fmt.Sprintf("%sprint('%sClass:updateLastValue %d')", indent, formulaName, i))
+			i++
+		}
 	}
 
 	// Add Var UpdateLastValue Calls
@@ -351,6 +363,10 @@ func (this *Context) updateLastValueCodes(indent string) string {
 				continue
 			}
 			lines = append(lines, fmt.Sprintf("%so.%s.UpdateLastValue()", indent, expr.DefinedName()))
+			if DEBUG {
+				lines = append(lines, fmt.Sprintf("%sprint('%sClass:updateLastValue %d')", indent, formulaName, i))
+				i++
+			}
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -763,11 +779,11 @@ FormulaClass = %sClass
 		getRefDataVarName("", ""),
 		this.refDataDefineCodes(indent),
 		this.refFormulaDefineCodes(indent),
-		this.definedCodes(indent),
+		this.definedCodes(indent, name),
 		this.drawFunctionCodes(),
 		this.refValuesCodes(),
 		name,
-		this.updateLastValueCodes(indent),
+		this.updateLastValueCodes(indent, name),
 		name,
 		getRefDataVarName("", ""),
 		name,

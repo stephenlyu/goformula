@@ -28,7 +28,11 @@ func (this *llv) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func LLV(data Value, N Value) *llv {
+func LLV(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
+
 	ret := &llv{
 		funcbase: funcbase {
 			data: data,
@@ -73,7 +77,11 @@ func (this *llvbars) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func LLVBARS(data Value, N Value) *llvbars {
+func LLVBARS(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(0)
+	}
+
 	ret := &llvbars{
 		funcbase: funcbase {
 			data: data,
@@ -107,7 +115,10 @@ func (this *hhv) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func HHV(data Value, N Value) *hhv {
+func HHV(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
 	ret := &hhv{
 		funcbase: funcbase {
 			data: data,
@@ -152,7 +163,10 @@ func (this *hhvbars) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func HHVBARS(data Value, N Value) *hhvbars {
+func HHVBARS(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(0)
+	}
 	ret := &hhvbars{
 		funcbase: funcbase {
 			data: data,
@@ -199,7 +213,11 @@ func (this *std) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func STD(data Value, N Value) *std {
+func STD(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(0)
+	}
+
 	ret := &std{
 		funcbase: funcbase {
 			data: data,
@@ -247,7 +265,11 @@ func (this *avedev) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func AVEDEV(data Value, N Value) *avedev {
+func AVEDEV(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(0)
+	}
+
 	ret := &avedev{
 		funcbase: funcbase {
 			data: data,
@@ -279,7 +301,11 @@ func (this *sumf) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func SUM(data Value, N Value) *sumf {
+func SUM(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0) * N.Get(0))
+	}
+
 	ret := &sumf{
 		funcbase: funcbase {
 			data: data,
@@ -298,28 +324,45 @@ type cross struct {
 	data1 Value
 }
 
-func (this cross) BuildValueAt(index int) float64 {
+func BuildCrossValueAt(data, data1 Value, index int) float64 {
 	if index == 0 {
 		return 0
 	}
 
-	return iif(this.data.Get(index - 1) < this.data1.Get(index - 1) && this.data.Get(index) >= this.data1.Get(index), 1, 0)
+	return iif(data.Get(index - 1) < data1.Get(index - 1) && data.Get(index) >= data1.Get(index), 1, 0)
+}
+
+func (this cross) BuildValueAt(index int) float64 {
+	return BuildCrossValueAt(this.data, this.data1, index)
 }
 
 func (this *cross) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func CROSS(data, data1 Value) *cross {
+func CROSS(data, data1 Value) Value {
+	if data.IsScalar() && data1.IsScalar() {
+		return Scalar(0)
+	}
+	var length int
+	if !data.IsScalar() {
+		length = data.Len()
+	} else {
+		length = data1.Len()
+	}
 	ret := &cross{
 		funcbase: funcbase {
 			data: data,
 		},
 		data1: data1,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]float64, length)
 	initValues(ret, ret.Values)
 	return ret
+}
+
+func (this *cross) ListOfData() []Value {
+	return []Value{this.data, this.data1}
 }
 
 // COUNT
@@ -353,7 +396,14 @@ func (this *count) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func COUNT(data Value, N Value) *count {
+func COUNT(data Value, N Value) Value {
+	if data.IsScalar() {
+		if data.Get(0) == 0 {
+			return Scalar(0)
+		}
+		return Scalar(N.Get(0))
+	}
+
 	ret := &count{
 		funcbase: funcbase {
 			data: data,
@@ -381,7 +431,20 @@ func (this *iff) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func IF(data, yesData, noData Value) *iff {
+func IF(data, yesData, noData Value) Value {
+	if data.IsScalar() && yesData.IsScalar() && noData.IsScalar() {
+		return Scalar(iif(IsTrue(data.Get(0)), yesData.Get(0), noData.Get(0)))
+	}
+
+	var length int
+	if !data.IsScalar() {
+		length = data.Len()
+	} else if !yesData.IsScalar() {
+		length = yesData.Len()
+	} else {
+		length = noData.Len()
+	}
+
 	ret := &iff{
 		funcbase: funcbase {
 			data: data,
@@ -389,9 +452,13 @@ func IF(data, yesData, noData Value) *iff {
 		yesData: yesData,
 		noData: noData,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]float64, length)
 	initValues(ret, ret.Values)
 	return ret
+}
+
+func (this *iff) ListOfData() []Value {
+	return []Value{this.data, this.yesData, this.noData}
 }
 
 // EVERY
@@ -423,7 +490,14 @@ func (this *every) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func EVERY(data Value, N Value) *every {
+func EVERY(data Value, N Value) Value {
+	if data.IsScalar() {
+		if data.Get(0) == 0 {
+			return Scalar(0)
+		}
+		return Scalar(1)
+	}
+
 	ret := &every{
 		funcbase: funcbase {
 			data: data,
@@ -454,7 +528,14 @@ func (this *barslast) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func BARSLAST(data Value) *barslast {
+func BARSLAST(data Value) Value {
+	if data.IsScalar() {
+		if data.Get(0) == 0 {
+			return Scalar(math.NaN())
+		}
+		return Scalar(0)
+	}
+
 	ret := &barslast{
 		funcbase: funcbase {
 			data: data,
@@ -477,6 +558,9 @@ func (this barscount) Get(index int) float64 {
 }
 
 func BARSCOUNT(data Value) *barscount {
+	if data.IsScalar() {
+		panic("BARSCOUNT do not support scalar data")
+	}
 	ret := &barscount{
 		data: data,
 	}
@@ -498,7 +582,11 @@ func (this *roundf) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func ROUND2(data Value, N Value) *roundf {
+func ROUND2(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(round(data.Get(0), int(N.Get(0))))
+	}
+
 	if N != nil {
 		N = Scalar(2)
 	}
@@ -537,7 +625,11 @@ func (this *ref) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func REF(data Value, N Value) *ref {
+func REF(data Value, N Value) Value {
+	if data.IsScalar() {
+		return data
+	}
+
 	ret := &ref{
 		funcbase: funcbase {
 			data: data,
@@ -564,16 +656,30 @@ func (this *minf) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func MIN(data Value, data1 Value) *minf {
+func MIN(data Value, data1 Value) Value {
+	if data.IsScalar() && data1.IsScalar() {
+		return Scalar(math.Min(data.Get(0), data1.Get(0)))
+	}
+	var length int
+	if !data.IsScalar() {
+		length = data.Len()
+	} else {
+		length = data1.Len()
+	}
+
 	ret := &minf{
 		funcbase: funcbase {
 			data: data,
 		},
 		data1: data1,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]float64, length)
 	initValues(ret, ret.Values)
 	return ret
+}
+
+func (this *minf) ListOfData() []Value {
+	return []Value{this.data, this.data1}
 }
 
 // MAX
@@ -591,16 +697,30 @@ func (this *maxf) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func MAX(data Value, data1 Value) *maxf {
+func MAX(data Value, data1 Value) Value {
+	if data.IsScalar() && data1.IsScalar() {
+		return Scalar(math.Max(data.Get(0), data1.Get(0)))
+	}
+	var length int
+	if !data.IsScalar() {
+		length = data.Len()
+	} else {
+		length = data1.Len()
+	}
+
 	ret := &maxf{
 		funcbase: funcbase {
 			data: data,
 		},
 		data1: data1,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]float64, length)
 	initValues(ret, ret.Values)
 	return ret
+}
+
+func (this *maxf) ListOfData() []Value {
+	return []Value{this.data, this.data1}
 }
 
 // ABS
@@ -617,7 +737,10 @@ func (this *absf) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func ABS(data Value) *absf {
+func ABS(data Value) Value {
+	if data.IsScalar() {
+		return Scalar(math.Abs(data.Get(0)))
+	}
 	ret := &absf{
 		funcbase: funcbase {
 			data: data,
@@ -661,7 +784,11 @@ func (this *slopef) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func SLOPE(data Value, N Value) *slopef {
+func SLOPE(data Value, N Value) Value {
+	if data.IsScalar() {
+		return Scalar(0)
+	}
+
 	ret := &slopef{
 		funcbase: funcbase {
 			data: data,

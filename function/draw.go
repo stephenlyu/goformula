@@ -1,5 +1,7 @@
 package function
 
+import "math"
+
 // TODO: 处理未来函数。所有的函数需要增加一个withFutureData参数，如果withFutureData为true， 则UpdateLastValue时，需要更新整个数据
 
 // DRAWLINE
@@ -89,9 +91,27 @@ func (this *drawline) initValues() {
 	}
 }
 
-func DRAWLINE(cond1 Value, price1 Value, cond2 Value, price2 Value, expand Value) *drawline {
+func DRAWLINE(cond1 Value, price1 Value, cond2 Value, price2 Value, expand Value) Value {
+	if cond1.IsScalar() && price1.IsScalar() && cond2.IsScalar() && price2.IsScalar() && expand.IsScalar() {
+		return Scalar(math.NaN())
+	}
+
 	if expand == nil {
 		expand = Scalar(0)
+	}
+
+	var length int
+	switch {
+	case !cond1.IsScalar():
+		length = cond1.Len()
+	case !price1.IsScalar():
+		length = price1.Len()
+	case !cond2.IsScalar():
+		length = cond2.Len()
+	case !price2.IsScalar():
+		length = price2.Len()
+	default:
+		length = expand.Len()
 	}
 
 	ret := &drawline{
@@ -106,7 +126,7 @@ func DRAWLINE(cond1 Value, price1 Value, cond2 Value, price2 Value, expand Value
 
 		lastCond1Index: -1,
 	}
-	ret.Values = make([]float64, cond1.Len())
+	ret.Values = make([]float64, length)
 	ret.initValues()
 	return ret
 }
@@ -180,7 +200,18 @@ func (this *ployline) initValues() {
 	}
 }
 
-func PLOYLINE(cond Value, price Value) *ployline {
+func PLOYLINE(cond Value, price Value) Value {
+	if cond.IsScalar() && price.IsScalar() {
+		return Scalar(math.NaN())
+	}
+
+	var length int
+	if !cond.IsScalar() {
+		length = cond.Len()
+	} else {
+		length = price.Len()
+	}
+
 	ret := &ployline{
 		funcbase: funcbase {
 			data: cond,
@@ -190,7 +221,7 @@ func PLOYLINE(cond Value, price Value) *ployline {
 		lastSegFromIndex: -1,
 		lastSegToIndex: -1,
 	}
-	ret.Values = make([]float64, cond.Len())
+	ret.Values = make([]float64, length)
 	ret.initValues()
 	return ret
 }
