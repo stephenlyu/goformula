@@ -51,3 +51,30 @@ func initValues(this function, values []float64) {
 		values[i] = v
 	}
 }
+
+type simplefuncbase struct {
+	data Value
+}
+
+func (this *simplefuncbase) IsScalar() bool {
+	return false
+}
+
+func (this *simplefuncbase) Len() int {
+	return this.data.Len()
+}
+
+func (this *simplefuncbase) Get(index int) float64 {
+	panic("Not implemented")
+}
+
+func (this *simplefuncbase) Set(index int, v float64) {
+	panic("Not implemented")
+}
+
+func (this *simplefuncbase) UpdateLastValue() {
+}
+
+func (this *simplefuncbase) Append(v float64) {
+	panic("Not implemented")
+}
