@@ -10,7 +10,7 @@ import (
 	"github.com/stephenlyu/tds/util"
 )
 
-var _ = Describe("LuaMACD", func() {
+var _ = Describe("LuaMACD1", func() {
 	It("test", func () {
 		_, data := loadJson("data.json")
 		rv := function.RecordVector(data)
@@ -23,6 +23,8 @@ var _ = Describe("LuaMACD", func() {
 
 		formula := library.NewFormula("MACD", rv)
 		defer formula.Destroy()
+
+		formula.UpdateLastValue()
 
 		fmt.Println("Name:", formula.GetName())
 		for i := 0; i < formula.ArgCount(); i++ {

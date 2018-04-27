@@ -336,6 +336,10 @@ func (this *Context) updateLastValueCodes(indent string, formulaName string) str
 	lines := []string{}
 
 	i := 0
+	if DEBUG {
+		lines = append(lines, fmt.Sprintf("%sprint('%sClass:updateLastValue %d')", indent, formulaName, i))
+		i++
+	}
 
 	// Add Reference Formula UpdateLastValue Calls.
 	for _, f := range this.refFormulas {
@@ -713,6 +717,21 @@ func (this *Context) generateCode(name string) string {
 -- !!!! DON'T MODIFY IT!!!!!!
 -----------------------------------------------------------
 
+Sequence = 0
+MACDObjects = {}
+
+function SetObject(id, obj)
+    MACDObjects[id] = obj
+end
+
+function RemoveObject(id)
+    MACDObjects[id] = nil
+end
+
+function GetObject(id)
+    return MACDObjects[id]
+end
+
 %sClass = {}
 
 %sClass['name'] = '%s'
@@ -737,6 +756,11 @@ function %sClass:new(%s)
 %s
 
     o.ref_values = {%s}
+
+    Sequence = Sequence + 1
+    o.__id__ = Sequence
+    SetObject(o.__id__, o)
+
     return o
 end
 

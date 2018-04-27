@@ -16,6 +16,7 @@ MACDBUYClass['lineStyle'] = {0}
 MACDBUYClass['graphType'] = {1}
 
 function MACDBUYClass:new(data)
+    print('MACDBUYClass:new')
     o = {}
     setmetatable(o, self)
     self.__index = self

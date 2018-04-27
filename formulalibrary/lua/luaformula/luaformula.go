@@ -11,6 +11,7 @@ import (
 	"math"
 	"strings"
 	"github.com/stephenlyu/tds/period"
+	"github.com/stephenlyu/tds/util"
 )
 
 type LuaFormula struct {
@@ -19,9 +20,12 @@ type LuaFormula struct {
 
 	period period.Period
 	code string
+	data *stockfunc.RVector
 
 	args []float64
 	refValues  []function.Value
+
+	id int64
 
 	// Draw Actions
 	drawActions []DrawAction
@@ -48,6 +52,11 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 	L.GetField(-1, "ref_values")
 	var values []function.Value
 	luar.LuaToGo(L, -1, &values)
+	L.Pop(1)
+
+	L.GetField(-1, "__id__")
+	var id int64
+	luar.LuaToGo(L, -1, &id)
 	L.Pop(1)
 
 	L.GetField(-1, "drawTextActions")
@@ -125,7 +134,9 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 		i++
 	}
 
-	L.Remove(1)
+	L.Remove(1)	// Remove FormulaClass from stack
+	L.Pop(1)	// Remove formula object from stack
+	util.Assert(L.GetTop() == 0, "")
 
 	formula := &LuaFormula{
 		FormulaMetaImpl: meta,
@@ -133,9 +144,12 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 
 		period: data.Period(),
 		code: data.Code(),
+		data: data,
 
 		args: args,
 		refValues: values,
+
+		id: id,
 
 		drawActions: drawActions,
 	}
@@ -156,7 +170,11 @@ func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error,
 	return newFormulaByLuaState(L, nil, data, args)
 }
 
-func NewFormulaFromCode(luaCode string, meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+func NewFormulaFromState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+	return newFormulaByLuaState(L, meta, data, args)
+}
+
+func NewFormulaFromCode(luaCode string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
 	L := luar.Init()
 
 	luar.Register(L, "", GetFunctionMap(luar.Map{}))
@@ -166,11 +184,13 @@ func NewFormulaFromCode(luaCode string, meta *FormulaMetaImpl, data *stockfunc.R
 		return err, nil
 	}
 
-	return newFormulaByLuaState(L, meta, data, args)
+	return newFormulaByLuaState(L, nil, data, args)
 }
 
 func (this *LuaFormula) Destroy() {
-	this.L.Close()
+	this.L.GetGlobal("RemoveObject")
+	this.L.PushInteger(this.id)
+	this.L.Call(1, 1)
 }
 
 func (this *LuaFormula) Period() period.Period {
@@ -178,18 +198,23 @@ func (this *LuaFormula) Period() period.Period {
 }
 
 func (this *LuaFormula) Len() int {
-	this.L.GetField(-1, "Len")
-	this.L.PushValue(-2)
+	return this.data.Len()
+}
+
+func (this *LuaFormula) getObject() {
+	this.L.GetGlobal("GetObject")
+	this.L.PushInteger(this.id)
 	this.L.Call(1, 1)
-	ret := this.L.ToInteger(-1)
-	this.L.Pop(1)
-	return ret
 }
 
 func (this *LuaFormula) UpdateLastValue() {
+	util.Assert(this.L.GetTop() == 0, "")
+	this.getObject()
 	this.L.GetField(-1, "updateLastValue")
 	this.L.PushValue(-2)
 	this.L.Call(1, 0)
+	this.L.Pop(1)
+	util.Assert(this.L.GetTop() == 0, "")
 }
 
 func (this *LuaFormula) Get(index int) []float64 {

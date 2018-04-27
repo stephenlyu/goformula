@@ -61,6 +61,8 @@ var _ = Describe("EasyLangMACD", func() {
 			}
 			defer formula.Destroy()
 
+			formula.UpdateLastValue()
+
 			for i := 0; i < formula.VarCount(); i++ {
 				fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", formula.VarName(i), formula.NoDraw(i), formula.LineThick(i), formula.Color(i))
 			}
@@ -319,7 +321,7 @@ var _ = Describe("ELMACDBuyIncr", func() {
 
 		library := formulalibrary.GlobalLibrary
 		library.Reset()
-		library.SetDebug(true)
+		//library.SetDebug(true)
 		library.LoadEasyLangFormulas("el")
 
 		f := library.NewFormula("MACDBUY", rv)

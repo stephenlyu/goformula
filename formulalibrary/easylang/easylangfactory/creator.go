@@ -12,5 +12,5 @@ type easyLangFormulaCreator struct {
 }
 
 func (this *easyLangFormulaCreator) CreateFormula(data *function.RVector) (error, formula.Formula) {
-	return luaformula.NewFormulaFromCode(this.factory.luaCode, this.factory.Meta, data, this.args)
+	return luaformula.NewFormulaFromState(this.factory.L, this.factory.Meta, data, this.args)
 }

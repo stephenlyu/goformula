@@ -3,6 +3,31 @@
 -- !!!! DON'T MODIFY IT!!!!!!
 -----------------------------------------------------------
 
+Sequence = 0
+MACDObjects = {}
+
+function SetObject(id, obj)
+    print('SetObject', id)
+    MACDObjects[id] = obj
+end
+
+function RemoveObject(id)
+    MACDObjects[id] = nil
+end
+
+function GetObject(id)
+    print('GetObject', id)
+    return MACDObjects(id)
+end
+
+function GetObjectCount()
+    local count = 0
+    for k, v in pairs(MACDObjects) do
+        count = count + 1
+    end
+    return count
+end
+
 MACDClass = {}
 
 MACDClass['name'] = 'MACD'
@@ -68,19 +93,25 @@ function MACDClass:new(data, short, long, mid)
     }
 
     o.ref_values = {o.dif, o.dea, o.macd, o.var1, o.var2}
+
+    Sequence = Sequence + 1
+    o.__id__ = Sequence
+
+    SetObject(o.__id__, o)
+
     return o
 end
 
-function MACDClass:UpdateLastValue()
-    o.var3.UpdateLastValue()
-    o.var4.UpdateLastValue()
-    o.var5.UpdateLastValue()
-    o.var6.UpdateLastValue()
-    o.var7.UpdateLastValue()
-    o.var8.UpdateLastValue()
-    o.var9.UpdateLastValue()
-    o.var10.UpdateLastValue()
-    o.var11.UpdateLastValue()
+function MACDClass:updateLastValue()
+    o.var3.updateLastValue()
+    o.var4.updateLastValue()
+    o.var5.updateLastValue()
+    o.var6.updateLastValue()
+    o.var7.updateLastValue()
+    o.var8.updateLastValue()
+    o.var9.updateLastValue()
+    o.var10.updateLastValue()
+    o.var11.updateLastValue()
 end
 
 function MACDClass:Len()
