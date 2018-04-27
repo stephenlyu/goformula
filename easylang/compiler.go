@@ -36,7 +36,9 @@ func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numbe
 	mainName := strings.Split(baseName, ".")[0]
 
 	DEBUG = debug
-	return nil, _context.generateCode(mainName)
+
+	generator := NewLuaGenerator(_context)
+	return nil, generator.GenerateCode(mainName)
 }
 
 func Compile(sourceFile string, destFile string, formulaManager formula.FormulaManager, numberingVar bool, debug bool) error {
