@@ -94,7 +94,7 @@ var _ = Describe("NMACD", func() {
 			fmt.Printf("default: %f min: %f max: %f\n", macd.ArgDefault(i), min, max)
 		}
 		for i := 0; i < macd.VarCount(); i++ {
-			fmt.Printf("name: %s noDraw: %d lineThick: %d color: %s\n", macd.VarName(i), macd.NoDraw(i), macd.LineThick(i), macd.Color(i))
+			fmt.Printf("name: %s noDraw: %v lineThick: %d color: %+v\n", macd.VarName(i), macd.NoDraw(i), macd.LineThick(i), macd.Color(i))
 		}
 
 		for i := 0; i < macd.Len(); i++ {

@@ -4,32 +4,33 @@ import (
 	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/goformula/function"
 	. "github.com/stephenlyu/goformula/formulalibrary/base/formula"
-	"github.com/stephenlyu/tds/period"
 )
 
 type macd struct {
-	*FormulaMetaImpl
+	BaseNativeFormula
 
-	data *stockfunc.RVector
-	short function.Value
-	long function.Value
-	mid function.Value
-	close function.Value
+	// Data of all referenced period
+
+	// Referenced Formulas
+
+	// Vectors
+	short           function.Value
+	long            function.Value
+	mid             function.Value
+	close           function.Value
 	ema_close_short function.Value
-	ema_close_long function.Value
-	dif function.Value
-	dea function.Value
-	dif_sub_dea function.Value
-	const2 function.Value
-	macd function.Value
-	enter_long function.Value
-	enter_short function.Value
-
-	ref_values []function.Value
+	ema_close_long  function.Value
+	dif             function.Value
+	dea             function.Value
+	dif_sub_dea     function.Value
+	const2          function.Value
+	macd            function.Value
+	enter_long      function.Value
+	enter_short     function.Value
 }
 
 var (
-	macdMeta = &FormulaMetaImpl{
+	MACD_META = &FormulaMetaImpl{
 		Name: "MACD",
 		ArgNames: []string{"SHORT", "LONG", "MID"},
 		ArgMeta: []Arg {
@@ -46,34 +47,34 @@ var (
 	}
 )
 
-func MACD(meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) Formula {
+func MACD(data *stockfunc.RVector, args []float64) Formula {
 	if len(args) != 3 {
 		panic("bad args")
 	}
-	short := function.Scalar(args[0])
-	long := function.Scalar(args[1])
-	mid := function.Scalar(args[2])
-
 	ret := &macd{
-		FormulaMetaImpl: meta,
-		data: data,
-		short: short,
-		long: long,
-		mid: mid,
-		close: stockfunc.CLOSE(data),
-		const2: function.Scalar(2)}
+		BaseNativeFormula: BaseNativeFormula{
+			FormulaMetaImpl: MACD_META,
+			Data__: data,
+		},
+	}
 
-	ret.ema_close_short = function.EMA(ret.close, short)
-	ret.ema_close_long = function.EMA(ret.close, long)
+	ret.short = function.Scalar(args[0])
+	ret.long = function.Scalar(args[1])
+	ret.mid = function.Scalar(args[2])
+	ret.close = stockfunc.CLOSE(data)
+	ret.const2 = function.Scalar(2)
+
+	ret.ema_close_short = function.EMA(ret.close, ret.short)
+	ret.ema_close_long = function.EMA(ret.close, ret.long)
 	ret.dif = function.SUB(ret.ema_close_short, ret.ema_close_long)
-	ret.dea = function.EMA(ret.dif, mid)
+	ret.dea = function.EMA(ret.dif, ret.mid)
 
 	ret.dif_sub_dea = function.SUB(ret.dif, ret.dea)
 	ret.macd = function.MUL(ret.dif_sub_dea, ret.const2)
 	ret.enter_long = function.CROSS(ret.dif, ret.dea)
 	ret.enter_short = function.CROSS(ret.dea, ret.dif)
 
-	ret.ref_values = []function.Value {
+	ret.RefValues__ = []function.Value {
 		ret.dif,
 		ret.dea,
 		ret.macd,
@@ -81,14 +82,6 @@ func MACD(meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) Formul
 		ret.enter_short,
 	}
 	return ret
-}
-
-func (this *macd) Period() period.Period {
-	return this.data.Period()
-}
-
-func (this *macd) Len() int {
-	return this.data.Len()
 }
 
 func (this *macd) UpdateLastValue() {
@@ -104,39 +97,4 @@ func (this *macd) UpdateLastValue() {
 	this.macd.UpdateLastValue()
 	this.enter_long.UpdateLastValue()
 	this.enter_short.UpdateLastValue()
-}
-
-func (this macd) Get(index int) []float64 {
-	return []float64 {
-		this.dif.Get(index),
-		this.dea.Get(index),
-		this.macd.Get(index),
-		this.enter_long.Get(index),
-		this.enter_short.Get(index),
-	}
-}
-
-func (this macd) Ref(offset int) []float64 {
-	index := this.data.Len() - 1 - offset
-	return this.Get(index)
-}
-
-func (this macd) GetVarValue(varName string) function.Value {
-	for i, v := range this.FormulaMetaImpl.Vars {
-		if varName == v {
-			return this.ref_values[i]
-		}
-	}
-	return nil
-}
-
-func (this *macd) Destroy() {
-}
-
-func (this *macd) Name() string {
-	return this.GetName()
-}
-
-func (this *macd) DrawActions() []DrawAction {
-	return nil
 }

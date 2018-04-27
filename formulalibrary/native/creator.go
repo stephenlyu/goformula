@@ -5,7 +5,7 @@ import (
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
-type CreateFunc func (meta *formula.FormulaMetaImpl, data *function.RVector, args []float64) formula.Formula
+type CreateFunc func (data *function.RVector, args []float64) formula.Formula
 
 type NativeFormula struct {
 	Creator CreateFunc

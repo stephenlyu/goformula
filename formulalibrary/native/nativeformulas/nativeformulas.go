@@ -5,5 +5,5 @@ import (
 )
 
 var NativeFormulas = []NativeFormula {
-	NativeFormula{MACD, macdMeta},
+	NativeFormula{MACD, MACD_META},
 }

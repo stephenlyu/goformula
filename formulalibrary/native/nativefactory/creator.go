@@ -11,5 +11,5 @@ type nativeFormulaCreator struct {
 }
 
 func (this *nativeFormulaCreator) CreateFormula(data *function.RVector) (error, formula.Formula) {
-	return nil, this.factory.nativeFormula.Creator(this.factory.nativeFormula.Meta, data, this.args)
+	return nil, this.factory.nativeFormula.Creator(data, this.args)
 }
