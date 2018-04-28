@@ -10,10 +10,10 @@ import (
 // 实现function.Value接口
 type crossValue struct {
 	value function.Value			// 跨周期的数据
-	indexMap *indexMap
+	indexMap *IndexMap
 }
 
-func CrossValue(value function.Value, indexMap *indexMap) function.Value {
+func CrossValue(value function.Value, indexMap *IndexMap) function.Value {
 	util.Assert(!value.IsScalar(), "!value.IsScalar()")
 	return &crossValue{value: value, indexMap: indexMap}
 }

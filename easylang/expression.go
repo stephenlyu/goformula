@@ -331,7 +331,7 @@ func StringExpression(context context, value string) *stringexpr {
 }
 
 func (this stringexpr) Codes() string {
-	return fmt.Sprintf("'%s'", this.value)
+	return fmt.Sprintf(`"%s"`, this.value)
 }
 
 type unaryexpr struct {
@@ -509,7 +509,7 @@ func (this referenceexpr) DefinedName() string {
 }
 
 func (this referenceexpr) Codes() string {
-	return fmt.Sprintf("o.%s.GetVarValue('%s')", getRefFormulaVarName(this.formulaName, "", ""), strings.ToUpper(this.refVarName))
+	return fmt.Sprintf(`o.%s.GetVarValue("%s")`, getRefFormulaVarName(this.formulaName, "", ""), strings.ToUpper(this.refVarName))
 }
 
 type crossreferenceexpr struct {
@@ -544,7 +544,7 @@ func (this crossreferenceexpr) DefinedName() string {
 }
 
 func (this crossreferenceexpr) Codes() string {
-	return fmt.Sprintf("CrossValue(o.%s.GetVarValue('%s'), o.%s)",
+	return fmt.Sprintf(`CrossValue(o.%s.GetVarValue("%s"), o.%s)`,
 		getRefFormulaVarName(this.formulaName, this.code, this.period),
 		strings.ToUpper(this.refVarName),
 		getIndexMapVarName(this.code, this.period))

@@ -11,20 +11,20 @@ const DAY_MILLIS = 24 * 60 * 60 * 1000
 
 // 比如在分钟线中引用日线数据时，srcData为分钟线数据，destData为日线数据。
 // IndexMap负责将分钟线的索引映射为日线数据的索引，然后存取日线数据
-type indexMap struct {
+type IndexMap struct {
 	srcData *RVector
 	destData *RVector
 
 	indexMap map[int]int
 }
 
-func IndexMap(srcData *RVector, destData *RVector) *indexMap {
-	this := &indexMap{srcData: srcData, destData: destData}
+func NewIndexMap(srcData *RVector, destData *RVector) *IndexMap {
+	this := &IndexMap{srcData: srcData, destData: destData}
 	this.buildIndexMap()
 	return this
 }
 
-func (this *indexMap) buildIndexMap() {
+func (this *IndexMap) buildIndexMap() {
 	needTrimDate := this.destData.period.Unit() != period.PERIOD_UNIT_MINUTE
 
 	m := make(map[int]int)
@@ -48,7 +48,7 @@ func (this *indexMap) buildIndexMap() {
 	this.indexMap = m
 }
 
-func (this *indexMap) Get(index int) int {
+func (this *IndexMap) Get(index int) int {
 	// 品种相同且周期相同时，直接从value中取值
 	if this.srcData.code == this.destData.code && this.srcData.period.Eq(this.destData.period) {
 		util.Assert(this.srcData.Len() == this.destData.Len(), "")
@@ -67,7 +67,7 @@ func (this *indexMap) Get(index int) int {
 	return ret
 }
 
-func (this *indexMap) UpdateLastValue() {
+func (this *IndexMap) UpdateLastValue() {
 	i := this.srcData.Len() - 1
 	j := this.destData.Len() - 1
 

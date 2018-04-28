@@ -102,3 +102,9 @@ func (this *dataLibrary) GetData(code string, periodString string) *function.RVe
 
 func (this *dataLibrary) ReleaseData(data *function.RVector) {
 }
+
+var GlobalDataLibrary DataLibrary
+
+func SetDataLibrary(dl DataLibrary) {
+	GlobalDataLibrary = dl
+}

@@ -78,7 +78,7 @@ var functionMap luar.Map = luar.Map{
 
 	// Cross Access Routines
 
-	"IndexMap": stockfunc.IndexMap,
+	"IndexMap": stockfunc.NewIndexMap,
 	"CrossValue": stockfunc.CrossValue,
 }
 

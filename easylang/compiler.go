@@ -78,3 +78,41 @@ func Tokenizer(sourceFile string) error {
 
 	return nil
 }
+
+func Compile2GoCode(sourceFile string, formulaManager formula.FormulaManager, numberingVar bool, packagePath string) (error, string) {
+	file, err := os.Open(sourceFile)
+	if err != nil {
+		return err, ""
+	}
+	defer file.Close()
+
+	_context = newContext()
+	_context.SetFormulaManager(formulaManager)
+	_context.SetNumberingVar(numberingVar)
+	ret := yyParse(newLexer(bufio.NewReader(file)))
+	if ret == 1 {
+		return errors.New("compile failure"), ""
+	}
+
+	if _context.outputErrors() {
+		return errors.New("compile failure"), ""
+	}
+
+	_context.Epilog()
+
+	baseName := filepath.Base(sourceFile)
+	mainName := strings.Split(baseName, ".")[0]
+
+	generator := NewGoGenerator(_context, packagePath)
+	return nil, generator.GenerateCode(mainName)
+}
+
+func Compile2Go(sourceFile string, destFile string, formulaManager formula.FormulaManager, numberingVar bool, packagePath string) error {
+	err, code := Compile2GoCode(sourceFile, formulaManager, numberingVar, packagePath)
+	if err != nil {
+		return err
+	}
+	os.MkdirAll(packagePath, 0777)
+
+	return ioutil.WriteFile(filepath.Join(packagePath, destFile), []byte(code), 0666)
+}
