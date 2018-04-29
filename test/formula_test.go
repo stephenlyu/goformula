@@ -10,6 +10,7 @@ import (
 	"github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
 	"github.com/stephenlyu/tds/date"
+	_ "github.com/stephenlyu/goformula/test/native"
 )
 
 type Record struct {
@@ -99,7 +100,7 @@ var _ = Describe("NMACD", func() {
 
 		for i := 0; i < macd.Len(); i++ {
 			r := macd.Get(i)
-			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\t%.02f\t%.02f\n", rv.Get(i).GetDate(), r[0], r[1], r[2], r[3], r[4])
+			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\n", rv.Get(i).GetDate(), r[0], r[1], r[2])
 		}
 		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
 	})

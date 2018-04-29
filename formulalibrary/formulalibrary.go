@@ -64,6 +64,7 @@ func (this *FormulaLibrary) SetLoadEasyLang(v bool) {
 func (this *FormulaLibrary) SetDataLibrary(dl datalibrary.DataLibrary) {
 	this.dataLibrary = dl
 	luaformula.SetDataLibrary(dl)
+	datalibrary.SetDataLibrary(dl)
 }
 
 func (this *FormulaLibrary) Reset() {
@@ -112,6 +113,11 @@ func (this *FormulaLibrary) LoadLuaFormulas(dir string) {
 		baseName := filepath.Base(filePath)
 		parts := strings.Split(baseName, ".")
 		name := strings.ToUpper(parts[0])
+		if this.IsFormulaExisted(name) {
+			log.Errorf("Formula %s exist, lua version ignored.", name)
+			continue
+		}
+
 		err = this.RegisterLuaFile(name, filePath)
 		if err != nil {
 			log.Errorf("Load lua formula %s fail, error: %v", filePath, err)
@@ -142,6 +148,10 @@ func (this *FormulaLibrary) LoadEasyLangFormulas(dir string) {
 			baseName := filepath.Base(filePath)
 			parts := strings.Split(baseName, ".")
 			name := strings.ToUpper(parts[0])
+			if this.IsFormulaExisted(name) {
+				log.Errorf("Formula %s exist, easylang version ignored.", name)
+				continue
+			}
 			err = this.RegisterEasyLangFile(name, filePath, this.debug)
 			if err != nil {
 				log.Errorf("Load easy lang formula %s fail, error: %+v", filePath, err)
@@ -200,6 +210,13 @@ func (this *FormulaLibrary) RegisterLuaFile(name, luaFile string) (err error) {
 	}
 	this.Register(name, factory)
 	return nil
+}
+
+func (this *FormulaLibrary) IsFormulaExisted(name string) bool {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	_, ok := this.formulaFactories[name]
+	return ok
 }
 
 func (this *FormulaLibrary) Register(name string, creatorFactory FormulaCreatorFactory) {

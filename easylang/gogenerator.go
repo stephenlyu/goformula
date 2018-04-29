@@ -504,6 +504,11 @@ func New%s(data *RVector, args []float64) Formula {
 func (this *%s) UpdateLastValue() {
 %s
 }
+
+func init() {
+	RegisterNativeFormula(New%s, %s_META)
+}
+
 	`,
 		packageName,
 		this.getDataLibraryImport(),
@@ -531,7 +536,10 @@ func (this *%s) UpdateLastValue() {
 		this.drawFunctionCodes(),
 		this.refValuesCodes(),
 		strings.ToLower(name),
-		this.updateLastValueCodes(indent, name))
+		this.updateLastValueCodes(indent, name),
+		name,
+		name,
+	)
 
 	return code
 }
