@@ -507,6 +507,34 @@ func BARSLAST(data Value) Value {
 		},
 	}
 	ret.Values = make([]float64, data.Len())
+	lastTruePos := -1
+	for i := 0; i < data.Len(); i++ {
+		if IsTrue(data.Get(i)) {
+			lastTruePos = i
+			ret.Values[i] = 0
+		} else if lastTruePos == -1 {
+			ret.Values[i] = math.NaN()
+		} else {
+			ret.Values[i] = float64(i - lastTruePos)
+		}
+	}
+	return ret
+}
+
+func BARSLASTOLD(data Value) Value {
+	if data.IsScalar() {
+		if data.Get(0) == 0 {
+			return Scalar(math.NaN())
+		}
+		return Scalar(0)
+	}
+
+	ret := &barslast{
+		funcbase: funcbase {
+			data: data,
+		},
+	}
+	ret.Values = make([]float64, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
