@@ -147,17 +147,20 @@ func VOLUME(data *RVector) *volume {
 
 type fPeriod struct {
 	fieldbase
+
+	value float64
 }
 
 func (this fPeriod) Get(index int) float64 {
-	return float64(GetPeriodIndex(this.data.period))
+	return this.value
 }
 
 func PERIOD(data *RVector) *fPeriod {
 	ret := &fPeriod{
-		fieldbase {
+		fieldbase: fieldbase {
 			data: data,
 		},
+		value: float64(GetPeriodIndex(data.period)),
 	}
 	return ret
 }
