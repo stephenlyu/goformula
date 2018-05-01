@@ -208,13 +208,13 @@ func (this *LuaFormula) getObject() {
 }
 
 func (this *LuaFormula) UpdateLastValue() {
-	util.Assert(this.L.GetTop() == 0, "")
+	//util.Assert(this.L.GetTop() == 0, "")
 	this.getObject()
 	this.L.GetField(-1, "updateLastValue")
 	this.L.PushValue(-2)
 	this.L.Call(1, 0)
 	this.L.Pop(1)
-	util.Assert(this.L.GetTop() == 0, "")
+	//util.Assert(this.L.GetTop() == 0, "")
 }
 
 func (this *LuaFormula) Get(index int) []float64 {
