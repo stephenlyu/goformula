@@ -251,7 +251,7 @@ func (this *GoGenerator) paramMetaData(name string) string {
 	sa := make([]string, len(this.context.params))
 	for i, p := range this.context.params {
 		exp := this.context.paramMap[p].(*paramexpr)
-		sa[i] = fmt.Sprintf("			Arg{%f, %f, %f},", exp.defaultValue, exp.min, exp.max)
+		sa[i] = fmt.Sprintf("			Arg{Default:%f, Min:%f, Max:%f},", exp.defaultValue, exp.min, exp.max)
 	}
 	return strings.Join(sa, "\n")
 }
