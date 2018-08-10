@@ -26,6 +26,7 @@ var systemPeriods = []Period {
 	W1,
 }
 
+var currentPeriods []Period
 var periodIndices map[string]int
 
 func init() {
@@ -33,6 +34,7 @@ func init() {
 }
 
 func buildPeriodIndices(periods []Period) map[string]int {
+	currentPeriods = periods
 	m := make(map[string]int)
 	for i, p := range periods {
 		m[p.ShortName()] = i
@@ -43,7 +45,28 @@ func buildPeriodIndices(periods []Period) map[string]int {
 func SetCustomPeriods(periods []Period) error {
 	var ps []Period
 	ps = append(ps, systemPeriods...)
-	ps = append(ps, periods...)
+	for _, p := range periods {
+		if _, ok := periodIndices[p.ShortName()]; !ok {
+			ps = append(ps, p)
+		}
+	}
+	m := buildPeriodIndices(ps)
+	if len(m) < len(ps) {
+		return errors.New("Duplicate period")
+	}
+
+	periodIndices = m
+	return nil
+}
+
+func AddCustomPeriods(periods []Period) error {
+	var ps []Period
+	ps = append(ps, currentPeriods...)
+	for _, p := range periods {
+		if _, ok := periodIndices[p.ShortName()]; !ok {
+			ps = append(ps, p)
+		}
+	}
 	m := buildPeriodIndices(ps)
 	if len(m) < len(ps) {
 		return errors.New("Duplicate period")
