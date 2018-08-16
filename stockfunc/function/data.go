@@ -10,12 +10,12 @@ import (
 type Record interface {
 	GetUTCDate() uint64
 	GetDate() string
-	GetOpen() float32
-	GetClose() float32
-	GetHigh() float32
-	GetLow() float32
-	GetAmount() float32
-	GetVolume() float32
+	GetOpen() float64
+	GetClose() float64
+	GetHigh() float64
+	GetLow() float64
+	GetAmount() float64
+	GetVolume() float64
 }
 
 type RVector struct {
