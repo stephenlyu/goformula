@@ -1,22 +1,23 @@
 package function
 
 import (
-	. "github.com/stephenlyu/tds/period"
 	"errors"
-	"baiwenbao.com/arbitrage/util"
+
+	. "github.com/stephenlyu/tds/period"
+	"github.com/stephenlyu/tds/util"
 )
 
 var (
-	_, M1 = PeriodFromString("M1")
-	_, M5 = PeriodFromString("M5")
+	_, M1  = PeriodFromString("M1")
+	_, M5  = PeriodFromString("M5")
 	_, M15 = PeriodFromString("M15")
 	_, M30 = PeriodFromString("M30")
 	_, M60 = PeriodFromString("M60")
-	_, D1 = PeriodFromString("D1")
-	_, W1 = PeriodFromString("W1")
+	_, D1  = PeriodFromString("D1")
+	_, W1  = PeriodFromString("W1")
 )
 
-var systemPeriods = []Period {
+var systemPeriods = []Period{
 	M1,
 	M5,
 	M15,

@@ -1,16 +1,16 @@
 package datalibrary
 
 import (
-	. "github.com/stephenlyu/tds/period"
-	"github.com/stephenlyu/goformula/stockfunc/function"
-	"baiwenbao.com/arbitrage/util"
-	"github.com/stephenlyu/tds/datasource"
-	"github.com/stephenlyu/tds/datasource/tdx"
-	"github.com/stephenlyu/tds/entity"
-	"github.com/z-ray/log"
+	"fmt"
 	"strings"
 	"unicode"
-	"fmt"
+
+	"github.com/stephenlyu/goformula/stockfunc/function"
+	"github.com/stephenlyu/tds/datasource"
+	"github.com/stephenlyu/tds/entity"
+	. "github.com/stephenlyu/tds/period"
+	"github.com/stephenlyu/tds/util"
+	"github.com/z-ray/log"
 )
 
 const (
@@ -33,7 +33,7 @@ type dataLibrary struct {
 	dataType int
 
 	dataDir string
-	ds datasource.DataSource
+	ds      datasource.DataSource
 }
 
 func NewDataLibrary(dataDir string) DataLibrary {
@@ -95,7 +95,7 @@ func (this *dataLibrary) GetData(code string, periodString string) *function.RVe
 		ret[i] = &data[i]
 	}
 
-	fmt.Println(data[0].GetDate(), data[len(data) - 1].GetDate())
+	fmt.Println(data[0].GetDate(), data[len(data)-1].GetDate())
 
 	return function.RecordVectorEx(code, period, ret)
 }
