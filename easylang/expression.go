@@ -55,8 +55,10 @@ var funcMap = funcmap{
 	"REF":       "REF",
 	"BARSCOUNT": "BARSCOUNT",
 	"BARSLAST":  "BARSLAST",
+	"BARSLASTS": "BARSLASTS",
 	"HHV":       "HHV",
 	"LLV":       "LLV",
+	"HHVLLV":    "HHVLLV",
 	"HHVBARS":   "HHVBARS",
 	"LLVBARS":   "LLVBARS",
 	"ROUND2":    "ROUND2",
@@ -75,7 +77,8 @@ var funcMap = funcmap{
 	"AVEDEV":    "AVEDEV",
 	"STD":       "STD",
 	"SUM":       "SUM",
-	"SLOPE": 	 "SLOPE",
+	"SLOPE":     "SLOPE",
+	"BETWEEN":   "BETWEEN",
 
 	// 绘制函数
 	"DRAWTEXT":  "DRAWTEXT",

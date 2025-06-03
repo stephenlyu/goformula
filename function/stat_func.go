@@ -1,10 +1,10 @@
 package function
 
 import (
-	_math "github.com/chanxuehong/util/math"
 	"math"
-)
 
+	_math "github.com/chanxuehong/util/math"
+)
 
 // LLV
 
@@ -19,7 +19,7 @@ func (this llv) BuildValueAt(index int) float64 {
 		return math.NaN()
 	}
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(N))))
+	start := int(_math.Max(0, int64(end-int(N))))
 
 	return min(this.data, start, end)
 }
@@ -34,7 +34,7 @@ func LLV(data Value, N Value) Value {
 	}
 
 	ret := &llv{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -58,7 +58,7 @@ func (this llvbars) BuildValueAt(index int) float64 {
 	}
 
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(N))))
+	start := int(_math.Max(0, int64(end-int(N))))
 
 	low := math.MaxFloat64
 	low_pos := -1
@@ -83,7 +83,7 @@ func LLVBARS(data Value, N Value) Value {
 	}
 
 	ret := &llvbars{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -106,7 +106,7 @@ func (this hhv) BuildValueAt(index int) float64 {
 		return math.NaN()
 	}
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(N))))
+	start := int(_math.Max(0, int64(end-int(N))))
 
 	return max(this.data, start, end)
 }
@@ -120,7 +120,7 @@ func HHV(data Value, N Value) Value {
 		return Scalar(data.Get(0))
 	}
 	ret := &hhv{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -144,7 +144,7 @@ func (this hhvbars) BuildValueAt(index int) float64 {
 	}
 
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(N))))
+	start := int(_math.Max(0, int64(end-int(N))))
 
 	high := this.data.Get(start)
 	high_pos := -1
@@ -168,10 +168,66 @@ func HHVBARS(data Value, N Value) Value {
 		return Scalar(0)
 	}
 	ret := &hhvbars{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
+	}
+	ret.Values = make([]float64, data.Len())
+	initValues(ret, ret.Values)
+	return ret
+}
+
+// HHVLLV
+
+type hhvllv struct {
+	funcbase
+	T  Value
+	N1 Value
+	N2 Value
+}
+
+func (this hhvllv) BuildValueAt(index int) float64 {
+	T := this.T.Get(index)
+	N1 := this.N1.Get(index)
+	N2 := this.N2.Get(index)
+	if math.IsNaN(N1) || N1 <= 0 {
+		return math.NaN()
+	}
+	if math.IsNaN(N2) || N2 <= 0 {
+		return math.NaN()
+	}
+
+	var start int = 0
+	var end int = index + 1
+	if N1 > 0 {
+		start = int(_math.Max(0, int64(index+1-int(N1))))
+	}
+	if N2 > 0 {
+		end = int(_math.Max(0, int64(index+1-int(N2))))
+	}
+
+	if T == 0 {
+		return max(this.data, start, end)
+	}
+	return min(this.data, start, end)
+}
+
+func (this *hhvllv) UpdateLastValue() {
+	updateLastValue(this)
+}
+
+func HHVLLV(data Value, T Value, N1 Value, N2 Value) Value {
+	if data.IsScalar() {
+		return Scalar(data.Get(0))
+	}
+	ret := &hhvllv{
+		funcbase: funcbase{
+			data: data,
+		},
+		T:  T,
+		N1: N1,
+		N2: N2,
 	}
 	ret.Values = make([]float64, data.Len())
 	initValues(ret, ret.Values)
@@ -190,12 +246,12 @@ func (this std) BuildValueAt(index int) float64 {
 		return math.NaN()
 	}
 	N := int(this.N.Get(index))
-	if index < N - 1 {
+	if index < N-1 {
 		return 0
 	}
 
 	end := index + 1
-	start := int(_math.Max(0, int64(end - N)))
+	start := int(_math.Max(0, int64(end-N)))
 
 	average := ma_(this.data, start, end)
 
@@ -206,7 +262,7 @@ func (this std) BuildValueAt(index int) float64 {
 		sum_ += diff * diff
 	}
 
-	return math.Sqrt(sum_ / float64(end - start))
+	return math.Sqrt(sum_ / float64(end-start))
 }
 
 func (this *std) UpdateLastValue() {
@@ -219,7 +275,7 @@ func STD(data Value, N Value) Value {
 	}
 
 	ret := &std{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -241,12 +297,12 @@ func (this avedev) BuildValueAt(index int) float64 {
 		return math.NaN()
 	}
 	N := int(this.N.Get(index))
-	if index < N - 1 {
+	if index < N-1 {
 		return 0
 	}
 
 	end := index + 1
-	start := int(_math.Max(0, int64(end - N)))
+	start := int(_math.Max(0, int64(end-N)))
 
 	count := end - start
 	average := ma_(this.data, start, end)
@@ -271,7 +327,7 @@ func AVEDEV(data Value, N Value) Value {
 	}
 
 	ret := &avedev{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -293,7 +349,7 @@ func (this sumf) BuildValueAt(index int) float64 {
 		return math.NaN()
 	}
 	end := index + 1
-	start := int(_math.Max(0, int64(end - int(this.N.Get(index)))))
+	start := int(_math.Max(0, int64(end-int(this.N.Get(index)))))
 	return sum(this.data, start, end)
 }
 
@@ -307,7 +363,7 @@ func SUM(data Value, N Value) Value {
 	}
 
 	ret := &sumf{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -329,7 +385,7 @@ func BuildCrossValueAt(data, data1 Value, index int) float64 {
 		return 0
 	}
 
-	return iif(data.Get(index - 1) < data1.Get(index - 1) && data.Get(index) >= data1.Get(index), 1, 0)
+	return iif(data.Get(index-1) < data1.Get(index-1) && data.Get(index) >= data1.Get(index), 1, 0)
 }
 
 func (this cross) Get(index int) float64 {
@@ -341,7 +397,7 @@ func CROSS(data, data1 Value) Value {
 		return Scalar(0)
 	}
 	ret := &cross{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -363,7 +419,7 @@ func (this count) BuildValueAt(index int) float64 {
 	N := int(this.N.Get(index))
 
 	end := index + 1
-	start := int(_math.Max(0, int64(end - N)))
+	start := int(_math.Max(0, int64(end-N)))
 
 	c := 0
 	for i := start; i < end; i++ {
@@ -389,7 +445,7 @@ func COUNT(data Value, N Value) Value {
 	}
 
 	ret := &count{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -404,7 +460,7 @@ func COUNT(data Value, N Value) Value {
 type iff struct {
 	simplefuncbase
 	yesData Value
-	noData Value
+	noData  Value
 }
 
 func (this iff) Get(index int) float64 {
@@ -417,11 +473,11 @@ func IF(data, yesData, noData Value) Value {
 	}
 
 	ret := &iff{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		yesData: yesData,
-		noData: noData,
+		noData:  noData,
 	}
 	return ret
 }
@@ -440,7 +496,7 @@ func (this every) BuildValueAt(index int) float64 {
 	N := int(this.N.Get(index))
 
 	end := index + 1
-	start := int(_math.Max(0, int64(end - N)))
+	start := int(_math.Max(0, int64(end-N)))
 
 	for i := start; i < end; i++ {
 		if !IsTrue(this.data.Get(i)) {
@@ -464,7 +520,7 @@ func EVERY(data Value, N Value) Value {
 	}
 
 	ret := &every{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,
@@ -502,7 +558,7 @@ func BARSLAST(data Value) Value {
 	}
 
 	ret := &barslast{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 	}
@@ -530,12 +586,57 @@ func BARSLASTOLD(data Value) Value {
 	}
 
 	ret := &barslast{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 	}
 	ret.Values = make([]float64, data.Len())
 	initValues(ret, ret.Values)
+	return ret
+}
+
+// BARSLASTS
+
+type barslasts struct {
+	funcbase
+	N int
+}
+
+func (this barslasts) BuildValueAt(index int) float64 {
+	count := 0
+	for j := index; j >= 0; j-- {
+		if IsTrue(this.data.Get(j)) {
+			count++
+			if count == this.N {
+				return float64(index - j)
+			}
+		}
+	}
+	return math.NaN()
+}
+
+func (this *barslasts) UpdateLastValue() {
+	updateLastValue(this)
+}
+
+func BARSLASTS(data Value, N Value) Value {
+	if data.IsScalar() {
+		if data.Get(0) == 0 {
+			return Scalar(math.NaN())
+		}
+		return Scalar(0)
+	}
+
+	ret := &barslasts{
+		funcbase: funcbase{
+			data: data,
+		},
+		N: int(N.Get(0)),
+	}
+	ret.Values = make([]float64, data.Len())
+	for i := 0; i < data.Len(); i++ {
+		ret.Values[i] = ret.BuildValueAt(i)
+	}
 	return ret
 }
 
@@ -581,7 +682,7 @@ func ROUND2(data Value, N Value) Value {
 	}
 
 	ret := &roundf{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		N: N,
@@ -614,7 +715,7 @@ func REF(data Value, N Value) Value {
 	}
 
 	ret := &ref{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		N: N,
@@ -639,7 +740,7 @@ func MIN(data Value, data1 Value) Value {
 	}
 
 	ret := &minf{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -664,7 +765,7 @@ func MAX(data Value, data1 Value) Value {
 	}
 
 	ret := &maxf{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -687,7 +788,7 @@ func ABS(data Value) Value {
 		return Scalar(math.Abs(data.Get(0)))
 	}
 	ret := &absf{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 	}
@@ -706,7 +807,7 @@ func (this slopef) BuildValueAt(index int) float64 {
 		return math.NaN()
 	}
 	N := int(this.N.Get(index))
-	if index < N - 1 {
+	if index < N-1 {
 		return 0
 	}
 
@@ -733,7 +834,7 @@ func SLOPE(data Value, N Value) Value {
 	}
 
 	ret := &slopef{
-		funcbase: funcbase {
+		funcbase: funcbase{
 			data: data,
 		},
 		N: N,

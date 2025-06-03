@@ -30,7 +30,7 @@ func NOT(data Value) Value {
 	}
 
 	ret := &not{
-		simplefuncbase {
+		simplefuncbase{
 			data: data,
 		},
 	}
@@ -52,7 +52,7 @@ func MINUS(data Value) Value {
 	}
 
 	ret := &minus{
-		simplefuncbase {
+		simplefuncbase{
 			data: data,
 		},
 	}
@@ -75,7 +75,7 @@ func ADD(data Value, data1 Value) Value {
 	}
 
 	ret := &add{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -99,7 +99,7 @@ func SUB(data Value, data1 Value) Value {
 	}
 
 	ret := &sub{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -123,7 +123,7 @@ func MUL(data Value, data1 Value) Value {
 	}
 
 	ret := &mul{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -153,7 +153,7 @@ func DIV(data Value, data1 Value) Value {
 	}
 
 	ret := &div{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -186,7 +186,7 @@ func AND(data Value, data1 Value) Value {
 	}
 
 	ret := &and{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -219,7 +219,7 @@ func OR(data Value, data1 Value) Value {
 	}
 
 	ret := &or{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -252,7 +252,7 @@ func LT(data Value, data1 Value) Value {
 	}
 
 	ret := &lt{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -284,7 +284,7 @@ func LE(data Value, data1 Value) Value {
 		return Scalar(BuildLEValueAt(data, data1, 0))
 	}
 	ret := &le{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -316,7 +316,7 @@ func GT(data Value, data1 Value) Value {
 		return Scalar(BuildGtValueAt(data, data1, 0))
 	}
 	ret := &gt{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -348,7 +348,7 @@ func GE(data Value, data1 Value) Value {
 		return Scalar(BuildGeValueAt(data, data1, 0))
 	}
 	ret := &ge{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -380,7 +380,7 @@ func EQ(data Value, data1 Value) Value {
 		return Scalar(BuildEqValueAt(data, data1, 0))
 	}
 	ret := &eq{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
@@ -412,10 +412,48 @@ func NEQ(data Value, data1 Value) Value {
 		return Scalar(BuildNeqValueAt(data, data1, 0))
 	}
 	ret := &neq{
-		simplefuncbase: simplefuncbase {
+		simplefuncbase: simplefuncbase{
 			data: data,
 		},
 		data1: data1,
+	}
+
+	return ret
+}
+
+type between struct {
+	simplefuncbase
+	data1 Value
+	data2 Value
+}
+
+func BuildBetweenValueAt(data, data1 Value, data2 Value, index int) float64 {
+	a := data.Get(index)
+	b := data1.Get(index)
+	c := data2.Get(index)
+	if a < b {
+		return 0
+	}
+	if a > c {
+		return 0
+	}
+	return 1
+}
+
+func (this between) Get(index int) float64 {
+	return BuildBetweenValueAt(this.data, this.data1, this.data2, index)
+}
+
+func BETWEEN(data Value, data1 Value, data2 Value) Value {
+	if data.IsScalar() && data1.IsScalar() && data2.IsScalar() {
+		return Scalar(BuildBetweenValueAt(data, data1, data2, 0))
+	}
+	ret := &between{
+		simplefuncbase: simplefuncbase{
+			data: data,
+		},
+		data1: data1,
+		data2: data2,
 	}
 
 	return ret
