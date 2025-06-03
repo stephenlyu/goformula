@@ -7,6 +7,7 @@ import (
 
 	"github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/tds/datasource"
+	tdxdatasource "github.com/stephenlyu/tds/datasource/tdx"
 	"github.com/stephenlyu/tds/entity"
 	. "github.com/stephenlyu/tds/period"
 	"github.com/stephenlyu/tds/util"

@@ -1,9 +1,9 @@
 package luaformula
 
 import (
-	"github.com/stevedonovan/luar"
 	"github.com/aarzilli/golua/lua"
 	. "github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stevedonovan/luar"
 )
 
 func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, flags []int, colors []*Color, lineThick []int, lineStyles []int, graphTypes []int, vars []string) {
@@ -36,7 +36,7 @@ func getFormulaDesc(L *lua.State) (name string, argNames []string, args []Arg, f
 	L.GetField(-1, "color")
 	luar.LuaToGo(L, -1, &colors)
 	for i, color := range colors {
-		if color.Red == - 1 {
+		if color.Red == -1 {
 			colors[i] = nil
 		}
 	}

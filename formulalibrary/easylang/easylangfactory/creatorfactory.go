@@ -1,19 +1,20 @@
 package easylangfactory
 
 import (
-	"github.com/stephenlyu/goformula/formulalibrary/base/factory"
-	"github.com/aarzilli/golua/lua"
-	"github.com/stevedonovan/luar"
-	"github.com/stephenlyu/goformula/formulalibrary/lua/luaformula"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
-	"github.com/stephenlyu/goformula/easylang"
 	"io/ioutil"
+
+	"github.com/aarzilli/golua/lua"
+	"github.com/stephenlyu/goformula/easylang"
+	"github.com/stephenlyu/goformula/formulalibrary/base/factory"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/formulalibrary/lua/luaformula"
+	"github.com/stevedonovan/luar"
 )
 
 type easylangFormulaCreatorFactory struct {
 	easyLangFile string
 
-	L *lua.State
+	L    *lua.State
 	Meta *formula.FormulaMetaImpl
 }
 
@@ -24,7 +25,7 @@ func NewEasyLangFormulaCreatorFactory(easyLangFile string, formulaManager formul
 		return err, nil
 	}
 	if debug {
-		ioutil.WriteFile(easyLangFile + ".lua", []byte(code), 0666)
+		ioutil.WriteFile(easyLangFile+".lua", []byte(code), 0666)
 	}
 
 	// Init Lua Engine
@@ -41,7 +42,7 @@ func NewEasyLangFormulaCreatorFactory(easyLangFile string, formulaManager formul
 	luaformula.GetMetaFromLuaState(L, meta)
 	L.Pop(1)
 
-	return nil, &easylangFormulaCreatorFactory{easyLangFile:easyLangFile, L: L, Meta: meta}
+	return nil, &easylangFormulaCreatorFactory{easyLangFile: easyLangFile, L: L, Meta: meta}
 }
 
 func (this *easylangFormulaCreatorFactory) GetMeta() formula.FormulaMeta {
@@ -55,6 +56,6 @@ func (this *easylangFormulaCreatorFactory) CreateFormulaCreator(args []float64) 
 
 	return &easyLangFormulaCreator{
 		factory: this,
-		args: args,
+		args:    args,
 	}
 }

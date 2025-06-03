@@ -1,29 +1,30 @@
 package luaformula
 
 import (
-	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
-	"github.com/stevedonovan/luar"
-	"github.com/aarzilli/golua/lua"
-	"github.com/stephenlyu/goformula/function"
-	. "github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"errors"
 	"fmt"
 	"math"
 	"strings"
+
+	"github.com/aarzilli/golua/lua"
+	. "github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/function"
+	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/tds/period"
 	"github.com/stephenlyu/tds/util"
+	"github.com/stevedonovan/luar"
 )
 
 type LuaFormula struct {
 	*FormulaMetaImpl
-	L          *lua.State
+	L *lua.State
 
 	period period.Period
-	code string
-	data *stockfunc.RVector
+	code   string
+	data   *stockfunc.RVector
 
-	args []float64
-	refValues  []function.Value
+	args      []float64
+	refValues []function.Value
 
 	id int64
 
@@ -44,7 +45,7 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 	for _, arg := range args {
 		luar.GoToLua(L, arg)
 	}
-	L.Call(2 + len(args), 1)
+	L.Call(2+len(args), 1)
 	if L.IsNil(-1) {
 		return errors.New("Create formula fail"), nil
 	}
@@ -89,11 +90,11 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 	luar.LuaToGo(L, -1, &ployLines)
 	L.Pop(1)
 
-	drawActions := make([]DrawAction, len(drawTexts) + len(drawIcons) + len(drawLines) + len(drawKLines) + len(stickLines) + len(ployLines))
+	drawActions := make([]DrawAction, len(drawTexts)+len(drawIcons)+len(drawLines)+len(drawKLines)+len(stickLines)+len(ployLines))
 	i := 0
 	for j := range drawTexts {
 		action := &drawTexts[j]
-		if action.Color != nil &&  action.Color.Red == -1 {
+		if action.Color != nil && action.Color.Red == -1 {
 			action.Color = nil
 		}
 		drawActions[i] = action
@@ -134,19 +135,19 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 		i++
 	}
 
-	L.Remove(1)	// Remove FormulaClass from stack
-	L.Pop(1)	// Remove formula object from stack
+	L.Remove(1) // Remove FormulaClass from stack
+	L.Pop(1)    // Remove formula object from stack
 	util.Assert(L.GetTop() == 0, "")
 
 	formula := &LuaFormula{
 		FormulaMetaImpl: meta,
-		L: L,
+		L:               L,
 
 		period: data.Period(),
-		code: data.Code(),
-		data: data,
+		code:   data.Code(),
+		data:   data,
 
-		args: args,
+		args:      args,
 		refValues: values,
 
 		id: id,
@@ -246,7 +247,7 @@ func (this *LuaFormula) Name() string {
 		return this.GetName()
 	}
 
-	formatValue := func (v float64) string {
+	formatValue := func(v float64) string {
 		if float64(int(v)) == v {
 			return fmt.Sprintf("%d", int(v))
 		}
