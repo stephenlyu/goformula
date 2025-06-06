@@ -376,8 +376,7 @@ func SUM(data Value, N Value) Value {
 // CROSS
 
 type cross struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildCrossValueAt(data, data1 Value, index int) float64 {
@@ -397,10 +396,12 @@ func CROSS(data, data1 Value) Value {
 		return Scalar(0)
 	}
 	ret := &cross{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 	return ret
 }

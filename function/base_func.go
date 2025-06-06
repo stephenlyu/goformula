@@ -1,6 +1,5 @@
 package function
 
-
 type function interface {
 	Value
 	Data() Value
@@ -36,7 +35,7 @@ func updateLastValue(this function) {
 
 	if this.Len() == length {
 		v := this.BuildValueAt(length - 1)
-		this.Set(this.Len() - 1, v)
+		this.Set(this.Len()-1, v)
 	} else {
 		for i := this.Len(); i < length; i++ {
 			v := this.BuildValueAt(i)
@@ -77,4 +76,16 @@ func (this *simplefuncbase) UpdateLastValue() {
 
 func (this *simplefuncbase) Append(v float64) {
 	panic("Not implemented")
+}
+
+type binaryfuncbase struct {
+	simplefuncbase
+	data1 Value
+}
+
+func (this *binaryfuncbase) Len() int {
+	if !this.data.IsScalar() {
+		return this.data.Len()
+	}
+	return this.data1.Len()
 }

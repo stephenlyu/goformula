@@ -61,8 +61,7 @@ func MINUS(data Value) Value {
 }
 
 type add struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func (this add) Get(index int) float64 {
@@ -75,18 +74,19 @@ func ADD(data Value, data1 Value) Value {
 	}
 
 	ret := &add{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type sub struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func (this sub) Get(index int) float64 {
@@ -99,18 +99,19 @@ func SUB(data Value, data1 Value) Value {
 	}
 
 	ret := &sub{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type mul struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func (this mul) Get(index int) float64 {
@@ -123,18 +124,19 @@ func MUL(data Value, data1 Value) Value {
 	}
 
 	ret := &mul{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type div struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func (this div) Get(index int) float64 {
@@ -153,18 +155,19 @@ func DIV(data Value, data1 Value) Value {
 	}
 
 	ret := &div{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type and struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildAndValueAt(data, data1 Value, index int) float64 {
@@ -186,18 +189,19 @@ func AND(data Value, data1 Value) Value {
 	}
 
 	ret := &and{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type or struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildOrValueAt(data, data1 Value, index int) float64 {
@@ -219,18 +223,19 @@ func OR(data Value, data1 Value) Value {
 	}
 
 	ret := &or{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type lt struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildLtValueAt(data, data1 Value, index int) float64 {
@@ -252,18 +257,19 @@ func LT(data Value, data1 Value) Value {
 	}
 
 	ret := &lt{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type le struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildLEValueAt(data, data1 Value, index int) float64 {
@@ -284,18 +290,19 @@ func LE(data Value, data1 Value) Value {
 		return Scalar(BuildLEValueAt(data, data1, 0))
 	}
 	ret := &le{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type gt struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildGtValueAt(data, data1 Value, index int) float64 {
@@ -316,18 +323,19 @@ func GT(data Value, data1 Value) Value {
 		return Scalar(BuildGtValueAt(data, data1, 0))
 	}
 	ret := &gt{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type ge struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildGeValueAt(data, data1 Value, index int) float64 {
@@ -348,18 +356,19 @@ func GE(data Value, data1 Value) Value {
 		return Scalar(BuildGeValueAt(data, data1, 0))
 	}
 	ret := &ge{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
 }
 
 type eq struct {
-	simplefuncbase
-	data1 Value
+	binaryfuncbase
 }
 
 func BuildEqValueAt(data, data1 Value, index int) float64 {
@@ -380,10 +389,12 @@ func EQ(data Value, data1 Value) Value {
 		return Scalar(BuildEqValueAt(data, data1, 0))
 	}
 	ret := &eq{
-		simplefuncbase: simplefuncbase{
-			data: data,
+		binaryfuncbase: binaryfuncbase{
+			simplefuncbase: simplefuncbase{
+				data: data,
+			},
+			data1: data1,
 		},
-		data1: data1,
 	}
 
 	return ret
@@ -440,7 +451,17 @@ func BuildBetweenValueAt(data, data1 Value, data2 Value, index int) float64 {
 	return 1
 }
 
-func (this between) Get(index int) float64 {
+func (this *between) Len() int {
+	if !this.data.IsScalar() {
+		return this.data.Len()
+	}
+	if !this.data1.IsScalar() {
+		return this.data1.Len()
+	}
+	return this.data2.Len()
+}
+
+func (this *between) Get(index int) float64 {
 	return BuildBetweenValueAt(this.data, this.data1, this.data2, index)
 }
 
