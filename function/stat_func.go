@@ -191,10 +191,10 @@ func (this hhvllv) BuildValueAt(index int) float64 {
 	T := this.T.Get(index)
 	N1 := this.N1.Get(index)
 	N2 := this.N2.Get(index)
-	if math.IsNaN(N1) || N1 <= 0 {
+	if math.IsNaN(N1) || N1 < 0 {
 		return math.NaN()
 	}
-	if math.IsNaN(N2) || N2 <= 0 {
+	if math.IsNaN(N2) || N2 < 0 {
 		return math.NaN()
 	}
 
@@ -205,6 +205,10 @@ func (this hhvllv) BuildValueAt(index int) float64 {
 	}
 	if N2 > 0 {
 		end = int(_math.Max(0, int64(index+1-int(N2))))
+	}
+
+	if start > end {
+		start, end = end, start
 	}
 
 	if T == 0 {

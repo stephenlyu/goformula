@@ -1,8 +1,8 @@
 package function
 
 import (
-	"math"
 	"errors"
+	"math"
 )
 
 func Assert(cond bool, msg string) {
@@ -28,7 +28,7 @@ func ma_(values Value, start, end int) float64 {
 		return 0
 	}
 
-	return sum(values, start, end) / float64(end - start)
+	return sum(values, start, end) / float64(end-start)
 }
 
 func min(values Value, start, end int) float64 {
@@ -37,7 +37,7 @@ func min(values Value, start, end int) float64 {
 	}
 
 	ret := values.Get(start)
-	for i := start + 1; i < end; i++ {
+	for i := start; i < end; i++ {
 		if values.Get(i) < ret {
 			ret = values.Get(i)
 		}
@@ -51,7 +51,7 @@ func max(values Value, start, end int) float64 {
 	}
 
 	ret := values.Get(start)
-	for i := start + 1; i < end; i++ {
+	for i := start; i < end; i++ {
 		if values.Get(i) > ret {
 			ret = values.Get(i)
 		}
@@ -60,7 +60,7 @@ func max(values Value, start, end int) float64 {
 }
 
 func iif(condition bool, yesValue, noValue float64) float64 {
-	if (condition) {
+	if condition {
 		return yesValue
 	}
 	return noValue
@@ -121,7 +121,7 @@ func LinearRegression(x, y Value) (err error, slope float64, intercept float64) 
 	return
 }
 
-func Interpolate(values []float64, from int, to int, fromValue float64, toValue float64){
+func Interpolate(values []float64, from int, to int, fromValue float64, toValue float64) {
 	Assert(from >= 0, "from >= 0 required")
 	Assert(to < len(values), "to < len(values) required")
 
@@ -137,10 +137,10 @@ func Interpolate(values []float64, from int, to int, fromValue float64, toValue 
 		return
 	}
 
-	slope := (toValue - fromValue) / float64(to - from)
+	slope := (toValue - fromValue) / float64(to-from)
 	values[from] = fromValue
 	values[to] = toValue
 	for i := from + 1; i < to; i++ {
-		values[i] = fromValue + float64(i - from) * slope
+		values[i] = fromValue + float64(i-from)*slope
 	}
 }

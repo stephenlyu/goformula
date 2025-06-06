@@ -1,17 +1,17 @@
 package nativeformulas
 
 import (
-	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
-	"github.com/stephenlyu/goformula/function"
 	. "github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/function"
+	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/tds/period"
 )
 
 type BaseNativeFormula struct {
 	*FormulaMetaImpl
-	RefValues__     []function.Value
-	DrawActions__	[]DrawAction
-	Data__          *stockfunc.RVector
+	RefValues__   []function.Value
+	DrawActions__ []DrawAction
+	Data__        *stockfunc.RVector
 }
 
 func (this *BaseNativeFormula) Period() period.Period {
@@ -56,3 +56,5 @@ func (this *BaseNativeFormula) DrawActions() []DrawAction {
 	return this.DrawActions__
 }
 
+func (this *BaseNativeFormula) DumpState() {
+}

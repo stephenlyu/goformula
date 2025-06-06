@@ -1,15 +1,16 @@
 package easylang
 
 import (
-	"strings"
 	"fmt"
 	"path/filepath"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"strconv"
+	"strings"
+
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 )
 
 type GoGenerator struct {
-	context *Context
+	context     *Context
 	packageFull string
 }
 
@@ -426,11 +427,41 @@ func (this *GoGenerator) updateLastValueCodes(indent string, formulaName string)
 	return strings.Join(lines, "\n")
 }
 
+func (this *GoGenerator) dumpStateCodes(indent string, formulaName string) string {
+	lines := []string{}
+
+	// Add Var UpdateLastValue Calls
+	for _, varName := range this.context.definedVars {
+		expr, ok := this.context.definedVarMap[varName]
+		if !ok {
+			continue
+		}
+		if !expr.IsValid() {
+			continue
+		}
+		if !expr.IsVoid() {
+			// DO NOTHING
+		}
+
+		switch expr.(type) {
+		case *constantexpr:
+		case *assignexpr:
+			lines = append(lines, fmt.Sprintf(`%s%sfmt.Printf("%s: %%.03f ", this.%s.Get(i))`,
+				indent, indent, expr.DefinedName(), expr.DefinedName()))
+		case *paramexpr:
+		case *stringexpr:
+		case *referenceexpr:
+		default:
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
 func (this *GoGenerator) GenerateCode(name string) string {
 	name = strings.ToUpper(name)
 
 	parts := filepath.SplitList(this.packageFull)
-	packageName := parts[len(parts) - 1]
+	packageName := parts[len(parts)-1]
 
 	flags, graphTypes, lineThicks, colors, lineStyles := this.varProperties()
 
@@ -443,6 +474,7 @@ func (this *GoGenerator) GenerateCode(name string) string {
 package %s
 
 import (
+	"fmt"
 	. "github.com/stephenlyu/goformula/stockfunc/function"
 	. "github.com/stephenlyu/goformula/function"
 	. "github.com/stephenlyu/goformula/formulalibrary/base/formula"
@@ -505,6 +537,17 @@ func (this *%s) UpdateLastValue() {
 %s
 }
 
+func (this *%s) DumpState() {
+	for i := 0; i < this.Data__.Len(); i++ {
+		r := this.Data__.Get(i)
+		fmt.Printf("date: %%s ", r.GetDate())
+		// Dump Var Start
+%s
+		// Dump Var End
+		fmt.Println("")
+	}
+}
+
 func init() {
 	RegisterNativeFormula(New%s, %s_META)
 }
@@ -537,6 +580,8 @@ func init() {
 		this.refValuesCodes(),
 		strings.ToLower(name),
 		this.updateLastValueCodes(indent, name),
+		strings.ToLower(name),
+		this.dumpStateCodes(indent, name),
 		name,
 		name,
 	)

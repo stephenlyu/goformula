@@ -278,3 +278,6 @@ func (this *LuaFormula) Name() string {
 func (this *LuaFormula) DrawActions() []DrawAction {
 	return this.drawActions
 }
+
+func (this *LuaFormula) DumpState() {
+}

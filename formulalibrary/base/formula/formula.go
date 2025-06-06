@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	FORMULA_VAR_FLAG_NO_DRAW = 1
-	FORMULA_VAR_FLAG_NO_TEXT = 2
+	FORMULA_VAR_FLAG_NO_DRAW    = 1
+	FORMULA_VAR_FLAG_NO_TEXT    = 2
 	FORMULA_VAR_FLAG_DRAW_ABOVE = 4
-	FORMULA_VAR_FLAG_NO_FRAME = 8
+	FORMULA_VAR_FLAG_NO_FRAME   = 8
 )
 
 const (
@@ -39,13 +39,13 @@ const (
 )
 
 type Color struct {
-	Red int
+	Red   int
 	Green int
-	Blue int
+	Blue  int
 }
 
 type DrawAction interface {
-	GetActionType () int
+	GetActionType() int
 	GetVarIndex() int
 	GetColor() *Color
 	GetLineThick() int
@@ -113,6 +113,7 @@ type Formula interface {
 	Get(index int) []float64
 	Ref(offset int) []float64
 	GetVarValue(varName string) function.Value
+	DumpState()
 
 	// 绘制图形
 	DrawActions() []DrawAction
