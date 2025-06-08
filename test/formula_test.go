@@ -1,26 +1,26 @@
 package test
 
 import (
-	. "github.com/onsi/ginkgo"
-	"io/ioutil"
 	"encoding/json"
-	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"fmt"
+	"io/ioutil"
 	"time"
-	"github.com/stephenlyu/goformula/stockfunc/function"
+
+	. "github.com/onsi/ginkgo"
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
+	"github.com/stephenlyu/goformula/stockfunc/function"
+	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/tds/date"
-	_ "github.com/stephenlyu/goformula/test/native"
 )
 
 type Record struct {
-	Date string				`json:"date"`
-	Open float32			`json:"open"`
-	Close float32			`json:"close"`
-	High float32			`json:"high"`
-	Low float32				`json:"low"`
-	Volume float32			`json:"volume"`
-	Amount float32			`json:"amount"`
+	Date   string  `json:"date"`
+	Open   float64 `json:"open"`
+	Close  float64 `json:"close"`
+	High   float64 `json:"high"`
+	Low    float64 `json:"low"`
+	Volume float64 `json:"volume"`
+	Amount float64 `json:"amount"`
 }
 
 func (this *Record) GetUTCDate() uint64 {
@@ -32,30 +32,29 @@ func (this *Record) GetDate() string {
 	return this.Date
 }
 
-func (this *Record) GetOpen() float32 {
+func (this *Record) GetOpen() float64 {
 	return this.Open
 }
 
-func (this *Record) GetClose() float32 {
+func (this *Record) GetClose() float64 {
 	return this.Close
 }
 
-func (this *Record) GetHigh() float32 {
+func (this *Record) GetHigh() float64 {
 	return this.High
 }
 
-func (this *Record) GetLow() float32 {
+func (this *Record) GetLow() float64 {
 	return this.Low
 }
 
-func (this *Record) GetAmount() float32 {
+func (this *Record) GetAmount() float64 {
 	return this.Amount
 }
 
-func (this *Record) GetVolume() float32 {
+func (this *Record) GetVolume() float64 {
 	return this.Volume
 }
-
 
 func loadJson(jsonFile string) (error, []function.Record) {
 	bytes, err := ioutil.ReadFile(jsonFile)
@@ -79,7 +78,7 @@ func loadJson(jsonFile string) (error, []function.Record) {
 }
 
 var _ = Describe("NMACD", func() {
-	It("test", func (){
+	It("test", func() {
 		_, data := loadJson("data.json")
 		rv := stockfunc.RecordVector(data)
 
@@ -102,6 +101,6 @@ var _ = Describe("NMACD", func() {
 			r := macd.Get(i)
 			fmt.Printf("%s\t%.02f\t%.02f\t%.02f\n", rv.Get(i).GetDate(), r[0], r[1], r[2])
 		}
-		fmt.Println("time cost: ", (time.Now().UnixNano() - start) / 1000000, "ms")
+		fmt.Println("time cost: ", (time.Now().UnixNano()-start)/1000000, "ms")
 	})
 })

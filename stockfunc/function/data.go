@@ -2,10 +2,10 @@ package function
 
 import (
 	"errors"
-	. "github.com/stephenlyu/tds/period"
 	"sync"
-)
 
+	. "github.com/stephenlyu/tds/period"
+)
 
 type Record interface {
 	GetUTCDate() uint64
@@ -18,22 +18,40 @@ type Record interface {
 	GetVolume() float64
 }
 
-type RVector struct {
-	Values 	[]Record
+type RVectorReader interface {
+	Len() int
+	Get(index int) Record
+	Code() string
+	Period() Period
+}
 
-	code string
+type RVectorUpdater interface {
+	Set(index int, v Record)
+	Append(v Record)
+	Update(offset int, values []Record)
+}
+
+type RVector interface {
+	RVectorReader
+	RVectorUpdater
+}
+
+type rVector struct {
+	Values []Record
+
+	code   string
 	period Period
 
 	lock sync.RWMutex
 }
 
-func (this *RVector) Len() int {
+func (this *rVector) Len() int {
 	this.lock.RLock()
 	defer this.lock.RUnlock()
 	return len(this.Values)
 }
 
-func (this *RVector) Get(index int) Record {
+func (this *rVector) Get(index int) Record {
 	this.lock.RLock()
 	defer this.lock.RUnlock()
 	if index < 0 || index >= this.Len() {
@@ -42,7 +60,7 @@ func (this *RVector) Get(index int) Record {
 	return this.Values[index]
 }
 
-func (this *RVector) Set(index int, v Record) {
+func (this *rVector) Set(index int, v Record) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	if index < 0 || index >= this.Len() {
@@ -51,41 +69,41 @@ func (this *RVector) Set(index int, v Record) {
 	this.Values[index] = v
 }
 
-func (this *RVector) Append(v Record) {
+func (this *rVector) Append(v Record) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	this.Values = append(this.Values, v)
 }
 
-func (this *RVector) Update(offset int, values []Record) {
+func (this *rVector) Update(offset int, values []Record) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
 	for i, v := range values {
-		if offset + i < len(this.Values) {
-			this.Values[offset + i] = v
+		if offset+i < len(this.Values) {
+			this.Values[offset+i] = v
 		} else {
 			this.Values = append(this.Values, v)
 		}
 	}
 }
 
-func (this *RVector) Code() string {
+func (this *rVector) Code() string {
 	return this.code
 }
 
-func (this *RVector) Period() Period {
+func (this *rVector) Period() Period {
 	return this.period
 }
 
-func RecordVector(v []Record) *RVector {
-	return &RVector{Values: v}
+func RecordVector(v []Record) RVector {
+	return &rVector{Values: v}
 }
 
-func RecordVectorEx(code string, period Period, v []Record) *RVector {
-	return &RVector{
+func RecordVectorEx(code string, period Period, v []Record) RVector {
+	return &rVector{
 		Values: v,
-		code: code,
+		code:   code,
 		period: period,
 	}
 }

@@ -11,7 +11,7 @@ type BaseNativeFormula struct {
 	*FormulaMetaImpl
 	RefValues__   []function.Value
 	DrawActions__ []DrawAction
-	Data__        *stockfunc.RVector
+	Data__        stockfunc.RVectorReader
 }
 
 func (this *BaseNativeFormula) Period() period.Period {

@@ -13,8 +13,8 @@ type FormulaManager interface {
 	CanSupportSecurity(code string) bool
 
 	// 使用默认参数创建公式
-	NewFormula(name string, data *function.RVector) Formula
+	NewFormula(name string, data function.RVectorReader) Formula
 
 	// 使用指定参数创建公式
-	NewFormulaWithArgs(name string, data *function.RVector, args []float64) Formula
+	NewFormulaWithArgs(name string, data function.RVectorReader, args []float64) Formula
 }

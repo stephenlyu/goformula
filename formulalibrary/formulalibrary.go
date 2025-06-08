@@ -1,21 +1,22 @@
 package formulalibrary
 
 import (
-	. "github.com/stephenlyu/goformula/formulalibrary/base/factory"
-	"github.com/stephenlyu/goformula/formulalibrary/easylang/easylangfactory"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
-	"github.com/stephenlyu/goformula/stockfunc/function"
-	"sync"
 	"errors"
-	"github.com/stephenlyu/goformula/formulalibrary/lua/luaformula"
-	"github.com/stephenlyu/goformula/formulalibrary/lua/luafactory"
-	"github.com/z-ray/log"
-	"github.com/stephenlyu/goformula/formulalibrary/native/nativeformulas"
-	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
-	"strings"
-	"path/filepath"
 	"fmt"
+	"path/filepath"
+	"strings"
+	"sync"
+
 	"github.com/stephenlyu/goformula/datalibrary"
+	. "github.com/stephenlyu/goformula/formulalibrary/base/factory"
+	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/formulalibrary/easylang/easylangfactory"
+	"github.com/stephenlyu/goformula/formulalibrary/lua/luafactory"
+	"github.com/stephenlyu/goformula/formulalibrary/lua/luaformula"
+	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
+	"github.com/stephenlyu/goformula/formulalibrary/native/nativeformulas"
+	"github.com/stephenlyu/goformula/stockfunc/function"
+	"github.com/z-ray/log"
 )
 
 type FormulaChangeListener interface {
@@ -23,22 +24,22 @@ type FormulaChangeListener interface {
 }
 
 type FormulaLibrary struct {
-	formulaFactories        map[string]FormulaCreatorFactory
-	lock                    sync.Mutex
+	formulaFactories map[string]FormulaCreatorFactory
+	lock             sync.Mutex
 
-	debug 					bool
+	debug bool
 
-	loadNative 				bool 						// 是否加载Native公式
-	loadLua					bool						// 是否加载Lua公式
-	loadEasyLang 			bool 						// 是否加载EasyLang公式
+	loadNative   bool // 是否加载Native公式
+	loadLua      bool // 是否加载Lua公式
+	loadEasyLang bool // 是否加载EasyLang公式
 
 	formulaChangedListeners []FormulaChangeListener
 
-	dataLibrary 			datalibrary.DataLibrary
+	dataLibrary datalibrary.DataLibrary
 }
 
 func newFormulaLibrary() *FormulaLibrary {
-	this := &FormulaLibrary {}
+	this := &FormulaLibrary{}
 	this.Reset()
 
 	luaformula.SetFormulaManager(this)
@@ -277,7 +278,6 @@ func (this *FormulaLibrary) NotifyFormulaChanged(name string) {
 
 // 实现FormulaManager接口
 
-
 func (this *FormulaLibrary) CanSupportVar(name string, varName string) bool {
 	this.lock.Lock()
 	defer this.lock.Unlock()
@@ -297,7 +297,7 @@ func (this *FormulaLibrary) CanSupportSecurity(code string) bool {
 	return true
 }
 
-func (this *FormulaLibrary) NewFormula(name string, data *function.RVector) formula.Formula {
+func (this *FormulaLibrary) NewFormula(name string, data function.RVectorReader) formula.Formula {
 	factory, ok := this.formulaFactories[name]
 	if !ok {
 		panic(errors.New("公式不存在"))
@@ -308,7 +308,7 @@ func (this *FormulaLibrary) NewFormula(name string, data *function.RVector) form
 }
 
 // TODO: 1. 如何缓存公式 2. 如何管理公式间的依赖 3. 公式改变后，如何更新依赖
-func (this *FormulaLibrary) NewFormulaWithArgs(name string, data *function.RVector, args []float64) formula.Formula {
+func (this *FormulaLibrary) NewFormulaWithArgs(name string, data function.RVectorReader, args []float64) formula.Formula {
 	factory, ok := this.formulaFactories[name]
 	if !ok {
 		panic(errors.New("公式不存在"))

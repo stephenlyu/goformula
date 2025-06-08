@@ -1,31 +1,31 @@
 package function
 
 import (
-	"github.com/stephenlyu/tds/util"
-	"github.com/stephenlyu/tds/period"
 	"fmt"
-)
 
+	"github.com/stephenlyu/tds/period"
+	"github.com/stephenlyu/tds/util"
+)
 
 const DAY_MILLIS = 24 * 60 * 60 * 1000
 
 // 比如在分钟线中引用日线数据时，srcData为分钟线数据，destData为日线数据。
 // IndexMap负责将分钟线的索引映射为日线数据的索引，然后存取日线数据
 type IndexMap struct {
-	srcData *RVector
-	destData *RVector
+	srcData  RVectorReader
+	destData RVectorReader
 
 	indexMap map[int]int
 }
 
-func NewIndexMap(srcData *RVector, destData *RVector) *IndexMap {
+func NewIndexMap(srcData RVectorReader, destData RVectorReader) *IndexMap {
 	this := &IndexMap{srcData: srcData, destData: destData}
 	this.buildIndexMap()
 	return this
 }
 
 func (this *IndexMap) buildIndexMap() {
-	needTrimDate := this.destData.period.Unit() != period.PERIOD_UNIT_MINUTE
+	needTrimDate := this.destData.Period().Unit() != period.PERIOD_UNIT_MINUTE
 
 	m := make(map[int]int)
 
@@ -50,12 +50,12 @@ func (this *IndexMap) buildIndexMap() {
 
 func (this *IndexMap) Get(index int) int {
 	// 品种相同且周期相同时，直接从value中取值
-	if this.srcData.code == this.destData.code && this.srcData.period.Eq(this.destData.period) {
+	if this.srcData.Code() == this.destData.Code() && this.srcData.Period().Eq(this.destData.Period()) {
 		util.Assert(this.srcData.Len() == this.destData.Len(), "")
 		return index
 	}
 	// 大周期引用小周期数据时，返回-1（不支持大周期引用小周期）
-	if this.srcData.period.Gt(this.destData.period) {
+	if this.srcData.Period().Gt(this.destData.Period()) {
 		return -1
 	}
 
@@ -74,7 +74,7 @@ func (this *IndexMap) UpdateLastValue() {
 	if i < 0 || j < 0 {
 		return
 	}
-	needTrimDate := this.destData.period.Unit() != period.PERIOD_UNIT_MINUTE
+	needTrimDate := this.destData.Period().Unit() != period.PERIOD_UNIT_MINUTE
 
 	srcDate := this.srcData.Get(i).GetUTCDate()
 	if needTrimDate {
@@ -89,7 +89,7 @@ func (this *IndexMap) UpdateLastValue() {
 		j--
 	}
 
-	if j + 1 < this.destData.Len() {
+	if j+1 < this.destData.Len() {
 		this.indexMap[i] = j + 1
 	}
 }

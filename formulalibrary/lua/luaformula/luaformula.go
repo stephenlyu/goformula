@@ -21,7 +21,7 @@ type LuaFormula struct {
 
 	period period.Period
 	code   string
-	data   *stockfunc.RVector
+	data   stockfunc.RVectorReader
 
 	args      []float64
 	refValues []function.Value
@@ -32,7 +32,7 @@ type LuaFormula struct {
 	drawActions []DrawAction
 }
 
-func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data stockfunc.RVectorReader, args []float64) (error, *LuaFormula) {
 	L.GetGlobal("FormulaClass")
 	if meta == nil {
 		meta = &FormulaMetaImpl{}
@@ -158,7 +158,7 @@ func newFormulaByLuaState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.R
 	return nil, formula
 }
 
-func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+func NewFormula(luaFile string, data stockfunc.RVectorReader, args []float64) (error, *LuaFormula) {
 	L := luar.Init()
 
 	luar.Register(L, "", GetFunctionMap(luar.Map{}))
@@ -171,11 +171,11 @@ func NewFormula(luaFile string, data *stockfunc.RVector, args []float64) (error,
 	return newFormulaByLuaState(L, nil, data, args)
 }
 
-func NewFormulaFromState(L *lua.State, meta *FormulaMetaImpl, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+func NewFormulaFromState(L *lua.State, meta *FormulaMetaImpl, data stockfunc.RVectorReader, args []float64) (error, *LuaFormula) {
 	return newFormulaByLuaState(L, meta, data, args)
 }
 
-func NewFormulaFromCode(luaCode string, data *stockfunc.RVector, args []float64) (error, *LuaFormula) {
+func NewFormulaFromCode(luaCode string, data stockfunc.RVectorReader, args []float64) (error, *LuaFormula) {
 	L := luar.Init()
 
 	luar.Register(L, "", GetFunctionMap(luar.Map{}))

@@ -113,7 +113,7 @@ func (this *GoGenerator) getReferencedDataDeclarations(indent string) string {
 
 	lines := make([]string, len(this.context.refDataList)*2)
 	for i, f := range this.context.refDataList {
-		lines[2*i] = fmt.Sprintf("%s%s *RVector", indent, getRefDataVarName(f.code, f.period))
+		lines[2*i] = fmt.Sprintf("%s%s RVectorReader", indent, getRefDataVarName(f.code, f.period))
 		lines[2*i+1] = fmt.Sprintf("%s%s *IndexMap", indent,
 			getIndexMapVarName(f.code, f.period))
 	}
@@ -510,7 +510,7 @@ var (
 	}
 )
 
-func New%s(data *RVector, args []float64) Formula {
+func New%s(data RVectorReader, args []float64) Formula {
 	o := &%s{
 		BaseNativeFormula: BaseNativeFormula{
 			FormulaMetaImpl: %s_META,

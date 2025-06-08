@@ -24,10 +24,10 @@ type DataLibrary interface {
 	SetDataType(dataType int)
 
 	// Get data with specific code & period
-	GetData(code string, period string) *function.RVector
+	GetData(code string, period string) function.RVectorReader
 
 	// Release data
-	ReleaseData(data *function.RVector)
+	ReleaseData(data function.RVectorReader)
 }
 
 type dataLibrary struct {
@@ -68,7 +68,7 @@ func (this *dataLibrary) translateCode(code string) string {
 	return code + ".SH"
 }
 
-func (this *dataLibrary) GetData(code string, periodString string) *function.RVector {
+func (this *dataLibrary) GetData(code string, periodString string) function.RVectorReader {
 	code = this.translateCode(code)
 	fmt.Printf("load data: %s %s\n", code, periodString)
 
@@ -101,7 +101,7 @@ func (this *dataLibrary) GetData(code string, periodString string) *function.RVe
 	return function.RecordVectorEx(code, period, ret)
 }
 
-func (this *dataLibrary) ReleaseData(data *function.RVector) {
+func (this *dataLibrary) ReleaseData(data function.RVectorReader) {
 }
 
 var GlobalDataLibrary DataLibrary

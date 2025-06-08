@@ -3,14 +3,14 @@ package function
 import "errors"
 
 type fieldbase struct {
-	data *RVector
+	data RVectorReader
 }
 
 func (this fieldbase) IsScalar() bool {
 	return false
 }
 
-func (this fieldbase ) Len() int {
+func (this fieldbase) Len() int {
 	return this.data.Len()
 }
 
@@ -39,9 +39,9 @@ func (this close) Get(index int) float64 {
 	return float64(this.data.Get(index).GetClose())
 }
 
-func CLOSE(data *RVector) *close {
+func CLOSE(data RVectorReader) *close {
 	ret := &close{
-		fieldbase {
+		fieldbase{
 			data: data,
 		},
 	}
@@ -58,9 +58,9 @@ func (this open) Get(index int) float64 {
 	return float64(this.data.Get(index).GetOpen())
 }
 
-func OPEN(data *RVector) *open {
+func OPEN(data RVectorReader) *open {
 	ret := &open{
-		fieldbase {
+		fieldbase{
 			data: data,
 		},
 	}
@@ -77,9 +77,9 @@ func (this low) Get(index int) float64 {
 	return float64(this.data.Get(index).GetLow())
 }
 
-func LOW(data *RVector) *low {
+func LOW(data RVectorReader) *low {
 	ret := &low{
-		fieldbase {
+		fieldbase{
 			data: data,
 		},
 	}
@@ -96,9 +96,9 @@ func (this high) Get(index int) float64 {
 	return float64(this.data.Get(index).GetHigh())
 }
 
-func HIGH(data *RVector) *high {
+func HIGH(data RVectorReader) *high {
 	ret := &high{
-		fieldbase {
+		fieldbase{
 			data: data,
 		},
 	}
@@ -115,9 +115,9 @@ func (this amount) Get(index int) float64 {
 	return float64(this.data.Get(index).GetAmount())
 }
 
-func AMOUNT(data *RVector) *amount {
+func AMOUNT(data RVectorReader) *amount {
 	ret := &amount{
-		fieldbase {
+		fieldbase{
 			data: data,
 		},
 	}
@@ -134,9 +134,9 @@ func (this volume) Get(index int) float64 {
 	return float64(this.data.Get(index).GetVolume())
 }
 
-func VOLUME(data *RVector) *volume {
+func VOLUME(data RVectorReader) *volume {
 	ret := &volume{
-		fieldbase {
+		fieldbase{
 			data: data,
 		},
 	}
@@ -155,12 +155,12 @@ func (this fPeriod) Get(index int) float64 {
 	return this.value
 }
 
-func PERIOD(data *RVector) *fPeriod {
+func PERIOD(data RVectorReader) *fPeriod {
 	ret := &fPeriod{
-		fieldbase: fieldbase {
+		fieldbase: fieldbase{
 			data: data,
 		},
-		value: float64(GetPeriodIndex(data.period)),
+		value: float64(GetPeriodIndex(data.Period())),
 	}
 	return ret
 }
@@ -172,13 +172,13 @@ type islastbar struct {
 }
 
 func (this islastbar) Get(index int) float64 {
-	if this.data.Len() - 1 == index {
+	if this.data.Len()-1 == index {
 		return 1
 	}
 	return 0
 }
 
-func ISLASTBAR(data *RVector) *islastbar {
+func ISLASTBAR(data RVectorReader) *islastbar {
 	ret := &islastbar{
 		fieldbase{
 			data: data,

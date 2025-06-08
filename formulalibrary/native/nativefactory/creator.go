@@ -7,9 +7,9 @@ import (
 
 type nativeFormulaCreator struct {
 	factory *nativeFormulaCreatorFactory
-	args []float64
+	args    []float64
 }
 
-func (this *nativeFormulaCreator) CreateFormula(data *function.RVector) (error, formula.Formula) {
+func (this *nativeFormulaCreator) CreateFormula(data function.RVectorReader) (error, formula.Formula) {
 	return nil, this.factory.nativeFormula.Creator(data, this.args)
 }

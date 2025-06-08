@@ -1,12 +1,12 @@
 package factory
 
 import (
-	"github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/stockfunc/function"
 )
 
 type FormulaCreator interface {
-	CreateFormula(data *function.RVector) (error, formula.Formula)
+	CreateFormula(data function.RVectorReader) (error, formula.Formula)
 }
 
 type FormulaCreatorFactory interface {
