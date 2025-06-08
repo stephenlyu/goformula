@@ -133,7 +133,7 @@ func HHV(data Value, N Value) Value {
 // HHVBARS
 
 type hhvbars struct {
-	funcbase
+	intfuncbase
 	N Value
 }
 
@@ -168,13 +168,13 @@ func HHVBARS(data Value, N Value) Value {
 		return Scalar(0)
 	}
 	ret := &hhvbars{
-		funcbase: funcbase{
+		intfuncbase: intfuncbase{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
-	initValues(ret, ret.Values)
+	ret.Values = make([]int, data.Len())
+	initIntValues(ret, ret.Values)
 	return ret
 }
 
@@ -538,7 +538,7 @@ func EVERY(data Value, N Value) Value {
 // BARSLAST
 
 type barslast struct {
-	funcbase
+	intfuncbase
 }
 
 func (this barslast) BuildValueAt(index int) float64 {
@@ -563,20 +563,20 @@ func BARSLAST(data Value) Value {
 	}
 
 	ret := &barslast{
-		funcbase: funcbase{
+		intfuncbase: intfuncbase{
 			data: data,
 		},
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]int, data.Len())
 	lastTruePos := -1
 	for i := 0; i < data.Len(); i++ {
 		if IsTrue(data.Get(i)) {
 			lastTruePos = i
 			ret.Values[i] = 0
 		} else if lastTruePos == -1 {
-			ret.Values[i] = math.NaN()
+			ret.Values[i] = intNaN
 		} else {
-			ret.Values[i] = float64(i - lastTruePos)
+			ret.Values[i] = i - lastTruePos
 		}
 	}
 	return ret
@@ -591,19 +591,19 @@ func BARSLASTOLD(data Value) Value {
 	}
 
 	ret := &barslast{
-		funcbase: funcbase{
+		intfuncbase: intfuncbase{
 			data: data,
 		},
 	}
-	ret.Values = make([]float64, data.Len())
-	initValues(ret, ret.Values)
+	ret.Values = make([]int, data.Len())
+	initIntValues(ret, ret.Values)
 	return ret
 }
 
 // BARSLASTS
 
 type barslasts struct {
-	funcbase
+	intfuncbase
 	N int
 }
 
@@ -633,14 +633,19 @@ func BARSLASTS(data Value, N Value) Value {
 	}
 
 	ret := &barslasts{
-		funcbase: funcbase{
+		intfuncbase: intfuncbase{
 			data: data,
 		},
 		N: int(N.Get(0)),
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]int, data.Len())
 	for i := 0; i < data.Len(); i++ {
-		ret.Values[i] = ret.BuildValueAt(i)
+		v := ret.BuildValueAt(i)
+		if math.IsNaN(v) {
+			ret.Values[i] = intNaN
+		} else {
+			ret.Values[i] = int(v)
+		}
 	}
 	return ret
 }

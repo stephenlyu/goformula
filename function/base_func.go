@@ -1,5 +1,7 @@
 package function
 
+import "math"
+
 type function interface {
 	Value
 	Data() Value
@@ -17,6 +19,19 @@ func (this funcbase) Data() Value {
 }
 
 func (this funcbase) ListOfData() []Value {
+	return []Value{this.data}
+}
+
+type intfuncbase struct {
+	intVector
+	data Value
+}
+
+func (this intfuncbase) Data() Value {
+	return this.data
+}
+
+func (this intfuncbase) ListOfData() []Value {
 	return []Value{this.data}
 }
 
@@ -48,6 +63,17 @@ func initValues(this function, values []float64) {
 	for i := 0; i < len(values); i++ {
 		v := this.BuildValueAt(i)
 		values[i] = v
+	}
+}
+
+func initIntValues(this function, values []int) {
+	for i := 0; i < len(values); i++ {
+		v := this.BuildValueAt(i)
+		if math.IsNaN(v) {
+			values[i] = intNaN
+		} else {
+			values[i] = int(v)
+		}
 	}
 }
 
