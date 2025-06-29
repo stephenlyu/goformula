@@ -2,17 +2,12 @@ package formulalibrary
 
 import (
 	"errors"
-	"fmt"
-	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/stephenlyu/goformula/datalibrary"
 	. "github.com/stephenlyu/goformula/formulalibrary/base/factory"
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
-	"github.com/stephenlyu/goformula/formulalibrary/easylang/easylangfactory"
-	"github.com/stephenlyu/goformula/formulalibrary/lua/luafactory"
-	"github.com/stephenlyu/goformula/formulalibrary/lua/luaformula"
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativeformulas"
 	"github.com/stephenlyu/goformula/stockfunc/function"
@@ -41,8 +36,6 @@ type FormulaLibrary struct {
 func newFormulaLibrary() *FormulaLibrary {
 	this := &FormulaLibrary{}
 	this.Reset()
-
-	luaformula.SetFormulaManager(this)
 	return this
 }
 
@@ -54,17 +47,8 @@ func (this *FormulaLibrary) SetLoadNative(v bool) {
 	this.loadNative = v
 }
 
-func (this *FormulaLibrary) SetLoadLua(v bool) {
-	this.loadLua = v
-}
-
-func (this *FormulaLibrary) SetLoadEasyLang(v bool) {
-	this.loadEasyLang = v
-}
-
 func (this *FormulaLibrary) SetDataLibrary(dl datalibrary.DataLibrary) {
 	this.dataLibrary = dl
-	luaformula.SetDataLibrary(dl)
 	datalibrary.SetDataLibrary(dl)
 }
 
@@ -98,119 +82,10 @@ func (this *FormulaLibrary) LoadNativeFormulas() {
 	}
 }
 
-func (this *FormulaLibrary) LoadLuaFormulas(dir string) {
-	if !this.loadLua {
-		log.Warnf("Please turn loadLua on first!")
-		return
-	}
-
-	files, err := filepath.Glob(filepath.Join(dir, "*.lua"))
-	if err != nil {
-		log.Errorf("Load lua formulas fail, error: %v", err)
-		return
-	}
-
-	for _, filePath := range files {
-		baseName := filepath.Base(filePath)
-		parts := strings.Split(baseName, ".")
-		name := strings.ToUpper(parts[0])
-		if this.IsFormulaExisted(name) {
-			log.Errorf("Formula %s exist, lua version ignored.", name)
-			continue
-		}
-
-		err = this.RegisterLuaFile(name, filePath)
-		if err != nil {
-			log.Errorf("Load lua formula %s fail, error: %v", filePath, err)
-		} else {
-			log.Infof("Load lua formula %s success", filePath)
-		}
-	}
-}
-
-func (this *FormulaLibrary) LoadEasyLangFormulas(dir string) {
-	if !this.loadLua {
-		log.Warnf("Please turn loadEasyLang on first!")
-		return
-	}
-
-	files, err := filepath.Glob(filepath.Join(dir, "*.d"))
-	if err != nil {
-		log.Errorf("Load lua formulas fail, error: %v", err)
-		return
-	}
-
-	var errorFiles []string
-
-	for {
-		changed := false
-		errorFiles = []string{}
-		for _, filePath := range files {
-			baseName := filepath.Base(filePath)
-			parts := strings.Split(baseName, ".")
-			name := strings.ToUpper(parts[0])
-			if this.IsFormulaExisted(name) {
-				log.Errorf("Formula %s exist, easylang version ignored.", name)
-				continue
-			}
-			err = this.RegisterEasyLangFile(name, filePath, this.debug)
-			if err != nil {
-				log.Errorf("Load easy lang formula %s fail, error: %+v", filePath, err)
-				errorFiles = append(errorFiles, filePath)
-			} else {
-				changed = true
-			}
-		}
-		if changed {
-			files = errorFiles
-		} else {
-			break
-		}
-	}
-}
-
 func (this *FormulaLibrary) LoadAllFormulas(luaDir string, easyLangDir string) {
 	if this.loadNative {
 		this.LoadNativeFormulas()
 	}
-
-	if this.loadLua {
-		this.LoadLuaFormulas(luaDir)
-	}
-
-	if this.loadEasyLang {
-		this.LoadEasyLangFormulas(easyLangDir)
-	}
-}
-
-func (this *FormulaLibrary) RegisterEasyLangFile(name, easyLangFile string, debug bool) (err error) {
-	defer func() {
-		if err1 := recover(); err1 != nil {
-			err = errors.New(fmt.Sprintf("%v", err1))
-		}
-	}()
-
-	err, factory := easylangfactory.NewEasyLangFormulaCreatorFactory(easyLangFile, this, debug)
-	if err != nil {
-		return err
-	}
-	this.Register(name, factory)
-	return nil
-}
-
-func (this *FormulaLibrary) RegisterLuaFile(name, luaFile string) (err error) {
-	defer func() {
-		if err1 := recover(); err1 != nil {
-			err = errors.New(fmt.Sprintf("%v", err1))
-		}
-	}()
-
-	err, factory := luafactory.NewLuaFormulaCreatorFactory(luaFile)
-	if err != nil {
-		return err
-	}
-	this.Register(name, factory)
-	return nil
 }
 
 func (this *FormulaLibrary) IsFormulaExisted(name string) bool {
