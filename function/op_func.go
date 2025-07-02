@@ -4,14 +4,14 @@ import (
 	"math"
 )
 
-type not struct {
-	simplefuncbase
+type not[T float32 | float64] struct {
+	simplefuncbase[T]
 }
 
-func BuildNotValueAt(data Value, index int) float64 {
+func BuildNotValueAt[T float32 | float64](data Value[T], index int) T {
 	v := data.Get(index)
-	if math.IsNaN(v) {
-		return math.NaN()
+	if math.IsNaN(float64(v)) {
+		return T(math.NaN())
 	}
 	if v > 0 || v < 0 {
 		return 0
@@ -20,17 +20,17 @@ func BuildNotValueAt(data Value, index int) float64 {
 	return 1
 }
 
-func (this *not) Get(index int) float64 {
+func (this *not[T]) Get(index int) T {
 	return BuildNotValueAt(this.data, index)
 }
 
-func NOT(data Value) Value {
+func NOT[T float32 | float64](data Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(BuildNotValueAt(data, 0))
 	}
 
-	ret := &not{
-		simplefuncbase{
+	ret := &not[T]{
+		simplefuncbase[T]{
 			data: data,
 		},
 	}
@@ -38,21 +38,21 @@ func NOT(data Value) Value {
 	return ret
 }
 
-type minus struct {
-	simplefuncbase
+type minus[T float32 | float64] struct {
+	simplefuncbase[T]
 }
 
-func (this minus) Get(index int) float64 {
+func (this minus[T]) Get(index int) T {
 	return -this.data.Get(index)
 }
 
-func MINUS(data Value) Value {
+func MINUS[T float32 | float64](data Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(-data.Get(0))
 	}
 
-	ret := &minus{
-		simplefuncbase{
+	ret := &minus[T]{
+		simplefuncbase[T]{
 			data: data,
 		},
 	}
@@ -60,22 +60,22 @@ func MINUS(data Value) Value {
 	return ret
 }
 
-type add struct {
-	binaryfuncbase
+type add[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func (this add) Get(index int) float64 {
+func (this add[T]) Get(index int) T {
 	return this.data.Get(index) + this.data1.Get(index)
 }
 
-func ADD(data Value, data1 Value) Value {
+func ADD[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(data.Get(0) + data1.Get(0))
 	}
 
-	ret := &add{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &add[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -85,22 +85,22 @@ func ADD(data Value, data1 Value) Value {
 	return ret
 }
 
-type sub struct {
-	binaryfuncbase
+type sub[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func (this sub) Get(index int) float64 {
+func (this sub[T]) Get(index int) T {
 	return this.data.Get(index) - this.data1.Get(index)
 }
 
-func SUB(data Value, data1 Value) Value {
+func SUB[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(data.Get(0) - data1.Get(0))
 	}
 
-	ret := &sub{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &sub[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -110,22 +110,22 @@ func SUB(data Value, data1 Value) Value {
 	return ret
 }
 
-type mul struct {
-	binaryfuncbase
+type mul[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func (this mul) Get(index int) float64 {
+func (this mul[T]) Get(index int) T {
 	return this.data.Get(index) * this.data1.Get(index)
 }
 
-func MUL(data Value, data1 Value) Value {
+func MUL[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(data.Get(0) * data1.Get(0))
 	}
 
-	ret := &mul{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &mul[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -135,28 +135,28 @@ func MUL(data Value, data1 Value) Value {
 	return ret
 }
 
-type div struct {
-	binaryfuncbase
+type div[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func (this div) Get(index int) float64 {
+func (this div[T]) Get(index int) T {
 	if this.data1.Get(index) == 0 {
-		return NaN
+		return T(NaN)
 	}
 	return this.data.Get(index) / this.data1.Get(index)
 }
 
-func DIV(data Value, data1 Value) Value {
+func DIV[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		if data1.Get(0) == 0 {
-			return Scalar(NaN)
+			return Scalar(T(NaN))
 		}
 		return Scalar(data.Get(0) / data1.Get(0))
 	}
 
-	ret := &div{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &div[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -166,11 +166,11 @@ func DIV(data Value, data1 Value) Value {
 	return ret
 }
 
-type and struct {
-	binaryfuncbase
+type and[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildAndValueAt(data, data1 Value, index int) float64 {
+func BuildAndValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if IsTrue(a) && IsTrue(b) {
@@ -179,18 +179,18 @@ func BuildAndValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this and) Get(index int) float64 {
-	return BuildAndValueAt(this.data, this.data1, index)
+func (this and[T]) Get(index int) T {
+	return BuildAndValueAt[T](this.data, this.data1, index)
 }
 
-func AND(data Value, data1 Value) Value {
+func AND[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildAndValueAt(data, data1, 0))
 	}
 
-	ret := &and{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &and[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -200,11 +200,11 @@ func AND(data Value, data1 Value) Value {
 	return ret
 }
 
-type or struct {
-	binaryfuncbase
+type or[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildOrValueAt(data, data1 Value, index int) float64 {
+func BuildOrValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if IsTrue(a) || IsTrue(b) {
@@ -213,18 +213,18 @@ func BuildOrValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this *or) Get(index int) float64 {
+func (this *or[T]) Get(index int) T {
 	return BuildOrValueAt(this.data, this.data1, index)
 }
 
-func OR(data Value, data1 Value) Value {
+func OR[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildOrValueAt(data, data1, 0))
 	}
 
-	ret := &or{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &or[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -234,11 +234,11 @@ func OR(data Value, data1 Value) Value {
 	return ret
 }
 
-type lt struct {
-	binaryfuncbase
+type lt[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildLtValueAt(data, data1 Value, index int) float64 {
+func BuildLtValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if a < b {
@@ -247,18 +247,18 @@ func BuildLtValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this lt) Get(index int) float64 {
+func (this lt[T]) Get(index int) T {
 	return BuildLtValueAt(this.data, this.data1, index)
 }
 
-func LT(data Value, data1 Value) Value {
+func LT[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildLtValueAt(data, data1, 0))
 	}
 
-	ret := &lt{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &lt[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -268,11 +268,11 @@ func LT(data Value, data1 Value) Value {
 	return ret
 }
 
-type le struct {
-	binaryfuncbase
+type le[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildLEValueAt(data, data1 Value, index int) float64 {
+func BuildLEValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if a <= b {
@@ -281,17 +281,17 @@ func BuildLEValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this le) Get(index int) float64 {
+func (this le[T]) Get(index int) T {
 	return BuildLEValueAt(this.data, this.data1, index)
 }
 
-func LE(data Value, data1 Value) Value {
+func LE[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildLEValueAt(data, data1, 0))
 	}
-	ret := &le{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &le[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -301,11 +301,11 @@ func LE(data Value, data1 Value) Value {
 	return ret
 }
 
-type gt struct {
-	binaryfuncbase
+type gt[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildGtValueAt(data, data1 Value, index int) float64 {
+func BuildGtValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if a > b {
@@ -314,17 +314,17 @@ func BuildGtValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this gt) Get(index int) float64 {
+func (this gt[T]) Get(index int) T {
 	return BuildGtValueAt(this.data, this.data1, index)
 }
 
-func GT(data Value, data1 Value) Value {
+func GT[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildGtValueAt(data, data1, 0))
 	}
-	ret := &gt{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &gt[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -334,11 +334,11 @@ func GT(data Value, data1 Value) Value {
 	return ret
 }
 
-type ge struct {
-	binaryfuncbase
+type ge[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildGeValueAt(data, data1 Value, index int) float64 {
+func BuildGeValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if a >= b {
@@ -347,17 +347,17 @@ func BuildGeValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this ge) Get(index int) float64 {
+func (this ge[T]) Get(index int) T {
 	return BuildGeValueAt(this.data, this.data1, index)
 }
 
-func GE(data Value, data1 Value) Value {
+func GE[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildGeValueAt(data, data1, 0))
 	}
-	ret := &ge{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &ge[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -367,11 +367,11 @@ func GE(data Value, data1 Value) Value {
 	return ret
 }
 
-type eq struct {
-	binaryfuncbase
+type eq[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildEqValueAt(data, data1 Value, index int) float64 {
+func BuildEqValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if a == b {
@@ -380,17 +380,17 @@ func BuildEqValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this eq) Get(index int) float64 {
+func (this eq[T]) Get(index int) T {
 	return BuildEqValueAt(this.data, this.data1, index)
 }
 
-func EQ(data Value, data1 Value) Value {
+func EQ[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildEqValueAt(data, data1, 0))
 	}
-	ret := &eq{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &eq[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -400,12 +400,12 @@ func EQ(data Value, data1 Value) Value {
 	return ret
 }
 
-type neq struct {
-	simplefuncbase
-	data1 Value
+type neq[T float32 | float64] struct {
+	simplefuncbase[T]
+	data1 Value[T]
 }
 
-func BuildNeqValueAt(data, data1 Value, index int) float64 {
+func BuildNeqValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	if a != b {
@@ -414,16 +414,16 @@ func BuildNeqValueAt(data, data1 Value, index int) float64 {
 	return 0
 }
 
-func (this neq) Get(index int) float64 {
+func (this neq[T]) Get(index int) T {
 	return BuildNeqValueAt(this.data, this.data1, index)
 }
 
-func NEQ(data Value, data1 Value) Value {
+func NEQ[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
 		return Scalar(BuildNeqValueAt(data, data1, 0))
 	}
-	ret := &neq{
-		simplefuncbase: simplefuncbase{
+	ret := &neq[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 		data1: data1,
@@ -432,13 +432,13 @@ func NEQ(data Value, data1 Value) Value {
 	return ret
 }
 
-type between struct {
-	simplefuncbase
-	data1 Value
-	data2 Value
+type between[T float32 | float64] struct {
+	simplefuncbase[T]
+	data1 Value[T]
+	data2 Value[T]
 }
 
-func BuildBetweenValueAt(data, data1 Value, data2 Value, index int) float64 {
+func BuildBetweenValueAt[T float32 | float64](data, data1 Value[T], data2 Value[T], index int) T {
 	a := data.Get(index)
 	b := data1.Get(index)
 	c := data2.Get(index)
@@ -451,7 +451,7 @@ func BuildBetweenValueAt(data, data1 Value, data2 Value, index int) float64 {
 	return 1
 }
 
-func (this *between) Len() int {
+func (this *between[T]) Len() int {
 	if !this.data.IsScalar() {
 		return this.data.Len()
 	}
@@ -461,16 +461,16 @@ func (this *between) Len() int {
 	return this.data2.Len()
 }
 
-func (this *between) Get(index int) float64 {
+func (this *between[T]) Get(index int) T {
 	return BuildBetweenValueAt(this.data, this.data1, this.data2, index)
 }
 
-func BETWEEN(data Value, data1 Value, data2 Value) Value {
+func BETWEEN[T float32 | float64](data Value[T], data1 Value[T], data2 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() && data2.IsScalar() {
 		return Scalar(BuildBetweenValueAt(data, data1, data2, 0))
 	}
-	ret := &between{
-		simplefuncbase: simplefuncbase{
+	ret := &between[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 		data1: data1,

@@ -2,46 +2,46 @@ package function
 
 import "errors"
 
-type fieldbase struct {
-	data RVectorReader
+type fieldbase[T float32 | float64] struct {
+	data RVectorReader[T]
 }
 
-func (this fieldbase) IsScalar() bool {
+func (this fieldbase[T]) IsScalar() bool {
 	return false
 }
 
-func (this fieldbase) Len() int {
+func (this fieldbase[T]) Len() int {
 	return this.data.Len()
 }
 
-func (this fieldbase) Get(index int) float64 {
+func (this fieldbase[T]) Get(index int) T {
 	panic(errors.New("Not Implemented"))
 }
 
-func (this fieldbase) Set(index int, v float64) {
+func (this fieldbase[T]) Set(index int, v T) {
 	panic(errors.New("Not Implemented"))
 }
 
-func (this fieldbase) UpdateLastValue() {
+func (this fieldbase[T]) UpdateLastValue() {
 }
 
-func (this fieldbase) Append(v float64) {
+func (this fieldbase[T]) Append(v T) {
 	panic(errors.New("Not Implemented"))
 }
 
 // CLOSE
 
-type close struct {
-	fieldbase
+type close[T float32 | float64] struct {
+	fieldbase[T]
 }
 
-func (this close) Get(index int) float64 {
-	return float64(this.data.Get(index).GetClose())
+func (this close[T]) Get(index int) T {
+	return this.data.Get(index).GetClose()
 }
 
-func CLOSE(data RVectorReader) *close {
-	ret := &close{
-		fieldbase{
+func CLOSE[T float32 | float64](data RVectorReader[T]) *close[T] {
+	ret := &close[T]{
+		fieldbase[T]{
 			data: data,
 		},
 	}
@@ -50,17 +50,17 @@ func CLOSE(data RVectorReader) *close {
 
 // OPEN
 
-type open struct {
-	fieldbase
+type open[T float32 | float64] struct {
+	fieldbase[T]
 }
 
-func (this open) Get(index int) float64 {
-	return float64(this.data.Get(index).GetOpen())
+func (this open[T]) Get(index int) T {
+	return this.data.Get(index).GetOpen()
 }
 
-func OPEN(data RVectorReader) *open {
-	ret := &open{
-		fieldbase{
+func OPEN[T float32 | float64](data RVectorReader[T]) *open[T] {
+	ret := &open[T]{
+		fieldbase[T]{
 			data: data,
 		},
 	}
@@ -69,17 +69,17 @@ func OPEN(data RVectorReader) *open {
 
 // LOW
 
-type low struct {
-	fieldbase
+type low[T float32 | float64] struct {
+	fieldbase[T]
 }
 
-func (this low) Get(index int) float64 {
-	return float64(this.data.Get(index).GetLow())
+func (this low[T]) Get(index int) T {
+	return this.data.Get(index).GetLow()
 }
 
-func LOW(data RVectorReader) *low {
-	ret := &low{
-		fieldbase{
+func LOW[T float32 | float64](data RVectorReader[T]) *low[T] {
+	ret := &low[T]{
+		fieldbase[T]{
 			data: data,
 		},
 	}
@@ -88,17 +88,17 @@ func LOW(data RVectorReader) *low {
 
 // HIGH
 
-type high struct {
-	fieldbase
+type high[T float32 | float64] struct {
+	fieldbase[T]
 }
 
-func (this high) Get(index int) float64 {
-	return float64(this.data.Get(index).GetHigh())
+func (this high[T]) Get(index int) T {
+	return this.data.Get(index).GetHigh()
 }
 
-func HIGH(data RVectorReader) *high {
-	ret := &high{
-		fieldbase{
+func HIGH[T float32 | float64](data RVectorReader[T]) *high[T] {
+	ret := &high[T]{
+		fieldbase[T]{
 			data: data,
 		},
 	}
@@ -107,17 +107,17 @@ func HIGH(data RVectorReader) *high {
 
 // AMOUNT
 
-type amount struct {
-	fieldbase
+type amount[T float32 | float64] struct {
+	fieldbase[T]
 }
 
-func (this amount) Get(index int) float64 {
-	return float64(this.data.Get(index).GetAmount())
+func (this amount[T]) Get(index int) T {
+	return this.data.Get(index).GetAmount()
 }
 
-func AMOUNT(data RVectorReader) *amount {
-	ret := &amount{
-		fieldbase{
+func AMOUNT[T float32 | float64](data RVectorReader[T]) *amount[T] {
+	ret := &amount[T]{
+		fieldbase[T]{
 			data: data,
 		},
 	}
@@ -126,17 +126,17 @@ func AMOUNT(data RVectorReader) *amount {
 
 // VOLUME
 
-type volume struct {
-	fieldbase
+type volume[T float32 | float64] struct {
+	fieldbase[T]
 }
 
-func (this volume) Get(index int) float64 {
-	return float64(this.data.Get(index).GetVolume())
+func (this volume[T]) Get(index int) T {
+	return this.data.Get(index).GetVolume()
 }
 
-func VOLUME(data RVectorReader) *volume {
-	ret := &volume{
-		fieldbase{
+func VOLUME[T float32 | float64](data RVectorReader[T]) *volume[T] {
+	ret := &volume[T]{
+		fieldbase[T]{
 			data: data,
 		},
 	}
@@ -145,42 +145,42 @@ func VOLUME(data RVectorReader) *volume {
 
 // Period
 
-type fPeriod struct {
-	fieldbase
+type fPeriod[T float32 | float64] struct {
+	fieldbase[T]
 
-	value float64
+	value T
 }
 
-func (this fPeriod) Get(index int) float64 {
+func (this fPeriod[T]) Get(index int) T {
 	return this.value
 }
 
-func PERIOD(data RVectorReader) *fPeriod {
-	ret := &fPeriod{
-		fieldbase: fieldbase{
+func PERIOD[T float32 | float64](data RVectorReader[T]) *fPeriod[T] {
+	ret := &fPeriod[T]{
+		fieldbase: fieldbase[T]{
 			data: data,
 		},
-		value: float64(GetPeriodIndex(data.Period())),
+		value: T(GetPeriodIndex(data.Period())),
 	}
 	return ret
 }
 
 // ISLASTBAR
 
-type islastbar struct {
-	fieldbase
+type islastbar[T float32 | float64] struct {
+	fieldbase[T]
 }
 
-func (this islastbar) Get(index int) float64 {
+func (this islastbar[T]) Get(index int) T {
 	if this.data.Len()-1 == index {
 		return 1
 	}
 	return 0
 }
 
-func ISLASTBAR(data RVectorReader) *islastbar {
-	ret := &islastbar{
-		fieldbase{
+func ISLASTBAR[T float32 | float64](data RVectorReader[T]) *islastbar[T] {
+	ret := &islastbar[T]{
+		fieldbase[T]{
 			data: data,
 		},
 	}

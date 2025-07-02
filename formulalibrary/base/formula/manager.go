@@ -2,7 +2,7 @@ package formula
 
 import "github.com/stephenlyu/goformula/stockfunc/function"
 
-type FormulaManager interface {
+type FormulaManager[T float32 | float64] interface {
 	// 是否支持名为name的公式
 	CanSupportVar(name string, varName string) bool
 
@@ -13,8 +13,8 @@ type FormulaManager interface {
 	CanSupportSecurity(code string) bool
 
 	// 使用默认参数创建公式
-	NewFormula(name string, data function.RVectorReader) Formula
+	NewFormula(name string, data function.RVectorReader[T]) Formula[T]
 
 	// 使用指定参数创建公式
-	NewFormulaWithArgs(name string, data function.RVectorReader, args []float64) Formula
+	NewFormulaWithArgs(name string, data function.RVectorReader[T], args []float64) Formula[T]
 }

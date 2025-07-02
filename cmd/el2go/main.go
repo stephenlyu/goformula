@@ -1,12 +1,13 @@
 package main
 
 import (
+	"flag"
 	"os"
-	"github.com/z-ray/log"
-	"github.com/stephenlyu/goformula/easylang"
 	"path/filepath"
 	"strings"
-	"flag"
+
+	"github.com/stephenlyu/goformula/easylang"
+	"github.com/z-ray/log"
 )
 
 func Usage() {
@@ -18,15 +19,15 @@ func compile(inputFile string, packagePath string) {
 	parts := strings.Split(filepath.Base(inputFile), ".")
 
 	if len(parts) > 1 {
-		parts = parts[:len(parts) - 1]
+		parts = parts[:len(parts)-1]
 	}
 	if packagePath == "" {
-		packagePath = strings.ToLower(parts[len(parts) - 1])
+		packagePath = strings.ToLower(parts[len(parts)-1])
 	}
 	parts = append(parts, "go")
 	outputFile := filepath.Join(strings.ToLower(strings.Join(parts, ".")))
 
-	err := easylang.Compile2Go(inputFile, outputFile, nil, true, packagePath)
+	err := easylang.Compile2Go(inputFile, outputFile, true, packagePath)
 	if err != nil {
 		log.Errorf("compile %s fail, error: %v", inputFile, err)
 	}

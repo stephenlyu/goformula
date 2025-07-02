@@ -6,133 +6,133 @@ import (
 	"math"
 )
 
-type Value interface {
+type Value[T float32 | float64] interface {
 	IsScalar() bool
 	Len() int
-	Get(index int) float64
-	Set(index int, v float64)
+	Get(index int) T
+	Set(index int, v T)
 	UpdateLastValue()
-	Append(v float64)
+	Append(v T)
 }
 
-type scalar struct {
-	value float64
+type scalar[T float32 | float64] struct {
+	value T
 }
 
-func (this scalar) IsScalar() bool {
+func (this scalar[T]) IsScalar() bool {
 	return true
 }
 
-func (this scalar) Len() int {
+func (this scalar[T]) Len() int {
 	return -1
 }
 
-func (this scalar) Get(index int) float64 {
+func (this scalar[T]) Get(index int) T {
 	return this.value
 }
 
-func (this scalar) Set(index int, v float64) {
+func (this scalar[T]) Set(index int, v T) {
 	this.value = v
 }
 
-func (this scalar) Append(v float64) {
+func (this scalar[T]) Append(v T) {
 	this.value = v
 }
 
-func (this scalar) UpdateLastValue() {
+func (this scalar[T]) UpdateLastValue() {
 }
 
-func Scalar(v float64) *scalar {
-	return &scalar{value: v}
+func Scalar[T float32 | float64](v T) *scalar[T] {
+	return &scalar[T]{value: v}
 }
 
-type vector struct {
-	Values []float64
+type vector[T float32 | float64] struct {
+	Values []T
 }
 
-func (this vector) IsScalar() bool {
+func (this vector[T]) IsScalar() bool {
 	return false
 }
 
-func (this vector) Len() int {
+func (this vector[T]) Len() int {
 	return len(this.Values)
 }
 
-func (this vector) Get(index int) float64 {
+func (this vector[T]) Get(index int) T {
 	if index < 0 || index >= this.Len() {
 		panic(errors.New("index out of range"))
 	}
 	return this.Values[index]
 }
 
-func (this vector) Set(index int, v float64) {
+func (this vector[T]) Set(index int, v T) {
 	if index < 0 || index >= this.Len() {
 		panic(errors.New("index out of range"))
 	}
 	this.Values[index] = v
 }
 
-func (this vector) UpdateLastValue() {
+func (this vector[T]) UpdateLastValue() {
 }
 
-func (this *vector) Append(v float64) {
+func (this *vector[T]) Append(v T) {
 	this.Values = append(this.Values, v)
 }
 
-func (this vector) String() string {
+func (this vector[T]) String() string {
 	return fmt.Sprintf("%v", this.Values)
 }
 
-func Vector(values []float64) *vector {
-	return &vector{Values: values}
+func Vector[T float32 | float64](values []T) *vector[T] {
+	return &vector[T]{Values: values}
 }
 
 var intNaN int = 0xdeadbeaf
 
-type intVector struct {
+type intVector[T float32 | float64] struct {
 	Values []int
 }
 
-func (this intVector) IsScalar() bool {
+func (this intVector[T]) IsScalar() bool {
 	return false
 }
 
-func (this intVector) Len() int {
+func (this intVector[T]) Len() int {
 	return len(this.Values)
 }
 
-func (this intVector) Get(index int) float64 {
+func (this intVector[T]) Get(index int) T {
 	if index < 0 || index >= this.Len() {
 		panic(errors.New("index out of range"))
 	}
 	if this.Values[index] == intNaN {
-		return math.NaN()
+		return T(math.NaN())
 	}
-	return float64(this.Values[index])
+	return T(this.Values[index])
 }
 
-func (this intVector) Set(index int, v float64) {
+func (this intVector[T]) Set(index int, v T) {
 	if index < 0 || index >= this.Len() {
 		panic(errors.New("index out of range"))
 	}
-	if math.IsNaN(v) {
+	if math.IsNaN(float64(v)) {
 		this.Values[index] = intNaN
 	} else {
 		this.Values[index] = int(v)
 	}
 }
 
-func (this intVector) UpdateLastValue() {
+func (this intVector[T]) UpdateLastValue() {
 }
 
-func (this *intVector) Append(v float64) {
+func (this *intVector[T]) Append(v T) {
 	this.Values = append(this.Values, int(v))
 }
 
-func (this intVector) String() string {
+func (this intVector[T]) String() string {
 	return fmt.Sprintf("%v", this.Values)
 }
 
-func IntVector(values []int) *intVector {
-	return &intVector{Values: values}
+func IntVector[T float32 | float64](values []int) *intVector[T] {
+	return &intVector[T]{Values: values}
 }

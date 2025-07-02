@@ -6,56 +6,56 @@ import (
 
 // MA - moving average
 
-type ma struct {
-	funcbase
-	N Value
+type ma[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this ma) BuildValueAt(index int) float64 {
+func (this ma[T]) BuildValueAt(index int) T {
 	n := int(this.N.Get(index))
-	if index < n -1 {
-		return NaN
+	if index < n-1 {
+		return T(NaN)
 	}
 
 	end := index + 1
-	start := int(math.Max(0, int64(end - n)))
+	start := int(math.Max(0, int64(end-n)))
 
-	return ma_(this.data, start, end)
+	return ma_[T](this.data, start, end)
 }
 
-func (this *ma) UpdateLastValue() {
+func (this *ma[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func MA(data Value, N Value) Value {
+func MA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 
 	if N == nil {
-		N = Scalar(5)
+		N = Scalar(T(5))
 	}
 
-	ret := &ma{
-		funcbase: funcbase {
+	ret := &ma[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // SMA
 
-type sma struct {
-	funcbase
-	N Value
-	M Value
+type sma[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
+	M Value[T]
 }
 
-func (this sma) BuildValueAt(index int) float64 {
+func (this sma[T]) BuildValueAt(index int) T {
 	if index == 0 {
 		return this.data.Get(index)
 	}
@@ -63,33 +63,33 @@ func (this sma) BuildValueAt(index int) float64 {
 	p := this.data.Get(index)
 	lv := this.Get(index - 1)
 
-	return (p * this.M.Get(index) + lv * (this.N.Get(index) - this.M.Get(index))) / this.N.Get(index)
+	return (p*this.M.Get(index) + lv*(this.N.Get(index)-this.M.Get(index))) / this.N.Get(index)
 }
 
-func (this *sma) UpdateLastValue() {
+func (this *sma[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func SMA(data Value, N, M Value) Value {
+func SMA[T float32 | float64](data Value[T], N, M Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 	if N == nil {
-		N = Scalar(12)
+		N = Scalar(T(12))
 	}
 
 	if M == nil {
-		M = Scalar(1)
+		M = Scalar(T(1))
 	}
 
-	ret := &sma{
-		funcbase: funcbase {
+	ret := &sma[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 		M: M,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 
 	return ret
@@ -97,12 +97,12 @@ func SMA(data Value, N, M Value) Value {
 
 // SMA
 
-type dma struct {
-	funcbase
-	A Value
+type dma[T float32 | float64] struct {
+	funcbase[T]
+	A Value[T]
 }
 
-func (this dma) BuildValueAt(index int) float64 {
+func (this dma[T]) BuildValueAt(index int) T {
 	if index == 0 {
 		return this.data.Get(0)
 	}
@@ -110,28 +110,28 @@ func (this dma) BuildValueAt(index int) float64 {
 	p := this.data.Get(index)
 	lv := this.Get(index - 1)
 
-	return p * this.A.Get(index) + lv * (1 - this.A.Get(index))
+	return p*this.A.Get(index) + lv*(1-this.A.Get(index))
 }
 
-func (this *dma) UpdateLastValue() {
+func (this *dma[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func DMA(data Value, A Value) Value {
+func DMA[T float32 | float64](data Value[T], A Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 	if A == nil {
-		A = Scalar(0.5)
+		A = Scalar(T(0.5))
 	}
 
-	ret := &dma{
-		funcbase: funcbase {
+	ret := &dma[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		A: A,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 
 	return ret
@@ -139,12 +139,12 @@ func DMA(data Value, A Value) Value {
 
 // EMA
 
-type ema struct {
-	funcbase
-	N Value
+type ema[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this ema) BuildValueAt(index int) float64 {
+func (this ema[T]) BuildValueAt(index int) T {
 	if index == 0 {
 		return this.data.Get(0)
 	}
@@ -152,75 +152,75 @@ func (this ema) BuildValueAt(index int) float64 {
 	p := this.data.Get(index)
 	lv := this.Get(index - 1)
 	alpha := 2.0 / (this.N.Get(index) + 1)
-	return p * alpha + lv * (1 - alpha)
+	return p*alpha + lv*(1-alpha)
 }
 
-func (this *ema) UpdateLastValue() {
+func (this *ema[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func EMA(data Value, N Value) Value {
+func EMA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 	if N == nil {
-		N = Scalar(5)
+		N = Scalar(T(5))
 	}
 
-	ret := &ema{
-		funcbase: funcbase {
+	ret := &ema[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // EXPMEMA
 
-type expmema struct {
-	funcbase
-	N Value
+type expmema[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this expmema) BuildValueAt(index int) float64 {
+func (this expmema[T]) BuildValueAt(index int) T {
 	N := int(this.N.Get(index))
-	if index < N - 1 {
+	if index < N-1 {
 		return 0
 	}
 
-	if index == N - 1 {
-		return ma_(this.data, 0, N)
+	if index == N-1 {
+		return ma_[T](this.data, 0, N)
 	}
 
 	p := this.data.Get(index)
 	lv := this.Get(index - 1)
 
 	alpha := 2.0 / (this.N.Get(index) + 1)
-	return p * alpha + lv * (1 - alpha)
+	return p*alpha + lv*(1-alpha)
 }
 
-func (this *expmema) UpdateLastValue() {
+func (this *expmema[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func EXPMEMA(data Value, N Value) Value {
+func EXPMEMA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 	if N == nil {
-		N = Scalar(0.5)
+		N = Scalar(T(0.5))
 	}
 
-	ret := &expmema{
-		funcbase: funcbase {
+	ret := &expmema[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 
 	return ret

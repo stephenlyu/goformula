@@ -4,14 +4,13 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numberingVar bool, debug bool) (error, string) {
+func CompileFile(sourceFile string, numberingVar bool, debug bool) (error, string) {
 	file, err := os.Open(sourceFile)
 	if err != nil {
 		return err, ""
@@ -19,7 +18,6 @@ func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numbe
 	defer file.Close()
 
 	_context = newContext()
-	_context.SetFormulaManager(formulaManager)
 	_context.SetNumberingVar(numberingVar)
 	ret := yyParse(newLexer(bufio.NewReader(file)))
 	if ret == 1 {
@@ -41,8 +39,8 @@ func CompileFile(sourceFile string, formulaManager formula.FormulaManager, numbe
 	return nil, generator.GenerateCode(mainName)
 }
 
-func Compile(sourceFile string, destFile string, formulaManager formula.FormulaManager, numberingVar bool, debug bool) error {
-	err, code := CompileFile(sourceFile, formulaManager, numberingVar, debug)
+func Compile(sourceFile string, destFile string, numberingVar bool, debug bool) error {
+	err, code := CompileFile(sourceFile, numberingVar, debug)
 	if err != nil {
 		return err
 	}
@@ -79,7 +77,7 @@ func Tokenizer(sourceFile string) error {
 	return nil
 }
 
-func Compile2GoCode(sourceFile string, formulaManager formula.FormulaManager, numberingVar bool, packagePath string) (error, string) {
+func Compile2GoCode(sourceFile string, numberingVar bool, packagePath string) (error, string) {
 	file, err := os.Open(sourceFile)
 	if err != nil {
 		return err, ""
@@ -87,7 +85,6 @@ func Compile2GoCode(sourceFile string, formulaManager formula.FormulaManager, nu
 	defer file.Close()
 
 	_context = newContext()
-	_context.SetFormulaManager(formulaManager)
 	_context.SetNumberingVar(numberingVar)
 	ret := yyParse(newLexer(bufio.NewReader(file)))
 	if ret == 1 {
@@ -107,8 +104,8 @@ func Compile2GoCode(sourceFile string, formulaManager formula.FormulaManager, nu
 	return nil, generator.GenerateCode(mainName)
 }
 
-func Compile2Go(sourceFile string, destFile string, formulaManager formula.FormulaManager, numberingVar bool, packagePath string) error {
-	err, code := Compile2GoCode(sourceFile, formulaManager, numberingVar, packagePath)
+func Compile2Go(sourceFile string, destFile string, numberingVar bool, packagePath string) error {
+	err, code := Compile2GoCode(sourceFile, numberingVar, packagePath)
 	if err != nil {
 		return err
 	}

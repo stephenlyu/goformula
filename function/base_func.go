@@ -2,40 +2,40 @@ package function
 
 import "math"
 
-type function interface {
-	Value
-	Data() Value
-	ListOfData() []Value
-	BuildValueAt(index int) float64
+type function[T float32 | float64] interface {
+	Value[T]
+	Data() Value[T]
+	ListOfData() []Value[T]
+	BuildValueAt(index int) T
 }
 
-type funcbase struct {
-	vector
-	data Value
+type funcbase[T float32 | float64] struct {
+	vector[T]
+	data Value[T]
 }
 
-func (this funcbase) Data() Value {
+func (this funcbase[T]) Data() Value[T] {
 	return this.data
 }
 
-func (this funcbase) ListOfData() []Value {
-	return []Value{this.data}
+func (this funcbase[T]) ListOfData() []Value[T] {
+	return []Value[T]{this.data}
 }
 
-type intfuncbase struct {
-	intVector
-	data Value
+type intfuncbase[T float32 | float64] struct {
+	intVector[T]
+	data Value[T]
 }
 
-func (this intfuncbase) Data() Value {
+func (this intfuncbase[T]) Data() Value[T] {
 	return this.data
 }
 
-func (this intfuncbase) ListOfData() []Value {
-	return []Value{this.data}
+func (this intfuncbase[T]) ListOfData() []Value[T] {
+	return []Value[T]{this.data}
 }
 
-func updateLastValue(this function) {
+func updateLastValue[T float32 | float64](this function[T]) {
 	var length int
 	for _, v := range this.ListOfData() {
 		if !v.IsScalar() {
@@ -59,17 +59,17 @@ func updateLastValue(this function) {
 	}
 }
 
-func initValues(this function, values []float64) {
+func initValues[T float32 | float64](this function[T], values []T) {
 	for i := 0; i < len(values); i++ {
 		v := this.BuildValueAt(i)
 		values[i] = v
 	}
 }
 
-func initIntValues(this function, values []int) {
+func initIntValues[T float32 | float64](this function[T], values []int) {
 	for i := 0; i < len(values); i++ {
 		v := this.BuildValueAt(i)
-		if math.IsNaN(v) {
+		if math.IsNaN(float64(v)) {
 			values[i] = intNaN
 		} else {
 			values[i] = int(v)
@@ -77,39 +77,39 @@ func initIntValues(this function, values []int) {
 	}
 }
 
-type simplefuncbase struct {
-	data Value
+type simplefuncbase[T float32 | float64] struct {
+	data Value[T]
 }
 
-func (this *simplefuncbase) IsScalar() bool {
+func (this *simplefuncbase[T]) IsScalar() bool {
 	return false
 }
 
-func (this *simplefuncbase) Len() int {
+func (this *simplefuncbase[T]) Len() int {
 	return this.data.Len()
 }
 
-func (this *simplefuncbase) Get(index int) float64 {
+func (this *simplefuncbase[T]) Get(index int) float64 {
 	panic("Not implemented")
 }
 
-func (this *simplefuncbase) Set(index int, v float64) {
+func (this *simplefuncbase[T]) Set(index int, v T) {
 	panic("Not implemented")
 }
 
-func (this *simplefuncbase) UpdateLastValue() {
+func (this *simplefuncbase[T]) UpdateLastValue() {
 }
 
-func (this *simplefuncbase) Append(v float64) {
+func (this *simplefuncbase[T]) Append(v T) {
 	panic("Not implemented")
 }
 
-type binaryfuncbase struct {
-	simplefuncbase
-	data1 Value
+type binaryfuncbase[T float32 | float64] struct {
+	simplefuncbase[T]
+	data1 Value[T]
 }
 
-func (this *binaryfuncbase) Len() int {
+func (this *binaryfuncbase[T]) Len() int {
 	if !this.data.IsScalar() {
 		return this.data.Len()
 	}

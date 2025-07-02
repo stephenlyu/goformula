@@ -7,38 +7,38 @@ import "math"
 // DRAWLINE
 // TODO: 不支持延长线
 
-type drawline struct {
-	funcbase
-	Cond1            Value
-	Price1           Value
-	Cond2            Value
-	Price2           Value
-	Expand           Value
+type drawline[T float32 | float64] struct {
+	funcbase[T]
+	Cond1  Value[T]
+	Price1 Value[T]
+	Cond2  Value[T]
+	Price2 Value[T]
+	Expand Value[T]
 
 	lastCond1Index   int
 	lastCond2Indices []int
 }
 
-func (this *drawline) BuildValueAt(index int) {
+func (this *drawline[T]) BuildValueAt(index int) {
 	cond1 := IsTrue(this.Cond1.Get(index))
 	cond2 := IsTrue(this.Cond2.Get(index))
 
 	if cond1 {
 		this.lastCond1Index = index
 		this.lastCond2Indices = []int{}
-		this.Values[index] = NaN
+		this.Values[index] = T(NaN)
 	} else if cond2 {
 		if this.lastCond1Index >= 0 {
 			Interpolate(this.Values, this.lastCond1Index, index, this.Price1.Get(this.lastCond1Index), this.Price2.Get(index))
 			this.lastCond2Indices = append(this.lastCond2Indices, index)
 		} else {
-			this.Values[index] = NaN
+			this.Values[index] = T(NaN)
 		}
 	} else {
 		if this.lastCond1Index >= 0 {
 			n := len(this.lastCond2Indices)
 			if n > 0 {
-				prevCond2Index := this.lastCond2Indices[n - 1]
+				prevCond2Index := this.lastCond2Indices[n-1]
 				if prevCond2Index == index {
 					// 信号出现了又消失的情况
 					this.lastCond2Indices = this.lastCond2Indices[:n-1]
@@ -47,27 +47,27 @@ func (this *drawline) BuildValueAt(index int) {
 					var from int
 					if len(this.lastCond2Indices) > 0 {
 						// 一个起点，多个终点时，仅将上一个终点之后的数值修改成NaN
-						from = this.lastCond2Indices[n - 1] + 1
+						from = this.lastCond2Indices[n-1] + 1
 					} else {
 						// 修改为未找到终点时的情况，即起点后的所有index修改为NaN
 						from = this.lastCond1Index
 					}
 					for i := from; i < index; i++ {
-						this.Values[i] = NaN
+						this.Values[i] = T(NaN)
 					}
 				} else {
-					this.Values[index] = NaN
+					this.Values[index] = T(NaN)
 				}
 			} else {
-				this.Values[index] = NaN
+				this.Values[index] = T(NaN)
 			}
 		} else {
-			this.Values[index] = NaN
+			this.Values[index] = T(NaN)
 		}
 	}
 }
 
-func (this *drawline) UpdateLastValue() {
+func (this *drawline[T]) UpdateLastValue() {
 	if this.Data().Len() < this.Len() {
 		return
 	}
@@ -75,7 +75,7 @@ func (this *drawline) UpdateLastValue() {
 		this.BuildValueAt(this.Data().Len() - 1)
 	} else {
 		start := this.Len()
-		for i := this.Len(); i <  this.Data().Len(); i++ {
+		for i := this.Len(); i < this.Data().Len(); i++ {
 			this.Append(0)
 		}
 
@@ -85,19 +85,19 @@ func (this *drawline) UpdateLastValue() {
 	}
 }
 
-func (this *drawline) initValues() {
+func (this *drawline[T]) initValues() {
 	for i := 0; i < this.Data().Len(); i++ {
 		this.BuildValueAt(i)
 	}
 }
 
-func DRAWLINE(cond1 Value, price1 Value, cond2 Value, price2 Value, expand Value) Value {
+func DRAWLINE[T float32 | float64](cond1 Value[T], price1 Value[T], cond2 Value[T], price2 Value[T], expand Value[T]) Value[T] {
 	if cond1.IsScalar() && price1.IsScalar() && cond2.IsScalar() && price2.IsScalar() && expand.IsScalar() {
-		return Scalar(math.NaN())
+		return Scalar(T(math.NaN()))
 	}
 
 	if expand == nil {
-		expand = Scalar(0)
+		expand = Scalar(T(0))
 	}
 
 	var length int
@@ -114,35 +114,35 @@ func DRAWLINE(cond1 Value, price1 Value, cond2 Value, price2 Value, expand Value
 		length = expand.Len()
 	}
 
-	ret := &drawline{
-		funcbase: funcbase {
+	ret := &drawline[T]{
+		funcbase: funcbase[T]{
 			data: cond1,
 		},
-		Cond1: cond1,
+		Cond1:  cond1,
 		Price1: price1,
-		Cond2: cond2,
+		Cond2:  cond2,
 		Price2: price2,
 		Expand: expand,
 
 		lastCond1Index: -1,
 	}
-	ret.Values = make([]float64, length)
+	ret.Values = make([]T, length)
 	ret.initValues()
 	return ret
 }
 
 // PLOYLINE
 
-type ployline struct {
-	funcbase
-	Cond Value
-	Price Value
+type ployline[T float32 | float64] struct {
+	funcbase[T]
+	Cond  Value[T]
+	Price Value[T]
 
-	lastSegFromIndex int		// 最后一条线段的起始位置
-	lastSegToIndex int			// 最后一条线段结束位置
+	lastSegFromIndex int // 最后一条线段的起始位置
+	lastSegToIndex   int // 最后一条线段结束位置
 }
 
-func (this *ployline) BuildValueAt(index int) {
+func (this *ployline[T]) BuildValueAt(index int) {
 	yes := IsTrue(this.Cond.Get(index))
 
 	if yes {
@@ -167,16 +167,16 @@ func (this *ployline) BuildValueAt(index int) {
 			// 信号忽闪时，需要恢复前面的值
 			if this.lastSegFromIndex >= 0 {
 				for i := this.lastSegFromIndex + 1; i < index; i++ {
-					this.Values[i] = NaN
+					this.Values[i] = T(NaN)
 				}
 			}
 		} else {
-			this.Values[index] = NaN
+			this.Values[index] = T(NaN)
 		}
 	}
 }
 
-func (this *ployline) UpdateLastValue() {
+func (this *ployline[T]) UpdateLastValue() {
 	if this.Data().Len() < this.Len() {
 		return
 	}
@@ -184,7 +184,7 @@ func (this *ployline) UpdateLastValue() {
 		this.BuildValueAt(this.Data().Len() - 1)
 	} else {
 		start := this.Len()
-		for i := this.Len(); i <  this.Data().Len(); i++ {
+		for i := this.Len(); i < this.Data().Len(); i++ {
 			this.Append(0)
 		}
 
@@ -194,15 +194,15 @@ func (this *ployline) UpdateLastValue() {
 	}
 }
 
-func (this *ployline) initValues() {
+func (this *ployline[T]) initValues() {
 	for i := 0; i < this.Data().Len(); i++ {
 		this.BuildValueAt(i)
 	}
 }
 
-func PLOYLINE(cond Value, price Value) Value {
+func PLOYLINE[T float32 | float64](cond Value[T], price Value[T]) Value[T] {
 	if cond.IsScalar() && price.IsScalar() {
-		return Scalar(math.NaN())
+		return Scalar(T(math.NaN()))
 	}
 
 	var length int
@@ -212,16 +212,16 @@ func PLOYLINE(cond Value, price Value) Value {
 		length = price.Len()
 	}
 
-	ret := &ployline{
-		funcbase: funcbase {
+	ret := &ployline[T]{
+		funcbase: funcbase[T]{
 			data: cond,
 		},
-		Cond: cond,
-		Price: price,
+		Cond:             cond,
+		Price:            price,
 		lastSegFromIndex: -1,
-		lastSegToIndex: -1,
+		lastSegToIndex:   -1,
 	}
-	ret.Values = make([]float64, length)
+	ret.Values = make([]T, length)
 	ret.initValues()
 	return ret
 }

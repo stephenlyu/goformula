@@ -8,8 +8,8 @@ import (
 	"github.com/stephenlyu/goformula/datalibrary"
 	. "github.com/stephenlyu/goformula/formulalibrary/base/factory"
 	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
+	"github.com/stephenlyu/goformula/formulalibrary/native"
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
-	"github.com/stephenlyu/goformula/formulalibrary/native/nativeformulas"
 	"github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/z-ray/log"
 )
@@ -18,9 +18,11 @@ type FormulaChangeListener interface {
 	OnFormulaChanged(name string)
 }
 
-type FormulaLibrary struct {
-	formulaFactories map[string]FormulaCreatorFactory
+type FormulaLibrary[T float32 | float64] struct {
+	formulaFactories map[string]FormulaCreatorFactory[T]
 	lock             sync.Mutex
+
+	nativeFormulas []native.NativeFormula[T]
 
 	debug bool
 
@@ -30,30 +32,37 @@ type FormulaLibrary struct {
 
 	formulaChangedListeners []FormulaChangeListener
 
-	dataLibrary datalibrary.DataLibrary
+	dataLibrary datalibrary.DataLibrary[T]
 }
 
-func newFormulaLibrary() *FormulaLibrary {
-	this := &FormulaLibrary{}
+func NewFormulaLibrary[T float32 | float64]() *FormulaLibrary[T] {
+	this := &FormulaLibrary[T]{}
 	this.Reset()
 	return this
 }
 
-func (this *FormulaLibrary) SetDebug(v bool) {
+func (this *FormulaLibrary[T]) SetDebug(v bool) {
 	this.debug = v
 }
 
-func (this *FormulaLibrary) SetLoadNative(v bool) {
+func (this *FormulaLibrary[T]) SetNativeFormulas(nativeFormulas []native.NativeFormula[T]) {
+	this.nativeFormulas = nativeFormulas
+}
+
+func (this *FormulaLibrary[T]) SetLoadNative(v bool) {
 	this.loadNative = v
 }
 
-func (this *FormulaLibrary) SetDataLibrary(dl datalibrary.DataLibrary) {
+func (this *FormulaLibrary[T]) SetDataLibrary(dl datalibrary.DataLibrary[T]) {
 	this.dataLibrary = dl
-	datalibrary.SetDataLibrary(dl)
 }
 
-func (this *FormulaLibrary) Reset() {
-	this.formulaFactories = make(map[string]FormulaCreatorFactory)
+func (this *FormulaLibrary[T]) GetDataLibrary() datalibrary.DataLibrary[T] {
+	return this.dataLibrary
+}
+
+func (this *FormulaLibrary[T]) Reset() {
+	this.formulaFactories = make(map[string]FormulaCreatorFactory[T])
 	this.formulaChangedListeners = []FormulaChangeListener{}
 	this.debug = false
 	this.loadNative = true
@@ -62,52 +71,53 @@ func (this *FormulaLibrary) Reset() {
 	this.dataLibrary = nil
 }
 
-func (this *FormulaLibrary) CanSupport(name string) bool {
+func (this *FormulaLibrary[T]) CanSupport(name string) bool {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	_, ok := this.formulaFactories[name]
 	return ok
 }
 
-func (this *FormulaLibrary) LoadNativeFormulas() {
+func (this *FormulaLibrary[T]) LoadNativeFormulas() {
 	if !this.loadNative {
 		log.Warnf("Please turn loadNative on first!")
 		return
 	}
 
-	for _, nf := range nativeformulas.NativeFormulas {
+	for i := range this.nativeFormulas {
+		nf := &this.nativeFormulas[i]
 		name := strings.ToUpper(nf.Meta.Name)
-		_, factory := nativefactory.NewNativeFormulaCreatorFactory(name)
+		_, factory := nativefactory.NewNativeFormulaCreatorFactory(this, nf)
 		this.Register(name, factory)
 	}
 }
 
-func (this *FormulaLibrary) LoadAllFormulas(luaDir string, easyLangDir string) {
+func (this *FormulaLibrary[T]) LoadAllFormulas(luaDir string, easyLangDir string) {
 	if this.loadNative {
 		this.LoadNativeFormulas()
 	}
 }
 
-func (this *FormulaLibrary) IsFormulaExisted(name string) bool {
+func (this *FormulaLibrary[T]) IsFormulaExisted(name string) bool {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	_, ok := this.formulaFactories[name]
 	return ok
 }
 
-func (this *FormulaLibrary) Register(name string, creatorFactory FormulaCreatorFactory) {
+func (this *FormulaLibrary[T]) Register(name string, creatorFactory FormulaCreatorFactory[T]) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	this.formulaFactories[name] = creatorFactory
 }
 
-func (this *FormulaLibrary) Unregister(name string, creatorFactory FormulaCreatorFactory) {
+func (this *FormulaLibrary[T]) Unregister(name string, creatorFactory FormulaCreatorFactory[T]) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	delete(this.formulaFactories, name)
 }
 
-func (this *FormulaLibrary) GetCreatorFactory(name string) FormulaCreatorFactory {
+func (this *FormulaLibrary[T]) GetCreatorFactory(name string) FormulaCreatorFactory[T] {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	return this.formulaFactories[name]
@@ -115,7 +125,7 @@ func (this *FormulaLibrary) GetCreatorFactory(name string) FormulaCreatorFactory
 
 // FormulaChangedListener相关Routine
 
-func (this *FormulaLibrary) AddFormulaChangeListener(listener FormulaChangeListener) {
+func (this *FormulaLibrary[T]) AddFormulaChangeListener(listener FormulaChangeListener) {
 	if listener == nil {
 		return
 	}
@@ -129,7 +139,7 @@ func (this *FormulaLibrary) AddFormulaChangeListener(listener FormulaChangeListe
 	this.formulaChangedListeners = append(this.formulaChangedListeners, listener)
 }
 
-func (this *FormulaLibrary) RemoveFormulaChangeListener(listener FormulaChangeListener) {
+func (this *FormulaLibrary[T]) RemoveFormulaChangeListener(listener FormulaChangeListener) {
 	if listener == nil {
 		return
 	}
@@ -143,7 +153,7 @@ func (this *FormulaLibrary) RemoveFormulaChangeListener(listener FormulaChangeLi
 	}
 }
 
-func (this *FormulaLibrary) NotifyFormulaChanged(name string) {
+func (this *FormulaLibrary[T]) NotifyFormulaChanged(name string) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	for _, listener := range this.formulaChangedListeners {
@@ -153,7 +163,7 @@ func (this *FormulaLibrary) NotifyFormulaChanged(name string) {
 
 // 实现FormulaManager接口
 
-func (this *FormulaLibrary) CanSupportVar(name string, varName string) bool {
+func (this *FormulaLibrary[T]) CanSupportVar(name string, varName string) bool {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	factory, ok := this.formulaFactories[name]
@@ -164,15 +174,15 @@ func (this *FormulaLibrary) CanSupportVar(name string, varName string) bool {
 	return factory.GetMeta().HasVar(varName)
 }
 
-func (this *FormulaLibrary) CanSupportPeriod(period string) bool {
+func (this *FormulaLibrary[T]) CanSupportPeriod(period string) bool {
 	return true
 }
 
-func (this *FormulaLibrary) CanSupportSecurity(code string) bool {
+func (this *FormulaLibrary[T]) CanSupportSecurity(code string) bool {
 	return true
 }
 
-func (this *FormulaLibrary) NewFormula(name string, data function.RVectorReader) formula.Formula {
+func (this *FormulaLibrary[T]) NewFormula(name string, data function.RVectorReader[T]) formula.Formula[T] {
 	factory, ok := this.formulaFactories[name]
 	if !ok {
 		panic(errors.New("公式不存在"))
@@ -183,7 +193,7 @@ func (this *FormulaLibrary) NewFormula(name string, data function.RVectorReader)
 }
 
 // TODO: 1. 如何缓存公式 2. 如何管理公式间的依赖 3. 公式改变后，如何更新依赖
-func (this *FormulaLibrary) NewFormulaWithArgs(name string, data function.RVectorReader, args []float64) formula.Formula {
+func (this *FormulaLibrary[T]) NewFormulaWithArgs(name string, data function.RVectorReader[T], args []float64) formula.Formula[T] {
 	factory, ok := this.formulaFactories[name]
 	if !ok {
 		panic(errors.New("公式不存在"))
@@ -196,5 +206,3 @@ func (this *FormulaLibrary) NewFormulaWithArgs(name string, data function.RVecto
 	}
 	return formula
 }
-
-var GlobalLibrary = newFormulaLibrary()

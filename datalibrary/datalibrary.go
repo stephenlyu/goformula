@@ -19,35 +19,35 @@ const (
 	DATA_TYPE_FORWARD_ADJUST
 )
 
-type DataLibrary interface {
+type DataLibrary[T float32 | float64] interface {
 	// Set data type, original or forward adjust?
 	SetDataType(dataType int)
 
 	// Get data with specific code & period
-	GetData(code string, period string) function.RVectorReader
+	GetData(code string, period string) function.RVectorReader[T]
 
 	// Release data
-	ReleaseData(data function.RVectorReader)
+	ReleaseData(data function.RVectorReader[T])
 }
 
-type dataLibrary struct {
+type dataLibrary[T float32 | float64] struct {
 	dataType int
 
 	dataDir string
-	ds      datasource.DataSource
+	ds      datasource.DataSource[T]
 }
 
-func NewDataLibrary(dataDir string) DataLibrary {
-	ds := tdxdatasource.NewDataSource(dataDir, true)
-	return &dataLibrary{dataDir: dataDir, ds: ds}
+func NewDataLibrary[T float32 | float64](dataDir string) DataLibrary[T] {
+	ds := tdxdatasource.NewDataSource[T](dataDir, true)
+	return &dataLibrary[T]{dataDir: dataDir, ds: ds}
 }
 
-func (this *dataLibrary) SetDataType(dataType int) {
+func (this *dataLibrary[T]) SetDataType(dataType int) {
 	util.Assert(dataType == DATA_TYPE_ORIGINAL || dataType == DATA_TYPE_FORWARD_ADJUST, "")
 	this.dataType = dataType
 }
 
-func (this *dataLibrary) translateCode(code string) string {
+func (this *dataLibrary[T]) translateCode(code string) string {
 	if strings.Index(code, ".") != -1 {
 		return code
 	}
@@ -68,7 +68,7 @@ func (this *dataLibrary) translateCode(code string) string {
 	return code + ".SH"
 }
 
-func (this *dataLibrary) GetData(code string, periodString string) function.RVectorReader {
+func (this *dataLibrary[T]) GetData(code string, periodString string) function.RVectorReader[T] {
 	code = this.translateCode(code)
 	fmt.Printf("load data: %s %s\n", code, periodString)
 
@@ -78,7 +78,7 @@ func (this *dataLibrary) GetData(code string, periodString string) function.RVec
 	err, period := PeriodFromString(periodString)
 	util.Assert(err == nil, "bad period")
 
-	var data []entity.Record
+	var data []entity.Record[T]
 	switch this.dataType {
 	case DATA_TYPE_ORIGINAL:
 		err, data = this.ds.GetData(security, period)
@@ -86,7 +86,7 @@ func (this *dataLibrary) GetData(code string, periodString string) function.RVec
 		err, data = this.ds.GetForwardAdjustedData(security, period)
 	}
 
-	ret := make([]function.Record, len(data))
+	ret := make([]function.Record[T], len(data))
 	if err != nil {
 		log.Errorf("DataLibrary.GetData fail, error: %v", err)
 		return function.RecordVectorEx(code, period, ret)
@@ -96,16 +96,8 @@ func (this *dataLibrary) GetData(code string, periodString string) function.RVec
 		ret[i] = &data[i]
 	}
 
-	fmt.Println(data[0].GetDate(), data[len(data)-1].GetDate())
-
 	return function.RecordVectorEx(code, period, ret)
 }
 
-func (this *dataLibrary) ReleaseData(data function.RVectorReader) {
-}
-
-var GlobalDataLibrary DataLibrary
-
-func SetDataLibrary(dl DataLibrary) {
-	GlobalDataLibrary = dl
+func (this *dataLibrary[T]) ReleaseData(data function.RVectorReader[T]) {
 }

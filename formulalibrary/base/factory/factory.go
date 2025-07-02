@@ -5,11 +5,11 @@ import (
 	"github.com/stephenlyu/goformula/stockfunc/function"
 )
 
-type FormulaCreator interface {
-	CreateFormula(data function.RVectorReader) (error, formula.Formula)
+type FormulaCreator[T float32 | float64] interface {
+	CreateFormula(data function.RVectorReader[T]) (error, formula.Formula[T])
 }
 
-type FormulaCreatorFactory interface {
-	CreateFormulaCreator(args []float64) FormulaCreator
+type FormulaCreatorFactory[T float32 | float64] interface {
+	CreateFormulaCreator(args []float64) FormulaCreator[T]
 	GetMeta() formula.FormulaMeta
 }

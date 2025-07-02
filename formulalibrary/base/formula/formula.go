@@ -52,67 +52,67 @@ type DrawAction interface {
 	IsNoDraw() bool
 }
 
-type PloyLine interface {
+type PloyLine[T float32 | float64] interface {
 	DrawAction
 
-	GetCond(index int) float64
-	GetPrice(index int) float64
+	GetCond(index int) T
+	GetPrice(index int) T
 }
 
-type DrawLine interface {
+type DrawLine[T float32 | float64] interface {
 	DrawAction
 
-	GetCond1(index int) float64
-	GetPrice1(index int) float64
-	GetCond2(index int) float64
-	GetPrice2(index int) float64
+	GetCond1(index int) T
+	GetPrice1(index int) T
+	GetCond2(index int) T
+	GetPrice2(index int) T
 	GetExpand() int
 }
 
-type DrawKLine interface {
+type DrawKLine[T float32 | float64] interface {
 	DrawAction
 
-	GetHigh(index int) float64
-	GetOpen(index int) float64
-	GetLow(index int) float64
-	GetClose(index int) float64
+	GetHigh(index int) T
+	GetOpen(index int) T
+	GetLow(index int) T
+	GetClose(index int) T
 }
 
-type StickLine interface {
+type StickLine[T float32 | float64] interface {
 	DrawAction
 
-	GetCond(index int) float64
-	GetPrice1(index int) float64
-	GetPrice2(index int) float64
-	GetWidth() float64
-	GetEmpty() float64
+	GetCond(index int) T
+	GetPrice1(index int) T
+	GetPrice2(index int) T
+	GetWidth() T
+	GetEmpty() T
 }
 
-type DrawIcon interface {
+type DrawIcon[T float32 | float64] interface {
 	DrawAction
 
-	GetCond(index int) float64
-	GetPrice(index int) float64
+	GetCond(index int) T
+	GetPrice(index int) T
 	GetType() int
 }
 
-type DrawText interface {
+type DrawText[T float32 | float64] interface {
 	DrawAction
 
-	GetCond(index int) float64
-	GetPrice(index int) float64
+	GetCond(index int) T
+	GetPrice(index int) T
 	GetText() string
 }
 
-type Formula interface {
+type Formula[T float32 | float64] interface {
 	FormulaMeta
 
 	Period() period.Period
 	Len() int
 	UpdateLastValue()
-	Get(index int) []float64
-	Ref(offset int) []float64
-	GetVarValue(varName string) function.Value
+	Get(index int) []T
+	Ref(offset int) []T
+	GetVarValue(varName string) function.Value[T]
 	DumpState()
 
 	// 绘制图形

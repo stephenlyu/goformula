@@ -11,27 +11,41 @@ func Assert(cond bool, msg string) {
 	}
 }
 
-func IsTrue(v float64) bool {
-	return v != 0 && !math.IsNaN(v)
+func IsTrue[T float32 | float64](v T) bool {
+	return v != 0 && !math.IsNaN(float64(v))
 }
 
-func sum(values Value, start, end int) float64 {
-	sum := 0.0
+func sum[T float32 | float64](values Value[T], start, end int) T {
+	sum := T(0.0)
 	for i := start; i < end; i++ {
 		sum += values.Get(i)
 	}
 	return sum
 }
 
-func ma_(values Value, start, end int) float64 {
+func ma_[T float32 | float64](values Value[T], start, end int) T {
 	if start >= end {
 		return 0
 	}
 
-	return sum(values, start, end) / float64(end-start)
+	return sum[T](values, start, end) / T(end-start)
 }
 
-func min(values Value, start, end int) float64 {
+func minv[T float32 | float64](v1 T, v2 T) T {
+	if v1 <= v2 {
+		return v1
+	}
+	return v2
+}
+
+func maxv[T float32 | float64](v1 T, v2 T) T {
+	if v1 <= v2 {
+		return v2
+	}
+	return v1
+}
+
+func min[T float32 | float64](values Value[T], start, end int) T {
 	if start >= end {
 		return 0
 	}
@@ -45,7 +59,7 @@ func min(values Value, start, end int) float64 {
 	return ret
 }
 
-func max(values Value, start, end int) float64 {
+func max[T float32 | float64](values Value[T], start, end int) T {
 	if start >= end {
 		return 0
 	}
@@ -59,27 +73,27 @@ func max(values Value, start, end int) float64 {
 	return ret
 }
 
-func iif(condition bool, yesValue, noValue float64) float64 {
+func iif[T float32 | float64](condition bool, yesValue, noValue T) T {
 	if condition {
 		return yesValue
 	}
 	return noValue
 }
 
-func round(val float64, places int) float64 {
-	var t float64
-	f := math.Pow10(places)
+func round[T float32 | float64](val T, places int) T {
+	var t T
+	f := T(math.Pow10(places))
 	x := val * f
-	if math.IsInf(x, 0) || math.IsNaN(x) {
+	if math.IsInf(float64(x), 0) || math.IsNaN(float64(x)) {
 		return val
 	}
 	if x >= 0.0 {
-		t = math.Ceil(x)
+		t = T(math.Ceil(float64(x)))
 		if (t - x) > 0.50000000001 {
 			t -= 1.0
 		}
 	} else {
-		t = math.Ceil(-x)
+		t = T(math.Ceil(-float64(x)))
 		if (t + x) > 0.50000000001 {
 			t -= 1.0
 		}
@@ -87,20 +101,20 @@ func round(val float64, places int) float64 {
 	}
 	x = t / f
 
-	if !math.IsInf(x, 0) {
+	if !math.IsInf(float64(x), 0) {
 		return x
 	}
 
 	return t
 }
 
-func LinearRegression(x, y Value) (err error, slope float64, intercept float64) {
+func LinearRegression[T float32 | float64](x, y Value[T]) (err error, slope T, intercept T) {
 	if x.Len() != y.Len() {
 		return errors.New("Length mismatch"), 0, 0
 	}
 
 	// Placeholder for the math to be done
-	var sum [5]float64
+	var sum [5]T
 
 	// Loop over data keeping index in place
 	i := 0
@@ -113,7 +127,7 @@ func LinearRegression(x, y Value) (err error, slope float64, intercept float64) 
 	}
 
 	// Find gradient and intercept
-	f := float64(i)
+	f := T(i)
 	slope = (f*sum[3] - sum[0]*sum[1]) / (f*sum[2] - sum[0]*sum[0])
 	intercept = (sum[1] / f) - (slope * sum[0] / f)
 
@@ -121,13 +135,13 @@ func LinearRegression(x, y Value) (err error, slope float64, intercept float64) 
 	return
 }
 
-func Interpolate(values []float64, from int, to int, fromValue float64, toValue float64) {
+func Interpolate[T float32 | float64](values []T, from int, to int, fromValue T, toValue T) {
 	Assert(from >= 0, "from >= 0 required")
 	Assert(to < len(values), "to < len(values) required")
 
-	if math.IsNaN(fromValue) || math.IsNaN(toValue) {
+	if math.IsNaN(float64(fromValue)) || math.IsNaN(float64(toValue)) {
 		for i := from + 1; i < to; i++ {
-			values[i] = math.NaN()
+			values[i] = T(math.NaN())
 		}
 		return
 	}
@@ -137,10 +151,10 @@ func Interpolate(values []float64, from int, to int, fromValue float64, toValue 
 		return
 	}
 
-	slope := (toValue - fromValue) / float64(to-from)
+	slope := (toValue - fromValue) / T(to-from)
 	values[from] = fromValue
 	values[to] = toValue
 	for i := from + 1; i < to; i++ {
-		values[i] = fromValue + float64(i-from)*slope
+		values[i] = fromValue + T(i-from)*slope
 	}
 }

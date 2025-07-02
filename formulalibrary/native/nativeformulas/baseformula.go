@@ -7,23 +7,23 @@ import (
 	"github.com/stephenlyu/tds/period"
 )
 
-type BaseNativeFormula struct {
+type BaseNativeFormula[T float32 | float64] struct {
 	*FormulaMetaImpl
-	RefValues__   []function.Value
+	RefValues__   []function.Value[T]
 	DrawActions__ []DrawAction
-	Data__        stockfunc.RVectorReader
+	Data__        stockfunc.RVectorReader[T]
 }
 
-func (this *BaseNativeFormula) Period() period.Period {
+func (this *BaseNativeFormula[T]) Period() period.Period {
 	return this.Data__.Period()
 }
 
-func (this *BaseNativeFormula) Len() int {
+func (this *BaseNativeFormula[T]) Len() int {
 	return this.Data__.Len()
 }
 
-func (this BaseNativeFormula) Get(index int) []float64 {
-	ret := make([]float64, len(this.RefValues__))
+func (this BaseNativeFormula[T]) Get(index int) []T {
+	ret := make([]T, len(this.RefValues__))
 	for i, v := range this.RefValues__ {
 		ret[i] = v.Get(index)
 	}
@@ -31,12 +31,12 @@ func (this BaseNativeFormula) Get(index int) []float64 {
 	return ret
 }
 
-func (this BaseNativeFormula) Ref(offset int) []float64 {
+func (this BaseNativeFormula[T]) Ref(offset int) []T {
 	index := this.Data__.Len() - 1 - offset
 	return this.Get(index)
 }
 
-func (this BaseNativeFormula) GetVarValue(varName string) function.Value {
+func (this BaseNativeFormula[T]) GetVarValue(varName string) function.Value[T] {
 	for i, v := range this.FormulaMetaImpl.Vars {
 		if varName == v {
 			return this.RefValues__[i]
@@ -45,16 +45,16 @@ func (this BaseNativeFormula) GetVarValue(varName string) function.Value {
 	return nil
 }
 
-func (this *BaseNativeFormula) Destroy() {
+func (this *BaseNativeFormula[T]) Destroy() {
 }
 
-func (this *BaseNativeFormula) Name() string {
+func (this *BaseNativeFormula[T]) Name() string {
 	return this.GetName()
 }
 
-func (this *BaseNativeFormula) DrawActions() []DrawAction {
+func (this *BaseNativeFormula[T]) DrawActions() []DrawAction {
 	return this.DrawActions__
 }
 
-func (this *BaseNativeFormula) DumpState() {
+func (this *BaseNativeFormula[T]) DumpState() {
 }

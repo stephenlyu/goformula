@@ -44,7 +44,7 @@ func TestBARSLASTS(t *testing.T) {
 		}
 	}
 	v := Vector(values)
-	b := BARSLASTS(v, Scalar(2))
+	b := BARSLASTS(v, Scalar[float64](2))
 
 	for i := range values {
 		fmt.Println(i, values[i], b.Get(i), i-int(b.Get(i)))

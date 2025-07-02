@@ -8,15 +8,15 @@ import (
 
 // LLV
 
-type llv struct {
-	funcbase
-	N Value
+type llv[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this llv) BuildValueAt(index int) float64 {
+func (this llv[T]) BuildValueAt(index int) T {
 	N := this.N.Get(index)
-	if math.IsNaN(N) || N <= 0 {
-		return math.NaN()
+	if math.IsNaN(float64(N)) || N <= 0 {
+		return T(math.NaN())
 	}
 	end := index + 1
 	start := int(_math.Max(0, int64(end-int(N))))
@@ -24,43 +24,43 @@ func (this llv) BuildValueAt(index int) float64 {
 	return min(this.data, start, end)
 }
 
-func (this *llv) UpdateLastValue() {
+func (this *llv[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func LLV(data Value, N Value) Value {
+func LLV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 
-	ret := &llv{
-		funcbase: funcbase{
+	ret := &llv[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // LLVBARS
 
-type llvbars struct {
-	funcbase
-	N Value
+type llvbars[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this llvbars) BuildValueAt(index int) float64 {
+func (this llvbars[T]) BuildValueAt(index int) T {
 	N := this.N.Get(index)
-	if math.IsNaN(N) || N <= 0 {
-		return float64(index)
+	if math.IsNaN(float64(N)) || N <= 0 {
+		return T(index)
 	}
 
 	end := index + 1
 	start := int(_math.Max(0, int64(end-int(N))))
 
-	low := math.MaxFloat64
+	low := T(math.MaxInt64)
 	low_pos := -1
 	for j := start; j < end; j++ {
 		v := this.data.Get(j)
@@ -70,40 +70,40 @@ func (this llvbars) BuildValueAt(index int) float64 {
 		}
 	}
 
-	return float64(end - 1 - low_pos)
+	return T(end - 1 - low_pos)
 }
 
-func (this *llvbars) UpdateLastValue() {
+func (this *llvbars[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func LLVBARS(data Value, N Value) Value {
+func LLVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
-		return Scalar(0)
+		return Scalar(T(0))
 	}
 
-	ret := &llvbars{
-		funcbase: funcbase{
+	ret := &llvbars[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // HHV
 
-type hhv struct {
-	funcbase
-	N Value
+type hhv[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this hhv) BuildValueAt(index int) float64 {
+func (this hhv[T]) BuildValueAt(index int) T {
 	N := this.N.Get(index)
-	if math.IsNaN(N) || N <= 0 {
-		return math.NaN()
+	if math.IsNaN(float64(N)) || N <= 0 {
+		return T(math.NaN())
 	}
 	end := index + 1
 	start := int(_math.Max(0, int64(end-int(N))))
@@ -111,36 +111,36 @@ func (this hhv) BuildValueAt(index int) float64 {
 	return max(this.data, start, end)
 }
 
-func (this *hhv) UpdateLastValue() {
+func (this *hhv[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func HHV(data Value, N Value) Value {
+func HHV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
-	ret := &hhv{
-		funcbase: funcbase{
+	ret := &hhv[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // HHVBARS
 
-type hhvbars struct {
-	intfuncbase
-	N Value
+type hhvbars[T float32 | float64] struct {
+	intfuncbase[T]
+	N Value[T]
 }
 
-func (this hhvbars) BuildValueAt(index int) float64 {
+func (this hhvbars[T]) BuildValueAt(index int) T {
 	N := this.N.Get(index)
-	if math.IsNaN(N) || N <= 0 {
-		return float64(index)
+	if math.IsNaN(float64(N)) || N <= 0 {
+		return T(index)
 	}
 
 	end := index + 1
@@ -156,19 +156,19 @@ func (this hhvbars) BuildValueAt(index int) float64 {
 		}
 	}
 
-	return float64(end - 1 - high_pos)
+	return T(end - 1 - high_pos)
 }
 
-func (this *hhvbars) UpdateLastValue() {
+func (this *hhvbars[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func HHVBARS(data Value, N Value) Value {
+func HHVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
-		return Scalar(0)
+		return Scalar(T(0))
 	}
-	ret := &hhvbars{
-		intfuncbase: intfuncbase{
+	ret := &hhvbars[T]{
+		intfuncbase: intfuncbase[T]{
 			data: data,
 		},
 		N: N,
@@ -180,22 +180,22 @@ func HHVBARS(data Value, N Value) Value {
 
 // HHVLLV
 
-type hhvllv struct {
-	funcbase
-	T  Value
-	N1 Value
-	N2 Value
+type hhvllv[R float32 | float64] struct {
+	funcbase[R]
+	T  Value[R]
+	N1 Value[R]
+	N2 Value[R]
 }
 
-func (this hhvllv) BuildValueAt(index int) float64 {
+func (this hhvllv[R]) BuildValueAt(index int) R {
 	T := this.T.Get(index)
 	N1 := this.N1.Get(index)
 	N2 := this.N2.Get(index)
-	if math.IsNaN(N1) || N1 < 0 {
-		return math.NaN()
+	if math.IsNaN(float64(N1)) || N1 < 0 {
+		return R(math.NaN())
 	}
-	if math.IsNaN(N2) || N2 < 0 {
-		return math.NaN()
+	if math.IsNaN(float64(N2)) || N2 < 0 {
+		return R(math.NaN())
 	}
 
 	var start int = 0
@@ -217,37 +217,37 @@ func (this hhvllv) BuildValueAt(index int) float64 {
 	return min(this.data, start, end)
 }
 
-func (this *hhvllv) UpdateLastValue() {
+func (this *hhvllv[R]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func HHVLLV(data Value, T Value, N1 Value, N2 Value) Value {
+func HHVLLV[R float32 | float64](data Value[R], T Value[R], N1 Value[R], N2 Value[R]) Value[R] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
-	ret := &hhvllv{
-		funcbase: funcbase{
+	ret := &hhvllv[R]{
+		funcbase: funcbase[R]{
 			data: data,
 		},
 		T:  T,
 		N1: N1,
 		N2: N2,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]R, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // STD
 
-type std struct {
-	funcbase
-	N Value
+type std[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this std) BuildValueAt(index int) float64 {
-	if math.IsNaN(this.N.Get(index)) {
-		return math.NaN()
+func (this std[T]) BuildValueAt(index int) T {
+	if math.IsNaN(float64(this.N.Get(index))) {
+		return T(math.NaN())
 	}
 	N := int(this.N.Get(index))
 	if index < N-1 {
@@ -259,46 +259,46 @@ func (this std) BuildValueAt(index int) float64 {
 
 	average := ma_(this.data, start, end)
 
-	sum_ := 0.0
+	sum_ := T(0.0)
 	for i := start; i < end; i++ {
 		v := this.data.Get(i)
 		diff := v - average
 		sum_ += diff * diff
 	}
 
-	return math.Sqrt(sum_ / float64(end-start))
+	return T(math.Sqrt(float64(sum_) / float64(end-start)))
 }
 
-func (this *std) UpdateLastValue() {
+func (this *std[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func STD(data Value, N Value) Value {
+func STD[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
-		return Scalar(0)
+		return Scalar(T(0))
 	}
 
-	ret := &std{
-		funcbase: funcbase{
+	ret := &std[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // AVEDEV
 
-type avedev struct {
-	funcbase
-	N Value
+type avedev[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this avedev) BuildValueAt(index int) float64 {
-	if math.IsNaN(this.N.Get(index)) {
-		return math.NaN()
+func (this avedev[T]) BuildValueAt(index int) T {
+	if math.IsNaN(float64(this.N.Get(index))) {
+		return T(math.NaN())
 	}
 	N := int(this.N.Get(index))
 	if index < N-1 {
@@ -314,94 +314,94 @@ func (this avedev) BuildValueAt(index int) float64 {
 	vsum := 0.0
 	for i := start; i < end; i++ {
 		v := this.data.Get(i)
-		diff := math.Abs(v - average)
+		diff := math.Abs(float64(v - average))
 		vsum += diff
 	}
 
-	return vsum / float64(count)
+	return T(vsum / float64(count))
 }
 
-func (this *avedev) UpdateLastValue() {
+func (this *avedev[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func AVEDEV(data Value, N Value) Value {
+func AVEDEV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
-		return Scalar(0)
+		return Scalar(T(0))
 	}
 
-	ret := &avedev{
-		funcbase: funcbase{
+	ret := &avedev[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // SUM
 
-type sumf struct {
-	funcbase
-	N Value
+type sumf[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this sumf) BuildValueAt(index int) float64 {
-	if math.IsNaN(this.N.Get(index)) {
-		return math.NaN()
+func (this sumf[T]) BuildValueAt(index int) T {
+	if math.IsNaN(float64(this.N.Get(index))) {
+		return T(math.NaN())
 	}
 	end := index + 1
 	start := int(_math.Max(0, int64(end-int(this.N.Get(index)))))
 	return sum(this.data, start, end)
 }
 
-func (this *sumf) UpdateLastValue() {
+func (this *sumf[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func SUM(data Value, N Value) Value {
+func SUM[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0) * N.Get(0))
 	}
 
-	ret := &sumf{
-		funcbase: funcbase{
+	ret := &sumf[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // CROSS
 
-type cross struct {
-	binaryfuncbase
+type cross[T float32 | float64] struct {
+	binaryfuncbase[T]
 }
 
-func BuildCrossValueAt(data, data1 Value, index int) float64 {
+func BuildCrossValueAt[T float32 | float64](data, data1 Value[T], index int) T {
 	if index == 0 {
 		return 0
 	}
 
-	return iif(data.Get(index-1) < data1.Get(index-1) && data.Get(index) >= data1.Get(index), 1, 0)
+	return iif[T](data.Get(index-1) < data1.Get(index-1) && data.Get(index) >= data1.Get(index), 1, 0)
 }
 
-func (this cross) Get(index int) float64 {
+func (this cross[T]) Get(index int) T {
 	return BuildCrossValueAt(this.data, this.data1, index)
 }
 
-func CROSS(data, data1 Value) Value {
+func CROSS[T float32 | float64](data, data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
-		return Scalar(0)
+		return Scalar(T(0))
 	}
-	ret := &cross{
-		binaryfuncbase: binaryfuncbase{
-			simplefuncbase: simplefuncbase{
+	ret := &cross[T]{
+		binaryfuncbase: binaryfuncbase[T]{
+			simplefuncbase: simplefuncbase[T]{
 				data: data,
 			},
 			data1: data1,
@@ -412,14 +412,14 @@ func CROSS(data, data1 Value) Value {
 
 // COUNT
 
-type count struct {
-	funcbase
-	N Value
+type count[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this count) BuildValueAt(index int) float64 {
-	if math.IsNaN(this.N.Get(index)) {
-		return math.NaN()
+func (this count[T]) BuildValueAt(index int) T {
+	if math.IsNaN(float64(this.N.Get(index))) {
+		return T(math.NaN())
 	}
 	N := int(this.N.Get(index))
 
@@ -434,51 +434,51 @@ func (this count) BuildValueAt(index int) float64 {
 		}
 	}
 
-	return float64((c))
+	return T(c)
 }
 
-func (this *count) UpdateLastValue() {
+func (this *count[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func COUNT(data Value, N Value) Value {
+func COUNT[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
-			return Scalar(0)
+			return Scalar(T(0))
 		}
 		return Scalar(N.Get(0))
 	}
 
-	ret := &count{
-		funcbase: funcbase{
+	ret := &count[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // IF
 
-type iff struct {
-	simplefuncbase
-	yesData Value
-	noData  Value
+type iff[T float32 | float64] struct {
+	simplefuncbase[T]
+	yesData Value[T]
+	noData  Value[T]
 }
 
-func (this iff) Get(index int) float64 {
+func (this iff[T]) Get(index int) T {
 	return iif(IsTrue(this.data.Get(index)), this.yesData.Get(index), this.noData.Get(index))
 }
 
-func IF(data, yesData, noData Value) Value {
+func IF[T float32 | float64](data, yesData, noData Value[T]) Value[T] {
 	if data.IsScalar() && yesData.IsScalar() && noData.IsScalar() {
 		return Scalar(iif(IsTrue(data.Get(0)), yesData.Get(0), noData.Get(0)))
 	}
 
-	ret := &iff{
-		simplefuncbase: simplefuncbase{
+	ret := &iff[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 		yesData: yesData,
@@ -489,14 +489,14 @@ func IF(data, yesData, noData Value) Value {
 
 // EVERY
 
-type every struct {
-	funcbase
-	N Value
+type every[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this every) BuildValueAt(index int) float64 {
-	if math.IsNaN(this.N.Get(index)) {
-		return math.NaN()
+func (this every[T]) BuildValueAt(index int) T {
+	if math.IsNaN(float64(this.N.Get(index))) {
+		return T(math.NaN())
 	}
 	N := int(this.N.Get(index))
 
@@ -512,58 +512,58 @@ func (this every) BuildValueAt(index int) float64 {
 	return 1
 }
 
-func (this *every) UpdateLastValue() {
+func (this *every[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func EVERY(data Value, N Value) Value {
+func EVERY[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
-			return Scalar(0)
+			return Scalar(T(0))
 		}
-		return Scalar(1)
+		return Scalar(T(1))
 	}
 
-	ret := &every{
-		funcbase: funcbase{
+	ret := &every[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }
 
 // BARSLAST
 
-type barslast struct {
-	intfuncbase
+type barslast[T float32 | float64] struct {
+	intfuncbase[T]
 }
 
-func (this barslast) BuildValueAt(index int) float64 {
+func (this barslast[T]) BuildValueAt(index int) T {
 	for j := index; j >= 0; j-- {
 		if IsTrue(this.data.Get(j)) {
-			return float64(index - j)
+			return T(index - j)
 		}
 	}
-	return math.NaN()
+	return T(math.NaN())
 }
 
-func (this *barslast) UpdateLastValue() {
+func (this *barslast[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func BARSLAST(data Value) Value {
+func BARSLAST[T float32 | float64](data Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
-			return Scalar(math.NaN())
+			return Scalar(T(math.NaN()))
 		}
-		return Scalar(0)
+		return Scalar(T(0))
 	}
 
-	ret := &barslast{
-		intfuncbase: intfuncbase{
+	ret := &barslast[T]{
+		intfuncbase: intfuncbase[T]{
 			data: data,
 		},
 	}
@@ -582,16 +582,16 @@ func BARSLAST(data Value) Value {
 	return ret
 }
 
-func BARSLASTOLD(data Value) Value {
+func BARSLASTOLD[T float32 | float64](data Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
-			return Scalar(math.NaN())
+			return Scalar(T(math.NaN()))
 		}
-		return Scalar(0)
+		return Scalar(T(0))
 	}
 
-	ret := &barslast{
-		intfuncbase: intfuncbase{
+	ret := &barslast[T]{
+		intfuncbase: intfuncbase[T]{
 			data: data,
 		},
 	}
@@ -602,38 +602,38 @@ func BARSLASTOLD(data Value) Value {
 
 // BARSLASTS
 
-type barslasts struct {
-	intfuncbase
+type barslasts[T float32 | float64] struct {
+	intfuncbase[T]
 	N int
 }
 
-func (this barslasts) BuildValueAt(index int) float64 {
+func (this barslasts[T]) BuildValueAt(index int) T {
 	count := 0
 	for j := index; j >= 0; j-- {
 		if IsTrue(this.data.Get(j)) {
 			count++
 			if count == this.N {
-				return float64(index - j)
+				return T(index - j)
 			}
 		}
 	}
-	return math.NaN()
+	return T(math.NaN())
 }
 
-func (this *barslasts) UpdateLastValue() {
+func (this *barslasts[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func BARSLASTS(data Value, N Value) Value {
+func BARSLASTS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
-			return Scalar(math.NaN())
+			return Scalar(T(math.NaN()))
 		}
-		return Scalar(0)
+		return Scalar(T(0))
 	}
 
-	ret := &barslasts{
-		intfuncbase: intfuncbase{
+	ret := &barslasts[T]{
+		intfuncbase: intfuncbase[T]{
 			data: data,
 		},
 		N: int(N.Get(0)),
@@ -641,7 +641,7 @@ func BARSLASTS(data Value, N Value) Value {
 	ret.Values = make([]int, data.Len())
 	for i := 0; i < data.Len(); i++ {
 		v := ret.BuildValueAt(i)
-		if math.IsNaN(v) {
+		if math.IsNaN(float64(v)) {
 			ret.Values[i] = intNaN
 		} else {
 			ret.Values[i] = int(v)
@@ -652,20 +652,20 @@ func BARSLASTS(data Value, N Value) Value {
 
 // BARSCOUNT
 
-type barscount struct {
-	scalar
-	data Value
+type barscount[T float32 | float64] struct {
+	scalar[T]
+	data Value[T]
 }
 
-func (this barscount) Get(index int) float64 {
-	return float64(this.data.Len())
+func (this barscount[T]) Get(index int) T {
+	return T(this.data.Len())
 }
 
-func BARSCOUNT(data Value) *barscount {
+func BARSCOUNT[T float32 | float64](data Value[T]) *barscount[T] {
 	if data.IsScalar() {
 		panic("BARSCOUNT do not support scalar data")
 	}
-	ret := &barscount{
+	ret := &barscount[T]{
 		data: data,
 	}
 	return ret
@@ -673,26 +673,26 @@ func BARSCOUNT(data Value) *barscount {
 
 // ROUND2
 
-type roundf struct {
-	simplefuncbase
-	N Value
+type roundf[T float32 | float64] struct {
+	simplefuncbase[T]
+	N Value[T]
 }
 
-func (this roundf) Get(index int) float64 {
+func (this roundf[T]) Get(index int) T {
 	return round(this.data.Get(index), int(this.N.Get(index)))
 }
 
-func ROUND2(data Value, N Value) Value {
+func ROUND2[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(round(data.Get(0), int(N.Get(0))))
 	}
 
 	if N != nil {
-		N = Scalar(2)
+		N = Scalar(T(2))
 	}
 
-	ret := &roundf{
-		simplefuncbase: simplefuncbase{
+	ret := &roundf[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 		N: N,
@@ -702,14 +702,14 @@ func ROUND2(data Value, N Value) Value {
 
 // REF
 
-type ref struct {
-	simplefuncbase
-	N Value
+type ref[T float32 | float64] struct {
+	simplefuncbase[T]
+	N Value[T]
 }
 
-func (this ref) Get(index int) float64 {
-	if math.IsNaN(this.N.Get(index)) {
-		return math.NaN()
+func (this ref[T]) Get(index int) T {
+	if math.IsNaN(float64(this.N.Get(index))) {
+		return T(math.NaN())
 	}
 	N := int(this.N.Get(index))
 	if index < N {
@@ -719,13 +719,13 @@ func (this ref) Get(index int) float64 {
 	return this.data.Get(index - N)
 }
 
-func REF(data Value, N Value) Value {
+func REF[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return data
 	}
 
-	ret := &ref{
-		simplefuncbase: simplefuncbase{
+	ret := &ref[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 		N: N,
@@ -735,22 +735,22 @@ func REF(data Value, N Value) Value {
 
 // MIN
 
-type minf struct {
-	simplefuncbase
-	data1 Value
+type minf[T float32 | float64] struct {
+	simplefuncbase[T]
+	data1 Value[T]
 }
 
-func (this minf) Get(index int) float64 {
-	return math.Min(this.data.Get(index), this.data1.Get(index))
+func (this minf[T]) Get(index int) T {
+	return minv(this.data.Get(index), this.data1.Get(index))
 }
 
-func MIN(data Value, data1 Value) Value {
+func MIN[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
-		return Scalar(math.Min(data.Get(0), data1.Get(0)))
+		return Scalar(minv(data.Get(0), data1.Get(0)))
 	}
 
-	ret := &minf{
-		simplefuncbase: simplefuncbase{
+	ret := &minf[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 		data1: data1,
@@ -760,22 +760,22 @@ func MIN(data Value, data1 Value) Value {
 
 // MAX
 
-type maxf struct {
-	simplefuncbase
-	data1 Value
+type maxf[T float32 | float64] struct {
+	simplefuncbase[T]
+	data1 Value[T]
 }
 
-func (this maxf) Get(index int) float64 {
-	return math.Max(this.data.Get(index), this.data1.Get(index))
+func (this maxf[T]) Get(index int) T {
+	return maxv(this.data.Get(index), this.data1.Get(index))
 }
 
-func MAX(data Value, data1 Value) Value {
+func MAX[T float32 | float64](data Value[T], data1 Value[T]) Value[T] {
 	if data.IsScalar() && data1.IsScalar() {
-		return Scalar(math.Max(data.Get(0), data1.Get(0)))
+		return Scalar(maxv(data.Get(0), data1.Get(0)))
 	}
 
-	ret := &maxf{
-		simplefuncbase: simplefuncbase{
+	ret := &maxf[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 		data1: data1,
@@ -785,20 +785,20 @@ func MAX(data Value, data1 Value) Value {
 
 // ABS
 
-type absf struct {
-	simplefuncbase
+type absf[T float32 | float64] struct {
+	simplefuncbase[T]
 }
 
-func (this absf) Get(index int) float64 {
-	return math.Abs(this.data.Get(index))
+func (this absf[T]) Get(index int) T {
+	return T(math.Abs(float64(this.data.Get(index))))
 }
 
-func ABS(data Value) Value {
+func ABS[T float32 | float64](data Value[T]) Value[T] {
 	if data.IsScalar() {
-		return Scalar(math.Abs(data.Get(0)))
+		return Scalar(T(math.Abs(float64(data.Get(0)))))
 	}
-	ret := &absf{
-		simplefuncbase: simplefuncbase{
+	ret := &absf[T]{
+		simplefuncbase: simplefuncbase[T]{
 			data: data,
 		},
 	}
@@ -807,25 +807,25 @@ func ABS(data Value) Value {
 
 // SLOPE
 
-type slopef struct {
-	funcbase
-	N Value
+type slopef[T float32 | float64] struct {
+	funcbase[T]
+	N Value[T]
 }
 
-func (this slopef) BuildValueAt(index int) float64 {
-	if math.IsNaN(this.N.Get(index)) {
-		return math.NaN()
+func (this slopef[T]) BuildValueAt(index int) T {
+	if math.IsNaN(float64(this.N.Get(index))) {
+		return T(math.NaN())
 	}
 	N := int(this.N.Get(index))
 	if index < N-1 {
 		return 0
 	}
 
-	x := make([]float64, N)
-	y := make([]float64, N)
+	x := make([]T, N)
+	y := make([]T, N)
 
 	for i := 0; i < N; i++ {
-		x[i] = float64((i + 1))
+		x[i] = T(i + 1)
 		y[i] = this.data.Get(index + 1 - (N - i))
 	}
 
@@ -834,22 +834,22 @@ func (this slopef) BuildValueAt(index int) float64 {
 	return slope
 }
 
-func (this *slopef) UpdateLastValue() {
+func (this *slopef[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
-func SLOPE(data Value, N Value) Value {
+func SLOPE[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
-		return Scalar(0)
+		return Scalar(T(0))
 	}
 
-	ret := &slopef{
-		funcbase: funcbase{
+	ret := &slopef[T]{
+		funcbase: funcbase[T]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]float64, data.Len())
+	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
 	return ret
 }

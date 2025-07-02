@@ -2,7 +2,6 @@ package easylang
 
 import (
 	"fmt"
-	"github.com/stephenlyu/goformula/formulalibrary/base/formula"
 	"strings"
 )
 
@@ -86,8 +85,7 @@ type RefData struct {
 type Context struct {
 	sequence int
 
-	formulaManager formula.FormulaManager
-	numberingVar   bool
+	numberingVar bool
 
 	params   []string
 	paramMap map[string]expression
@@ -124,10 +122,6 @@ func newContext() *Context {
 	}
 }
 
-func (this *Context) SetFormulaManager(formulaManager formula.FormulaManager) {
-	this.formulaManager = formulaManager
-}
-
 func (this *Context) SetNumberingVar(v bool) {
 	this.numberingVar = v
 }
@@ -154,26 +148,15 @@ func (this *Context) newAnonymousVarName() string {
 }
 
 func (this *Context) isReferenceSupport(formulaName string, refVarName string) bool {
-	if this.formulaManager == nil {
-		return true
-	}
-	formulaName = strings.ToUpper(formulaName)
-	refVarName = strings.ToUpper(refVarName)
-	return this.formulaManager.CanSupportVar(formulaName, refVarName)
+	return true
 }
 
 func (this *Context) isPeriodSupport(period string) bool {
-	if this.formulaManager == nil {
-		return true
-	}
-	return this.formulaManager.CanSupportPeriod(period)
+	return true
 }
 
 func (this *Context) isSecuritySupport(code string) bool {
-	if this.formulaManager == nil {
-		return true
-	}
-	return this.formulaManager.CanSupportSecurity(code)
+	return true
 }
 
 func (this *Context) refFormula(formulaName string, code string, period string) {
