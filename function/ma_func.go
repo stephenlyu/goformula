@@ -11,16 +11,23 @@ type ma[T float32 | float64] struct {
 	N Value[T]
 }
 
+// 假定按照index递增的顺序依次调用，计算index时，index-1已经计算，可以从this.data[index-1]访问到
 func (this ma[T]) BuildValueAt(index int) T {
 	n := int(this.N.Get(index))
 	if index < n-1 {
 		return T(NaN)
 	}
+	if index == n-1 {
+		end := index + 1
+		start := int(math.Max(0, int64(end-n)))
+		return ma_(this.data, start, end)
+	}
 
-	end := index + 1
-	start := int(math.Max(0, int64(end-n)))
-
-	return ma_[T](this.data, start, end)
+	prev := this.Values[index-1]
+	N := this.N.Get(index)
+	sum := prev * N
+	sum += this.data.Get(index) - this.data.Get(index-n)
+	return sum / N
 }
 
 func (this *ma[T]) UpdateLastValue() {
