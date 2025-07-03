@@ -22,16 +22,16 @@ func (this funcbase[T]) ListOfData() []Value[T] {
 	return []Value[T]{this.data}
 }
 
-type intfuncbase[T float32 | float64] struct {
-	intVector[T]
+type intfuncbase[T float32 | float64, I uint32 | uint16] struct {
+	uintVector[T, I]
 	data Value[T]
 }
 
-func (this intfuncbase[T]) Data() Value[T] {
+func (this intfuncbase[T, I]) Data() Value[T] {
 	return this.data
 }
 
-func (this intfuncbase[T]) ListOfData() []Value[T] {
+func (this intfuncbase[T, I]) ListOfData() []Value[T] {
 	return []Value[T]{this.data}
 }
 
@@ -66,13 +66,13 @@ func initValues[T float32 | float64](this function[T], values []T) {
 	}
 }
 
-func initIntValues[T float32 | float64](this function[T], values []int) {
+func initIntValues[T float32 | float64, I uint32 | uint16](this function[T], values []I) {
 	for i := 0; i < len(values); i++ {
 		v := this.BuildValueAt(i)
 		if math.IsNaN(float64(v)) {
-			values[i] = intNaN
+			values[i] = I(uintNaN)
 		} else {
-			values[i] = int(v)
+			values[i] = I(v)
 		}
 	}
 }

@@ -133,7 +133,7 @@ func HHV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 // HHVBARS
 
 type hhvbars[T float32 | float64] struct {
-	intfuncbase[T]
+	intfuncbase[T, UintVecValueType]
 	N Value[T]
 }
 
@@ -168,12 +168,12 @@ func HHVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 		return Scalar(T(0))
 	}
 	ret := &hhvbars[T]{
-		intfuncbase: intfuncbase[T]{
+		intfuncbase: intfuncbase[T, UintVecValueType]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]int, data.Len())
+	ret.Values = make([]UintVecValueType, data.Len())
 	initIntValues(ret, ret.Values)
 	return ret
 }
@@ -538,7 +538,7 @@ func EVERY[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 // BARSLAST
 
 type barslast[T float32 | float64] struct {
-	intfuncbase[T]
+	intfuncbase[T, UintVecValueType]
 }
 
 func (this barslast[T]) BuildValueAt(index int) T {
@@ -563,20 +563,20 @@ func BARSLAST[T float32 | float64](data Value[T]) Value[T] {
 	}
 
 	ret := &barslast[T]{
-		intfuncbase: intfuncbase[T]{
+		intfuncbase: intfuncbase[T, UintVecValueType]{
 			data: data,
 		},
 	}
-	ret.Values = make([]int, data.Len())
+	ret.Values = make([]UintVecValueType, data.Len())
 	lastTruePos := -1
 	for i := 0; i < data.Len(); i++ {
 		if IsTrue(data.Get(i)) {
 			lastTruePos = i
 			ret.Values[i] = 0
 		} else if lastTruePos == -1 {
-			ret.Values[i] = intNaN
+			ret.Values[i] = UintVecValueType(uintNaN)
 		} else {
-			ret.Values[i] = i - lastTruePos
+			ret.Values[i] = UintVecValueType(i - lastTruePos)
 		}
 	}
 	return ret
@@ -591,11 +591,11 @@ func BARSLASTOLD[T float32 | float64](data Value[T]) Value[T] {
 	}
 
 	ret := &barslast[T]{
-		intfuncbase: intfuncbase[T]{
+		intfuncbase: intfuncbase[T, UintVecValueType]{
 			data: data,
 		},
 	}
-	ret.Values = make([]int, data.Len())
+	ret.Values = make([]UintVecValueType, data.Len())
 	initIntValues(ret, ret.Values)
 	return ret
 }
@@ -603,7 +603,7 @@ func BARSLASTOLD[T float32 | float64](data Value[T]) Value[T] {
 // BARSLASTS
 
 type barslasts[T float32 | float64] struct {
-	intfuncbase[T]
+	intfuncbase[T, UintVecValueType]
 	N int
 }
 
@@ -633,18 +633,18 @@ func BARSLASTS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 
 	ret := &barslasts[T]{
-		intfuncbase: intfuncbase[T]{
+		intfuncbase: intfuncbase[T, UintVecValueType]{
 			data: data,
 		},
 		N: int(N.Get(0)),
 	}
-	ret.Values = make([]int, data.Len())
+	ret.Values = make([]UintVecValueType, data.Len())
 	for i := 0; i < data.Len(); i++ {
 		v := ret.BuildValueAt(i)
 		if math.IsNaN(float64(v)) {
-			ret.Values[i] = intNaN
+			ret.Values[i] = UintVecValueType(uintNaN)
 		} else {
-			ret.Values[i] = int(v)
+			ret.Values[i] = UintVecValueType(v)
 		}
 	}
 	return ret
