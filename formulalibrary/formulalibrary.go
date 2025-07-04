@@ -208,7 +208,6 @@ func (this *FormulaLibrary[T]) cachedFormula(name string, data function.RVectorR
 	key := this.getCacheKey(name, data, args)
 	f, ok := this.formulaCache[key]
 	if ok {
-		log.Infof("use cached formula for %s", name)
 		return f
 	}
 	return nil
