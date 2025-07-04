@@ -12,6 +12,24 @@ type BaseNativeFormula[T float32 | float64] struct {
 	RefValues__   []function.Value[T]
 	DrawActions__ []DrawAction
 	Data__        stockfunc.RVectorReader[T]
+	RefCount      int64
+	id            int64
+}
+
+func (this *BaseNativeFormula[T]) IncRef() {
+	this.RefCount++
+}
+
+func (this *BaseNativeFormula[T]) DecRef() {
+	this.RefCount--
+}
+
+func (this *BaseNativeFormula[T]) SetId(id int64) {
+	this.id = id
+}
+
+func (this *BaseNativeFormula[T]) Id() int64 {
+	return this.id
 }
 
 func (this *BaseNativeFormula[T]) Period() period.Period {

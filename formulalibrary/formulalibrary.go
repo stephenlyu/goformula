@@ -2,6 +2,9 @@ package formulalibrary
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -11,6 +14,7 @@ import (
 	"github.com/stephenlyu/goformula/formulalibrary/native"
 	"github.com/stephenlyu/goformula/formulalibrary/native/nativefactory"
 	"github.com/stephenlyu/goformula/stockfunc/function"
+	"github.com/stephenlyu/tds/util"
 	"github.com/z-ray/log"
 )
 
@@ -21,6 +25,9 @@ type FormulaChangeListener interface {
 type FormulaLibrary[T float32 | float64] struct {
 	formulaFactories map[string]FormulaCreatorFactory[T]
 	lock             sync.Mutex
+
+	formulaCache map[string]formula.Formula[T]
+	idSequence   int64
 
 	nativeFormulas []native.NativeFormula[T]
 
@@ -64,6 +71,7 @@ func (this *FormulaLibrary[T]) GetDataLibrary() datalibrary.DataLibrary[T] {
 func (this *FormulaLibrary[T]) Reset() {
 	this.formulaFactories = make(map[string]FormulaCreatorFactory[T])
 	this.formulaChangedListeners = []FormulaChangeListener{}
+	this.formulaCache = make(map[string]formula.Formula[T])
 	this.debug = false
 	this.loadNative = true
 	this.loadLua = true
@@ -182,6 +190,56 @@ func (this *FormulaLibrary[T]) CanSupportSecurity(code string) bool {
 	return true
 }
 
+func (this *FormulaLibrary[T]) getCacheKey(name string, data function.RVectorReader[T], args []float64) string {
+	va := reflect.ValueOf(data)
+	ptr := va.Pointer()
+	parts := []string{
+		name,
+		fmt.Sprintf("%x", ptr),
+	}
+	for _, arg := range args {
+		parts = append(parts, util.FormatFloat64(arg))
+	}
+
+	return strings.Join(parts, "-")
+}
+
+func (this *FormulaLibrary[T]) cachedFormula(name string, data function.RVectorReader[T], args []float64) formula.Formula[T] {
+	key := this.getCacheKey(name, data, args)
+	f, ok := this.formulaCache[key]
+	if ok {
+		log.Infof("use cached formula for %s", name)
+		return f
+	}
+	return nil
+}
+
+func (this *FormulaLibrary[T]) cacheFormula(name string, data function.RVectorReader[T], args []float64,
+	formula formula.Formula[T]) {
+	key := this.getCacheKey(name, data, args)
+	this.formulaCache[key] = formula
+}
+
+func (this *FormulaLibrary[T]) releaseFormula(f formula.Formula[T]) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	var foundKey string
+	for key, f1 := range this.formulaCache {
+		if f1.Id() == f.Id() {
+			foundKey = key
+			break
+		}
+	}
+	if foundKey != "" {
+		delete(this.formulaCache, foundKey)
+	}
+}
+
+func (this *FormulaLibrary[T]) getId() int64 {
+	this.idSequence++
+	return this.idSequence
+}
+
 func (this *FormulaLibrary[T]) NewFormula(name string, data function.RVectorReader[T]) formula.Formula[T] {
 	factory, ok := this.formulaFactories[name]
 	if !ok {
@@ -199,10 +257,20 @@ func (this *FormulaLibrary[T]) NewFormulaWithArgs(name string, data function.RVe
 		panic(errors.New("公式不存在"))
 	}
 
+	f := this.cachedFormula(name, data, args)
+	if f != nil {
+		f.IncRef()
+		return f
+	}
+
 	creator := factory.CreateFormulaCreator(args)
 	err, formula := creator.CreateFormula(data)
 	if err != nil {
 		panic(err)
 	}
+	this.cacheFormula(name, data, args, formula)
+	formula.SetId(this.getId())
+	formula.IncRef()
+	runtime.SetFinalizer(formula, this.releaseFormula)
 	return formula
 }

@@ -107,6 +107,12 @@ type DrawText[T float32 | float64] interface {
 type Formula[T float32 | float64] interface {
 	FormulaMeta
 
+	SetId(id int64)
+	Id() int64
+
+	IncRef()
+	DecRef()
+
 	Period() period.Period
 	Len() int
 	UpdateLastValue()

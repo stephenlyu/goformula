@@ -204,11 +204,12 @@ func (generator *GoGenerator) getReferencedFormulaDefinitions(indent string) str
 		return ""
 	}
 
-	lines := make([]string, len(generator.context.refFormulas))
+	lines := make([]string, len(generator.context.refFormulas)*2)
 	for i, f := range generator.context.refFormulas {
 		name := strings.ToUpper(f.name)
 		varName := getRefDataVarName(f.code, f.period)
-		lines[i] = fmt.Sprintf(`%so.%s = provider.NewFormula("%s", o.%s)`, indent, f.String(), name, strings.Replace(varName, "__data_code0___", "Data__", -1))
+		lines[2*i] = fmt.Sprintf(`%so.%s = provider.NewFormula("%s", o.%s)`, indent, f.String(), name, strings.Replace(varName, "__data_code0___", "Data__", -1))
+		lines[2*i+1] = fmt.Sprintf(`%so.%s.IncRef()`, indent, f.String())
 	}
 	return strings.Join(lines, "\n")
 }
