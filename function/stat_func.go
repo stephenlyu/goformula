@@ -47,7 +47,7 @@ func LLV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 // LLVBARS
 
 type llvbars[T float32 | float64] struct {
-	funcbase[T]
+	intfuncbase[T, UintVecValueType]
 	N Value[T]
 }
 
@@ -83,13 +83,13 @@ func LLVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 
 	ret := &llvbars[T]{
-		funcbase: funcbase[T]{
+		intfuncbase: intfuncbase[T, UintVecValueType]{
 			data: data,
 		},
 		N: N,
 	}
-	ret.Values = make([]T, data.Len())
-	initValues(ret, ret.Values)
+	ret.Values = make([]UintVecValueType, data.Len())
+	initIntValues(ret, ret.Values)
 	return ret
 }
 
