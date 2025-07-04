@@ -1,8 +1,6 @@
 package function
 
-import (
-	"github.com/chanxuehong/util/math"
-)
+import "math"
 
 // MA - moving average
 
@@ -17,13 +15,13 @@ func (this ma[T]) BuildValueAt(index int) T {
 	if index < n-1 {
 		return T(NaN)
 	}
-	if index == n-1 {
+	prev := this.Values[index-1]
+	if index == n-1 || math.IsNaN(float64(prev)) {
 		end := index + 1
-		start := int(math.Max(0, int64(end-n)))
+		start := int(end - n)
 		return ma_(this.data, start, end)
 	}
 
-	prev := this.Values[index-1]
 	N := this.N.Get(index)
 	sum := prev * N
 	sum += this.data.Get(index) - this.data.Get(index-n)
