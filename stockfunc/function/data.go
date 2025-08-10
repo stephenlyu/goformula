@@ -75,6 +75,13 @@ func (this *rVector[T]) Append(v Record[T]) {
 	this.Values = append(this.Values, v)
 }
 
+func (this *rVector[T]) LTrim(count int) {
+	if len(this.Values) < count {
+		panic("count is greater than vector length")
+	}
+	this.Values = append([]Record[T](nil), this.Values[count:]...)
+}
+
 func (this *rVector[T]) Update(offset int, values []Record[T]) {
 	this.lock.Lock()
 	defer this.lock.Unlock()

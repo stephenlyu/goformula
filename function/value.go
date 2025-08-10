@@ -13,6 +13,7 @@ type Value[T float32 | float64] interface {
 	Set(index int, v T)
 	UpdateLastValue()
 	Append(v T)
+	LTrim(count int) // 移除左侧的count个元素
 }
 
 type scalar[T float32 | float64] struct {
@@ -40,6 +41,10 @@ func (this scalar[T]) Append(v T) {
 }
 
 func (this scalar[T]) UpdateLastValue() {
+}
+
+func (this scalar[T]) LTrim(count int) {
+	// Do nothing
 }
 
 func Scalar[T float32 | float64](v T) *scalar[T] {
@@ -77,6 +82,14 @@ func (this vector[T]) UpdateLastValue() {
 
 func (this *vector[T]) Append(v T) {
 	this.Values = append(this.Values, v)
+}
+
+func (this *vector[T]) LTrim(count int) {
+	if len(this.Values) < count {
+		panic("count is greater than vector length")
+	}
+
+	this.Values = append([]T{}, this.Values[count:]...)
 }
 
 func (this vector[T]) String() string {
@@ -127,6 +140,14 @@ func (this uintVector[T, I]) UpdateLastValue() {
 
 func (this *uintVector[T, I]) Append(v T) {
 	this.Values = append(this.Values, I(v))
+}
+
+func (this *uintVector[T, I]) LTrim(count int) {
+	if len(this.Values) < count {
+		panic("count is greater than vector length")
+	}
+
+	this.Values = append([]I{}, this.Values[count:]...)
 }
 
 func (this uintVector[T, I]) String() string {

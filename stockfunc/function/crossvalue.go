@@ -44,6 +44,10 @@ func (this *crossValue[T]) UpdateLastValue() {
 	this.value.UpdateLastValue()
 }
 
+func (this *crossValue[T]) LTrim(count int) {
+	this.value.LTrim(count)
+}
+
 func (this *crossValue[T]) Append(v T) {
 	panic(errors.New("Append not supported!\n"))
 }

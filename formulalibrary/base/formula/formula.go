@@ -116,6 +116,7 @@ type Formula[T float32 | float64] interface {
 	Period() period.Period
 	Len() int
 	UpdateLastValue()
+	LTrim(count int)
 	Get(index int) []T
 	Ref(offset int) []T
 	GetVarValue(varName string) function.Value[T]

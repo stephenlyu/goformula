@@ -431,6 +431,36 @@ func (generator *GoGenerator) updateLastValueCodes(indent string, formulaName st
 	return strings.Join(lines, "\n")
 }
 
+func (generator *GoGenerator) ltrimCodes(indent string, formulaName string) string {
+	lines := []string{}
+
+	// Add Reference Formula UpdateLastValue Calls.
+	for _, f := range generator.context.refFormulas {
+		lines = append(lines, fmt.Sprintf("%sgenerator.%s.LTrim(count)", indent, f.String()))
+	}
+
+	// Add Var UpdateLastValue Calls
+	for _, varName := range generator.context.definedVars {
+		expr, ok := generator.context.definedVarMap[varName]
+		if !ok {
+			continue
+		}
+		switch expr.(type) {
+		case *constantexpr:
+		case *assignexpr:
+		case *paramexpr:
+		case *stringexpr:
+		case *referenceexpr:
+		default:
+			if !expr.IsValid() || expr.IsVoid() {
+				continue
+			}
+			lines = append(lines, fmt.Sprintf("%sgenerator.%s.LTrim(count)", indent, expr.DefinedName()))
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
 func (generator *GoGenerator) dumpStateCodes(indent string, formulaName string) string {
 	lines := []string{}
 
@@ -545,6 +575,10 @@ func (generator *%s[T]) UpdateLastValue() {
 %s
 }
 
+func (generator *%s[T]) LTrim(count int) {
+%s
+}
+
 func (generator *%s[T]) DumpState() {
 	for i := 0; i < generator.Data__.Len(); i++ {
 		r := generator.Data__.Get(i)
@@ -587,6 +621,8 @@ func init() {
 		generator.refValuesCodes(),
 		strings.ToLower(name),
 		generator.updateLastValueCodes(indent, name),
+		strings.ToLower(name),
+		generator.ltrimCodes(indent, name),
 		strings.ToLower(name),
 		generator.dumpStateCodes(indent, name),
 		name, name,

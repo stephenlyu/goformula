@@ -29,6 +29,9 @@ func (this fieldbase[T]) Append(v T) {
 	panic(errors.New("Not Implemented"))
 }
 
+func (this fieldbase[T]) LTrim(count int) {
+}
+
 // CLOSE
 
 type close[T float32 | float64] struct {

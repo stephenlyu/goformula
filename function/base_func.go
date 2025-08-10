@@ -104,6 +104,9 @@ func (this *simplefuncbase[T]) Append(v T) {
 	panic("Not implemented")
 }
 
+func (this *simplefuncbase[T]) LTrim(count int) {
+}
+
 type binaryfuncbase[T float32 | float64] struct {
 	simplefuncbase[T]
 	data1 Value[T]
