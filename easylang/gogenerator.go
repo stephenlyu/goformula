@@ -406,7 +406,7 @@ func (generator *GoGenerator) updateLastValueCodes(indent string, formulaName st
 
 	// Add Reference Formula UpdateLastValue Calls.
 	for _, f := range generator.context.refFormulas {
-		lines = append(lines, fmt.Sprintf("%sgenerator.%s.UpdateLastValue()", indent, f.String()))
+		lines = append(lines, fmt.Sprintf("%sformula.%s.UpdateLastValue()", indent, f.String()))
 	}
 
 	// Add Var UpdateLastValue Calls
@@ -425,7 +425,32 @@ func (generator *GoGenerator) updateLastValueCodes(indent string, formulaName st
 			if !expr.IsValid() || expr.IsVoid() {
 				continue
 			}
-			lines = append(lines, fmt.Sprintf("%sgenerator.%s.UpdateLastValue()", indent, expr.DefinedName()))
+			lines = append(lines, fmt.Sprintf("%sformula.%s.UpdateLastValue()", indent, expr.DefinedName()))
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+func (generator *GoGenerator) destroyCodes(indent string, formulaName string) string {
+	lines := []string{}
+
+	// Add Var UpdateLastValue Calls
+	for _, varName := range generator.context.definedVars {
+		expr, ok := generator.context.definedVarMap[varName]
+		if !ok {
+			continue
+		}
+		switch expr.(type) {
+		case *constantexpr:
+		case *assignexpr:
+		case *paramexpr:
+		case *stringexpr:
+		case *referenceexpr:
+		default:
+			if !expr.IsValid() || expr.IsVoid() {
+				continue
+			}
+			lines = append(lines, fmt.Sprintf("%sformula.%s.DecRef()", indent, expr.DefinedName()))
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -436,7 +461,7 @@ func (generator *GoGenerator) ltrimCodes(indent string, formulaName string) stri
 
 	// Add Reference Formula UpdateLastValue Calls.
 	for _, f := range generator.context.refFormulas {
-		lines = append(lines, fmt.Sprintf("%sgenerator.%s.LTrim(count)", indent, f.String()))
+		lines = append(lines, fmt.Sprintf("%sformula.%s.LTrim(count)", indent, f.String()))
 	}
 
 	// Add Var UpdateLastValue Calls
@@ -455,7 +480,7 @@ func (generator *GoGenerator) ltrimCodes(indent string, formulaName string) stri
 			if !expr.IsValid() || expr.IsVoid() {
 				continue
 			}
-			lines = append(lines, fmt.Sprintf("%sgenerator.%s.LTrim(count)", indent, expr.DefinedName()))
+			lines = append(lines, fmt.Sprintf("%sformula.%s.LTrim(count)", indent, expr.DefinedName()))
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -480,7 +505,7 @@ func (generator *GoGenerator) dumpStateCodes(indent string, formulaName string) 
 		switch expr.(type) {
 		case *constantexpr:
 		case *assignexpr:
-			lines = append(lines, fmt.Sprintf(`%s%sfmt.Printf("%s: %%.03f ", generator.%s.Get(i))`,
+			lines = append(lines, fmt.Sprintf(`%s%sfmt.Printf("%s: %%.03f ", formula.%s.Get(i))`,
 				indent, indent, expr.DefinedName(), expr.DefinedName()))
 		case *paramexpr:
 		case *stringexpr:
@@ -571,17 +596,21 @@ func New%s[T float32 | float64](
 	return o
 }
 
-func (generator *%s[T]) UpdateLastValue() {
+func (formula *%s[T]) UpdateLastValue() {
 %s
 }
 
-func (generator *%s[T]) LTrim(count int) {
+func (formula *%s[T]) Destroy() {
 %s
 }
 
-func (generator *%s[T]) DumpState() {
-	for i := 0; i < generator.Data__.Len(); i++ {
-		r := generator.Data__.Get(i)
+func (formula *%s[T]) LTrim(count int) {
+%s
+}
+
+func (formula *%s[T]) DumpState() {
+	for i := 0; i < formula.Data__.Len(); i++ {
+		r := formula.Data__.Get(i)
 		fmt.Printf("date: %%s ", r.GetDate())
 		// Dump Var Start
 %s
@@ -621,6 +650,8 @@ func init() {
 		generator.refValuesCodes(),
 		strings.ToLower(name),
 		generator.updateLastValueCodes(indent, name),
+		strings.ToLower(name),
+		generator.destroyCodes(indent, name),
 		strings.ToLower(name),
 		generator.ltrimCodes(indent, name),
 		strings.ToLower(name),

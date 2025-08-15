@@ -14,6 +14,9 @@ type Value[T float32 | float64] interface {
 	UpdateLastValue()
 	Append(v T)
 	LTrim(count int) // 移除左侧的count个元素
+	IncRef()
+	DecRef()
+	GetCacheKey() string
 }
 
 type scalar[T float32 | float64] struct {
@@ -47,12 +50,38 @@ func (this scalar[T]) LTrim(count int) {
 	// Do nothing
 }
 
+func (this *scalar[T]) IncRef() {
+}
+
+func (this *scalar[T]) DecRef() {
+}
+
+func (this *scalar[T]) GetCacheKey() string {
+	return ""
+}
+
 func Scalar[T float32 | float64](v T) *scalar[T] {
 	return &scalar[T]{value: v}
 }
 
 type vector[T float32 | float64] struct {
-	Values []T
+	Values   []T
+	refCount uint32
+}
+
+func (this *vector[T]) IncRef() {
+	this.refCount++
+}
+
+func (this *vector[T]) DecRef() {
+	this.refCount--
+	if this.refCount <= 0 {
+		GlobalValueCache.Del(this.GetCacheKey())
+	}
+}
+
+func (this *vector[T]) GetCacheKey() string {
+	return ""
 }
 
 func (this vector[T]) IsScalar() bool {
@@ -103,7 +132,8 @@ func Vector[T float32 | float64](values []T) *vector[T] {
 var uintNaN uint32 = 0xFFFFFFFF
 
 type uintVector[T float32 | float64, I uint32 | uint16] struct {
-	Values []I
+	Values   []I
+	refCount uint32
 }
 
 func (this uintVector[T, I]) IsScalar() bool {
@@ -148,6 +178,21 @@ func (this *uintVector[T, I]) LTrim(count int) {
 	}
 
 	this.Values = append([]I{}, this.Values[count:]...)
+}
+
+func (this *uintVector[T, I]) IncRef() {
+	this.refCount++
+}
+
+func (this *uintVector[T, I]) DecRef() {
+	this.refCount--
+	if this.refCount <= 0 {
+		GlobalValueCache.Del(this.GetCacheKey())
+	}
+}
+
+func (this *uintVector[T, I]) GetCacheKey() string {
+	return ""
 }
 
 func (this uintVector[T, I]) String() string {

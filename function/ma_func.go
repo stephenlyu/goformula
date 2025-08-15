@@ -32,6 +32,10 @@ func (this *ma[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *ma[T]) GetCacheKey() string {
+	return "ma_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func MA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
@@ -39,6 +43,11 @@ func MA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 
 	if N == nil {
 		N = Scalar(T(5))
+	}
+
+	key := "ma_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &ma[T]{
@@ -49,6 +58,8 @@ func MA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -75,6 +86,10 @@ func (this *sma[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *sma[T]) GetCacheKey() string {
+	return "sma_" + ValueCacheBuildKey([]Value[T]{this.data, this.N, this.M})
+}
+
 func SMA[T float32 | float64](data Value[T], N, M Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
@@ -86,7 +101,10 @@ func SMA[T float32 | float64](data Value[T], N, M Value[T]) Value[T] {
 	if M == nil {
 		M = Scalar(T(1))
 	}
-
+	key := "sma_" + ValueCacheBuildKey([]Value[T]{data, N, M})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
+	}
 	ret := &sma[T]{
 		funcbase: funcbase[T]{
 			data: data,
@@ -96,7 +114,8 @@ func SMA[T float32 | float64](data Value[T], N, M Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
-
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -122,12 +141,21 @@ func (this *dma[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *dma[T]) GetCacheKey() string {
+	return "dma_" + ValueCacheBuildKey([]Value[T]{this.data, this.A})
+}
+
 func DMA[T float32 | float64](data Value[T], A Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 	if A == nil {
 		A = Scalar(T(0.5))
+	}
+
+	key := "dma_" + ValueCacheBuildKey([]Value[T]{data, A})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &dma[T]{
@@ -138,7 +166,8 @@ func DMA[T float32 | float64](data Value[T], A Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
-
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -164,12 +193,21 @@ func (this *ema[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *ema[T]) GetCacheKey() string {
+	return "ema_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func EMA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 	if N == nil {
 		N = Scalar(T(5))
+	}
+
+	key := "ema_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &ema[T]{
@@ -180,6 +218,8 @@ func EMA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -211,12 +251,21 @@ func (this *expmema[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *expmema[T]) GetCacheKey() string {
+	return "expmema_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func EXPMEMA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
 	}
 	if N == nil {
 		N = Scalar(T(0.5))
+	}
+
+	key := "expmema_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &expmema[T]{
@@ -227,6 +276,7 @@ func EXPMEMA[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
-
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }

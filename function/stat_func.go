@@ -28,9 +28,18 @@ func (this *llv[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *llv[T]) GetCacheKey() string {
+	return "llv_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func LLV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
+	}
+
+	key := "llv_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &llv[T]{
@@ -41,6 +50,8 @@ func LLV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -77,9 +88,18 @@ func (this *llvbars[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *llvbars[T]) GetCacheKey() string {
+	return "llvbars_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func LLVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(T(0))
+	}
+
+	key := "llvbars_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &llvbars[T]{
@@ -90,6 +110,8 @@ func LLVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]UintVecValueType, data.Len())
 	initIntValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -115,9 +137,17 @@ func (this *hhv[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *hhv[T]) GetCacheKey() string {
+	return "hhv_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func HHV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
+	}
+	key := "hhv_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 	ret := &hhv[T]{
 		funcbase: funcbase[T]{
@@ -127,6 +157,8 @@ func HHV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -163,9 +195,17 @@ func (this *hhvbars[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *hhvbars[T]) GetCacheKey() string {
+	return "hhvbars_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func HHVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(T(0))
+	}
+	key := "hhvbars_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 	ret := &hhvbars[T]{
 		intfuncbase: intfuncbase[T, UintVecValueType]{
@@ -175,6 +215,8 @@ func HHVBARS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]UintVecValueType, data.Len())
 	initIntValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -221,9 +263,17 @@ func (this *hhvllv[R]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *hhvllv[R]) GetCacheKey() string {
+	return "hhvllv_" + ValueCacheBuildKey([]Value[R]{this.data, this.T, this.N1, this.N2})
+}
+
 func HHVLLV[R float32 | float64](data Value[R], T Value[R], N1 Value[R], N2 Value[R]) Value[R] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0))
+	}
+	key := "hhvllv_" + ValueCacheBuildKey([]Value[R]{data, T, N1, N2})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[R])
 	}
 	ret := &hhvllv[R]{
 		funcbase: funcbase[R]{
@@ -235,6 +285,8 @@ func HHVLLV[R float32 | float64](data Value[R], T Value[R], N1 Value[R], N2 Valu
 	}
 	ret.Values = make([]R, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -273,11 +325,18 @@ func (this *std[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *std[T]) GetCacheKey() string {
+	return "std_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func STD[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(T(0))
 	}
-
+	key := "std_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
+	}
 	ret := &std[T]{
 		funcbase: funcbase[T]{
 			data: data,
@@ -286,6 +345,8 @@ func STD[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -325,11 +386,18 @@ func (this *avedev[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *avedev[T]) GetCacheKey() string {
+	return "avedev_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func AVEDEV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(T(0))
 	}
-
+	key := "avedev_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
+	}
 	ret := &avedev[T]{
 		funcbase: funcbase[T]{
 			data: data,
@@ -338,6 +406,8 @@ func AVEDEV[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -361,11 +431,19 @@ func (this *sumf[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *sumf[T]) GetCacheKey() string {
+	return "sumf_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func SUM[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(data.Get(0) * N.Get(0))
 	}
 
+	key := "sumf_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
+	}
 	ret := &sumf[T]{
 		funcbase: funcbase[T]{
 			data: data,
@@ -374,6 +452,8 @@ func SUM[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -441,12 +521,21 @@ func (this *count[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *count[T]) GetCacheKey() string {
+	return "count_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func COUNT[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
 			return Scalar(T(0))
 		}
 		return Scalar(N.Get(0))
+	}
+
+	key := "count_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &count[T]{
@@ -457,6 +546,8 @@ func COUNT[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -516,12 +607,21 @@ func (this *every[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *every[T]) GetCacheKey() string {
+	return "every_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func EVERY[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
 			return Scalar(T(0))
 		}
 		return Scalar(T(1))
+	}
+
+	key := "every_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &every[T]{
@@ -532,6 +632,8 @@ func EVERY[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -554,12 +656,21 @@ func (this *barslast[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *barslast[T]) GetCacheKey() string {
+	return "barslast_" + ValueCacheBuildKey([]Value[T]{this.data})
+}
+
 func BARSLAST[T float32 | float64](data Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
 			return Scalar(T(math.NaN()))
 		}
 		return Scalar(T(0))
+	}
+
+	key := "barslast_" + ValueCacheBuildKey([]Value[T]{data})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &barslast[T]{
@@ -579,6 +690,8 @@ func BARSLAST[T float32 | float64](data Value[T]) Value[T] {
 			ret.Values[i] = UintVecValueType(i - lastTruePos)
 		}
 	}
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -590,6 +703,11 @@ func BARSLASTOLD[T float32 | float64](data Value[T]) Value[T] {
 		return Scalar(T(0))
 	}
 
+	key := "barslast_" + ValueCacheBuildKey([]Value[T]{data})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
+	}
+
 	ret := &barslast[T]{
 		intfuncbase: intfuncbase[T, UintVecValueType]{
 			data: data,
@@ -597,6 +715,8 @@ func BARSLASTOLD[T float32 | float64](data Value[T]) Value[T] {
 	}
 	ret.Values = make([]UintVecValueType, data.Len())
 	initIntValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -624,12 +744,21 @@ func (this *barslasts[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *barslasts[T]) GetCacheKey() string {
+	return "barslasts_" + ValueCacheBuildKey([]Value[T]{this.data, Scalar(T(this.N))})
+}
+
 func BARSLASTS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		if data.Get(0) == 0 {
 			return Scalar(T(math.NaN()))
 		}
 		return Scalar(T(0))
+	}
+
+	key := "barslasts_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
 	}
 
 	ret := &barslasts[T]{
@@ -647,6 +776,8 @@ func BARSLASTS[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 			ret.Values[i] = UintVecValueType(v)
 		}
 	}
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }
 
@@ -838,11 +969,18 @@ func (this *slopef[T]) UpdateLastValue() {
 	updateLastValue(this)
 }
 
+func (this *slopef[T]) GetCacheKey() string {
+	return "slope_" + ValueCacheBuildKey([]Value[T]{this.data, this.N})
+}
+
 func SLOPE[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	if data.IsScalar() {
 		return Scalar(T(0))
 	}
-
+	key := "slope_" + ValueCacheBuildKey([]Value[T]{data, N})
+	if v := GlobalValueCache.Get(key); v != nil {
+		return v.(Value[T])
+	}
 	ret := &slopef[T]{
 		funcbase: funcbase[T]{
 			data: data,
@@ -851,5 +989,7 @@ func SLOPE[T float32 | float64](data Value[T], N Value[T]) Value[T] {
 	}
 	ret.Values = make([]T, data.Len())
 	initValues(ret, ret.Values)
+	ret.IncRef()
+	GlobalValueCache.Set(key, ret)
 	return ret
 }

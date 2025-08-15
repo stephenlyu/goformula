@@ -107,6 +107,16 @@ func (this *simplefuncbase[T]) Append(v T) {
 func (this *simplefuncbase[T]) LTrim(count int) {
 }
 
+func (this *simplefuncbase[T]) IncRef() {
+}
+
+func (this *simplefuncbase[T]) DecRef() {
+}
+
+func (this *simplefuncbase[T]) GetCacheKey() string {
+	return ""
+}
+
 type binaryfuncbase[T float32 | float64] struct {
 	simplefuncbase[T]
 	data1 Value[T]

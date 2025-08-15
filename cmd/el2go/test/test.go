@@ -125,50 +125,67 @@ func NewTEST[T float32 | float64](
 	return o
 }
 
-func (generator *test[T]) UpdateLastValue() {
-    generator.formula_code1__macd.UpdateLastValue()
-    generator.var1.UpdateLastValue()
-    generator.var2.UpdateLastValue()
-    generator.var3.UpdateLastValue()
-    generator.var4.UpdateLastValue()
-    generator.var5.UpdateLastValue()
-    generator.var6.UpdateLastValue()
-    generator.var7.UpdateLastValue()
-    generator.var8.UpdateLastValue()
-    generator.var9.UpdateLastValue()
-    generator.var10.UpdateLastValue()
-    generator.var11.UpdateLastValue()
-    generator.var12.UpdateLastValue()
-    generator.var13.UpdateLastValue()
-    generator.var14.UpdateLastValue()
+func (formula *test[T]) UpdateLastValue() {
+    formula.formula_code1__macd.UpdateLastValue()
+    formula.var1.UpdateLastValue()
+    formula.var2.UpdateLastValue()
+    formula.var3.UpdateLastValue()
+    formula.var4.UpdateLastValue()
+    formula.var5.UpdateLastValue()
+    formula.var6.UpdateLastValue()
+    formula.var7.UpdateLastValue()
+    formula.var8.UpdateLastValue()
+    formula.var9.UpdateLastValue()
+    formula.var10.UpdateLastValue()
+    formula.var11.UpdateLastValue()
+    formula.var12.UpdateLastValue()
+    formula.var13.UpdateLastValue()
+    formula.var14.UpdateLastValue()
 }
 
-func (generator *test[T]) LTrim(count int) {
-    generator.formula_code1__macd.LTrim(count)
-    generator.var1.LTrim(count)
-    generator.var2.LTrim(count)
-    generator.var3.LTrim(count)
-    generator.var4.LTrim(count)
-    generator.var5.LTrim(count)
-    generator.var6.LTrim(count)
-    generator.var7.LTrim(count)
-    generator.var8.LTrim(count)
-    generator.var9.LTrim(count)
-    generator.var10.LTrim(count)
-    generator.var11.LTrim(count)
-    generator.var12.LTrim(count)
-    generator.var13.LTrim(count)
-    generator.var14.LTrim(count)
+func (formula *test[T]) Destroy() {
+    formula.var1.DecRef()
+    formula.var2.DecRef()
+    formula.var3.DecRef()
+    formula.var4.DecRef()
+    formula.var5.DecRef()
+    formula.var6.DecRef()
+    formula.var7.DecRef()
+    formula.var8.DecRef()
+    formula.var9.DecRef()
+    formula.var10.DecRef()
+    formula.var11.DecRef()
+    formula.var12.DecRef()
+    formula.var13.DecRef()
+    formula.var14.DecRef()
 }
 
-func (generator *test[T]) DumpState() {
-	for i := 0; i < generator.Data__.Len(); i++ {
-		r := generator.Data__.Get(i)
+func (formula *test[T]) LTrim(count int) {
+    formula.formula_code1__macd.LTrim(count)
+    formula.var1.LTrim(count)
+    formula.var2.LTrim(count)
+    formula.var3.LTrim(count)
+    formula.var4.LTrim(count)
+    formula.var5.LTrim(count)
+    formula.var6.LTrim(count)
+    formula.var7.LTrim(count)
+    formula.var8.LTrim(count)
+    formula.var9.LTrim(count)
+    formula.var10.LTrim(count)
+    formula.var11.LTrim(count)
+    formula.var12.LTrim(count)
+    formula.var13.LTrim(count)
+    formula.var14.LTrim(count)
+}
+
+func (formula *test[T]) DumpState() {
+	for i := 0; i < formula.Data__.Len(); i++ {
+		r := formula.Data__.Get(i)
 		fmt.Printf("date: %s ", r.GetDate())
 		// Dump Var Start
-        fmt.Printf("__anonymous_0: %.03f ", generator.__anonymous_0.Get(i))
-        fmt.Printf("__anonymous_1: %.03f ", generator.__anonymous_1.Get(i))
-        fmt.Printf("d: %.03f ", generator.d.Get(i))
+        fmt.Printf("__anonymous_0: %.03f ", formula.__anonymous_0.Get(i))
+        fmt.Printf("__anonymous_1: %.03f ", formula.__anonymous_1.Get(i))
+        fmt.Printf("d: %.03f ", formula.d.Get(i))
 		// Dump Var End
 		fmt.Println("")
 	}
