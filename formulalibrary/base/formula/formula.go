@@ -2,6 +2,7 @@ package formula
 
 import (
 	"github.com/stephenlyu/goformula/function"
+	stockfunc "github.com/stephenlyu/goformula/stockfunc/function"
 	"github.com/stephenlyu/tds/period"
 )
 
@@ -121,6 +122,10 @@ type Formula[T float32 | float64] interface {
 	Ref(offset int) []T
 	GetVarValue(varName string) function.Value[T]
 	DumpState()
+	DumpStateAt(index int, shouldPrintDate bool, indent string)
+
+	SetFormulaIndexMap(formula Formula[T], indexMap *stockfunc.IndexMap[T])
+	GetFormulaIndexMap(formula Formula[T]) *stockfunc.IndexMap[T]
 
 	// 绘制图形
 	DrawActions() []DrawAction

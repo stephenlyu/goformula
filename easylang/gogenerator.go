@@ -204,12 +204,16 @@ func (generator *GoGenerator) getReferencedFormulaDefinitions(indent string) str
 		return ""
 	}
 
-	lines := make([]string, len(generator.context.refFormulas)*2)
-	for i, f := range generator.context.refFormulas {
+	var lines []string
+	for _, f := range generator.context.refFormulas {
 		name := strings.ToUpper(f.name)
 		varName := getRefDataVarName(f.code, f.period)
-		lines[2*i] = fmt.Sprintf(`%so.%s = provider.NewFormula("%s", o.%s)`, indent, f.String(), name, strings.Replace(varName, "__data_code0___", "Data__", -1))
-		lines[2*i+1] = fmt.Sprintf(`%so.%s.IncRef()`, indent, f.String())
+		indexMapName := getIndexMapVarName(f.code, f.period)
+		lines = append(lines, fmt.Sprintf(`%so.%s = provider.NewFormula("%s", o.%s)`, indent, f.String(), name, strings.Replace(varName, "__data_code0___", "Data__", -1)))
+		lines = append(lines, fmt.Sprintf(`%so.%s.IncRef()`, indent, f.String()))
+		if !strings.Contains(varName, "__data_code0___") {
+			lines = append(lines, fmt.Sprintf(`%so.SetFormulaIndexMap(o.%s, o.%s)`, indent, f.String(), indexMapName))
+		}
 	}
 	return strings.Join(lines, "\n")
 }
@@ -486,7 +490,23 @@ func (generator *GoGenerator) ltrimCodes(indent string, formulaName string) stri
 	return strings.Join(lines, "\n")
 }
 
-func (generator *GoGenerator) dumpStateCodes(indent string, formulaName string) string {
+func (generator *GoGenerator) refFormulaDumpStateCodes(indent string) string {
+	lines := []string{}
+	for _, f := range generator.context.refFormulas {
+		varName := getRefDataVarName(f.code, f.period)
+		if strings.Contains(varName, "__data_code0___") {
+			lines = append(lines, fmt.Sprintf("%sformula.%s.DumpStateAt(i, false, indent + \"  \")", indent, f.String()))
+		} else {
+			lines = append(lines, fmt.Sprintf("%s{", indent))
+			lines = append(lines, fmt.Sprintf("%s%sindexmap := formula.GetFormulaIndexMap(formula.%s)", indent, indent, f.String()))
+			lines = append(lines, fmt.Sprintf("%s%sformula.%s.DumpStateAt(indexmap.Get(i), false, indent + \"  \")", indent, indent, f.String()))
+			lines = append(lines, fmt.Sprintf("%s}", indent))
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+func (generator *GoGenerator) dumpStateCodes(indent string) string {
 	lines := []string{}
 
 	// Add Var UpdateLastValue Calls
@@ -505,8 +525,8 @@ func (generator *GoGenerator) dumpStateCodes(indent string, formulaName string) 
 		switch expr.(type) {
 		case *constantexpr:
 		case *assignexpr:
-			lines = append(lines, fmt.Sprintf(`%s%sfmt.Printf("%s: %%.03f ", formula.%s.Get(i))`,
-				indent, indent, expr.DefinedName(), expr.DefinedName()))
+			lines = append(lines, fmt.Sprintf(`%sfmt.Printf("%%s%s: %%.03f ", indent, formula.%s.Get(i))`,
+				indent, expr.DefinedName(), expr.DefinedName()))
 		case *paramexpr:
 		case *stringexpr:
 		case *referenceexpr:
@@ -610,13 +630,20 @@ func (formula *%s[T]) LTrim(count int) {
 
 func (formula *%s[T]) DumpState() {
 	for i := 0; i < formula.Data__.Len(); i++ {
-		r := formula.Data__.Get(i)
-		fmt.Printf("date: %%s ", r.GetDate())
-		// Dump Var Start
-%s
-		// Dump Var End
-		fmt.Println("")
+		formula.DumpStateAt(i, true, "")
 	}
+}
+
+func (formula *%s[T]) DumpStateAt(i int, shouldPrintDate bool, indent string) {
+	fmt.Printf("%%s%%s: ", indent, formula.GetName())
+	if shouldPrintDate {
+		fmt.Printf("%%sdate: %%s ", indent, formula.Data__.Get(i).GetDate())
+	}
+	// Dump Var Start
+%s
+	// Dump Var End
+	fmt.Println("")
+%s
 }
 
 func init() {
@@ -655,7 +682,9 @@ func init() {
 		strings.ToLower(name),
 		generator.ltrimCodes(indent, name),
 		strings.ToLower(name),
-		generator.dumpStateCodes(indent, name),
+		strings.ToLower(name),
+		generator.dumpStateCodes(indent),
+		generator.refFormulaDumpStateCodes(indent),
 		name, name,
 		name, name,
 	)

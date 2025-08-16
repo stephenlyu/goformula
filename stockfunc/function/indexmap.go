@@ -25,6 +25,10 @@ func NewIndexMap[T float32 | float64](srcData RVectorReader[T], destData RVector
 }
 
 func (this *IndexMap[T]) buildIndexMap() {
+	if this.srcData.Code() == this.destData.Code() && this.srcData.Period().Eq(this.destData.Period()) {
+		util.Assert(this.srcData.Len() == this.destData.Len(), "")
+		return
+	}
 	needTrimDate := this.destData.Period().Unit() != period.PERIOD_UNIT_MINUTE
 
 	m := make(map[int]int)

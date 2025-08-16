@@ -14,6 +14,23 @@ type BaseNativeFormula[T float32 | float64] struct {
 	Data__        stockfunc.RVectorReader[T]
 	RefCount      int64
 	id            int64
+
+	formula_index_map map[Formula[T]]*stockfunc.IndexMap[T]
+}
+
+func (this *BaseNativeFormula[T]) SetFormulaIndexMap(formula Formula[T], indexMap *stockfunc.IndexMap[T]) {
+	// TODO: 非线程安全
+	if this.formula_index_map == nil {
+		this.formula_index_map = make(map[Formula[T]]*stockfunc.IndexMap[T])
+	}
+	this.formula_index_map[formula] = indexMap
+}
+
+func (this *BaseNativeFormula[T]) GetFormulaIndexMap(formula Formula[T]) *stockfunc.IndexMap[T] {
+	if this.formula_index_map == nil {
+		return nil
+	}
+	return this.formula_index_map[formula]
 }
 
 func (this *BaseNativeFormula[T]) IncRef() {

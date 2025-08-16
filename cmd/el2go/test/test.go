@@ -20,34 +20,42 @@ type test[T float32 | float64] struct {
 	// Data of all referenced period
     __data_code1___ RVectorReader[T]
     __index_map_code1___ *IndexMap[T]
+    __data_code0_d1__ RVectorReader[T]
+    __index_map_code0_d1__ *IndexMap[T]
 
 	// Referenced Formulas
     formula_code1__macd Formula[T]
+    formula_code0_d1_macd Formula[T]
+    formula_code0__macd Formula[T]
 
 	// Vectors
     long Value[T]
-    var1 Value[T]
     var2 Value[T]
     var3 Value[T]
-    const1 Value[T]
     var4 Value[T]
+    const1 Value[T]
     var5 Value[T]
-    string1 string
     var6 Value[T]
-    const2 Value[T]
+    string1 string
     var7 Value[T]
+    const2 Value[T]
     var8 Value[T]
     var9 Value[T]
     var10 Value[T]
-    const3 Value[T]
     var11 Value[T]
-    __anonymous_0 Value[T]
+    const3 Value[T]
     var12 Value[T]
-    __anonymous_1 Value[T]
+    __anonymous_0 Value[T]
     var13 Value[T]
-    const4 Value[T]
+    __anonymous_1 Value[T]
     var14 Value[T]
+    const4 Value[T]
+    var15 Value[T]
     d Value[T]
+    var16 Value[T]
+    e Value[T]
+    var1 Value[T]
+    f Value[T]
 }
 
 var (
@@ -57,12 +65,12 @@ var (
 		ArgMeta: []Arg {
 			Arg{Default:9.000000, Min:2.000000, Max:100.000000},
 		},
-		Flags: []int{0x00000000, 0x00000000, 0x00000000},
-		Colors: []*Color{{Red:-1, Green:-1, Blue:-1}, {Red:255, Green:0, Blue:0}, {Red:-1, Green:-1, Blue:-1}},
-		LineThicks: []int{1, 9, 1},
-		LineStyles: []int{0, 0, 0},
-		GraphTypes: []int{0, 0, 1},
-		Vars: []string{"", "", "D"},
+		Flags: []int{0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},
+		Colors: []*Color{{Red:-1, Green:-1, Blue:-1}, {Red:255, Green:0, Blue:0}, {Red:-1, Green:-1, Blue:-1}, {Red:-1, Green:-1, Blue:-1}, {Red:-1, Green:-1, Blue:-1}},
+		LineThicks: []int{1, 9, 1, 1, 1},
+		LineStyles: []int{0, 0, 0, 0, 0},
+		GraphTypes: []int{0, 0, 1, 1, 1},
+		Vars: []string{"", "", "D", "E", "F"},
 	}
 )
 
@@ -80,54 +88,67 @@ func NewTEST[T float32 | float64](
 	// Data of all referenced period
     o.__data_code1___ = provider.GetDataLibrary().GetData("000001", data.Period().Name())
     o.__index_map_code1___ = NewIndexMap(o.Data__, o.__data_code1___)
+    o.__data_code0_d1__ = provider.GetDataLibrary().GetData(data.Code(), "D1")
+    o.__index_map_code0_d1__ = NewIndexMap(o.Data__, o.__data_code0_d1__)
 
 	// Referenced Formulas
     o.formula_code1__macd = provider.NewFormula("MACD", o.__data_code1___)
     o.formula_code1__macd.IncRef()
+    o.SetFormulaIndexMap(o.formula_code1__macd, o.__index_map_code1___)
+    o.formula_code0_d1_macd = provider.NewFormula("MACD", o.__data_code0_d1__)
+    o.formula_code0_d1_macd.IncRef()
+    o.SetFormulaIndexMap(o.formula_code0_d1_macd, o.__index_map_code0_d1__)
+    o.formula_code0__macd = provider.NewFormula("MACD", o.Data__)
+    o.formula_code0__macd.IncRef()
 
 	// Vectors
     o.long = Scalar[T](T(args[0]))
-    o.var1 = CLOSE(o.Data__)
-    o.var2 = OPEN(o.Data__)
-    o.var3 = DIV(o.var1, o.var2)
+    o.var2 = CLOSE(o.Data__)
+    o.var3 = OPEN(o.Data__)
+    o.var4 = DIV(o.var2, o.var3)
     o.const1 = Scalar[T](1.080000)
-    o.var4 = GT(o.var3, o.const1)
-    o.var5 = LOW(o.Data__)
+    o.var5 = GT(o.var4, o.const1)
+    o.var6 = LOW(o.Data__)
     o.string1 = "abc"
-    o.var6 = HIGH(o.Data__)
+    o.var7 = HIGH(o.Data__)
     o.const2 = Scalar[T](20.000000)
-    o.var7 = HHV(o.var6, o.const2)
-    o.var8 = GE(o.var6, o.var7)
-    o.var9 = LLV(o.var5, o.const2)
-    o.var10 = LE(o.var5, o.var9)
+    o.var8 = HHV(o.var7, o.const2)
+    o.var9 = GE(o.var7, o.var8)
+    o.var10 = LLV(o.var6, o.const2)
+    o.var11 = LE(o.var6, o.var10)
     o.const3 = Scalar[T](1.000000)
-    o.var11 = DRAWLINE(o.var8, o.var6, o.var10, o.var5, o.const3)
-    o.__anonymous_0 = o.var11
-    o.var12 = PLOYLINE(o.var8, o.var6)
-    o.__anonymous_1 = o.var12
-    o.var13 = GT(o.var1, o.var2)
+    o.var12 = DRAWLINE(o.var9, o.var7, o.var11, o.var6, o.const3)
+    o.__anonymous_0 = o.var12
+    o.var13 = PLOYLINE(o.var9, o.var7)
+    o.__anonymous_1 = o.var13
+    o.var14 = GT(o.var2, o.var3)
     o.const4 = Scalar[T](0.800000)
-    o.var14 = CrossValue(o.formula_code1__macd.GetVarValue("MACD"), o.__index_map_code1___)
-    o.d = o.var14
+    o.var15 = CrossValue(o.formula_code1__macd.GetVarValue("MACD"), o.__index_map_code1___)
+    o.d = o.var15
+    o.var16 = CrossValue(o.formula_code0_d1_macd.GetVarValue("MACD"), o.__index_map_code0_d1__)
+    o.e = o.var16
+    o.var1 = o.formula_code0__macd.GetVarValue("MACD")
+    o.f = o.var1
 
 	// Actions
 
     o.DrawActions__ = []DrawAction{
-        &DrawTextAction[T]{ActionType:5, Cond:o.var4, Price:o.var5, Text:o.string1, Color:&Color{Red:-1, Green:-1, Blue:-1}, NoDraw:0},
-        &DrawLineAction[T]{ActionType:1, Cond1:o.var8, Price1:o.var6, Cond2:o.var10, Price2:o.var5, Expand:1, NoDraw:0, Color:&Color{Red:-1, Green:-1, Blue:-1}, LineThick:1, VarIndex:0},
-        &PloyLineAction[T]{ActionType:0, Cond:o.var8, Price:o.var6, NoDraw:0, Color:&Color{Red:255, Green:0, Blue:0}, LineThick:9, VarIndex:1},
-        &StickLineAction[T]{ActionType:3, Cond:o.var13, Price1:o.var1, Price2:o.var2, Width:0.800000, Empty:1, NoDraw:0, Color:&Color{Red:-1, Green:-1, Blue:-1}, LineThick:1},
-        &DrawIconAction[T]{ActionType:4, Cond:o.var13, Price:o.var5, Type:1, NoDraw:0},
-        &DrawKLineAction[T]{ActionType:2, High:o.var6, Open:o.var2, Low:o.var5, Close:o.var1, NoDraw:1},
+        &DrawTextAction[T]{ActionType:5, Cond:o.var5, Price:o.var6, Text:o.string1, Color:&Color{Red:-1, Green:-1, Blue:-1}, NoDraw:0},
+        &DrawLineAction[T]{ActionType:1, Cond1:o.var9, Price1:o.var7, Cond2:o.var11, Price2:o.var6, Expand:1, NoDraw:0, Color:&Color{Red:-1, Green:-1, Blue:-1}, LineThick:1, VarIndex:0},
+        &PloyLineAction[T]{ActionType:0, Cond:o.var9, Price:o.var7, NoDraw:0, Color:&Color{Red:255, Green:0, Blue:0}, LineThick:9, VarIndex:1},
+        &StickLineAction[T]{ActionType:3, Cond:o.var14, Price1:o.var2, Price2:o.var3, Width:0.800000, Empty:1, NoDraw:0, Color:&Color{Red:-1, Green:-1, Blue:-1}, LineThick:1},
+        &DrawIconAction[T]{ActionType:4, Cond:o.var14, Price:o.var6, Type:1, NoDraw:0},
+        &DrawKLineAction[T]{ActionType:2, High:o.var7, Open:o.var3, Low:o.var6, Close:o.var2, NoDraw:1},
     }
 
-	o.RefValues__ = []Value[T] {o.__anonymous_0, o.__anonymous_1, o.d}
+	o.RefValues__ = []Value[T] {o.__anonymous_0, o.__anonymous_1, o.d, o.e, o.f}
 	return o
 }
 
 func (formula *test[T]) UpdateLastValue() {
     formula.formula_code1__macd.UpdateLastValue()
-    formula.var1.UpdateLastValue()
+    formula.formula_code0_d1_macd.UpdateLastValue()
+    formula.formula_code0__macd.UpdateLastValue()
     formula.var2.UpdateLastValue()
     formula.var3.UpdateLastValue()
     formula.var4.UpdateLastValue()
@@ -141,10 +162,11 @@ func (formula *test[T]) UpdateLastValue() {
     formula.var12.UpdateLastValue()
     formula.var13.UpdateLastValue()
     formula.var14.UpdateLastValue()
+    formula.var15.UpdateLastValue()
+    formula.var16.UpdateLastValue()
 }
 
 func (formula *test[T]) Destroy() {
-    formula.var1.DecRef()
     formula.var2.DecRef()
     formula.var3.DecRef()
     formula.var4.DecRef()
@@ -158,11 +180,14 @@ func (formula *test[T]) Destroy() {
     formula.var12.DecRef()
     formula.var13.DecRef()
     formula.var14.DecRef()
+    formula.var15.DecRef()
+    formula.var16.DecRef()
 }
 
 func (formula *test[T]) LTrim(count int) {
     formula.formula_code1__macd.LTrim(count)
-    formula.var1.LTrim(count)
+    formula.formula_code0_d1_macd.LTrim(count)
+    formula.formula_code0__macd.LTrim(count)
     formula.var2.LTrim(count)
     formula.var3.LTrim(count)
     formula.var4.LTrim(count)
@@ -176,19 +201,38 @@ func (formula *test[T]) LTrim(count int) {
     formula.var12.LTrim(count)
     formula.var13.LTrim(count)
     formula.var14.LTrim(count)
+    formula.var15.LTrim(count)
+    formula.var16.LTrim(count)
 }
 
 func (formula *test[T]) DumpState() {
 	for i := 0; i < formula.Data__.Len(); i++ {
-		r := formula.Data__.Get(i)
-		fmt.Printf("date: %s ", r.GetDate())
-		// Dump Var Start
-        fmt.Printf("__anonymous_0: %.03f ", formula.__anonymous_0.Get(i))
-        fmt.Printf("__anonymous_1: %.03f ", formula.__anonymous_1.Get(i))
-        fmt.Printf("d: %.03f ", formula.d.Get(i))
-		// Dump Var End
-		fmt.Println("")
+		formula.DumpStateAt(i, true, "")
 	}
+}
+
+func (formula *test[T]) DumpStateAt(i int, shouldPrintDate bool, indent string) {
+	fmt.Printf("%s%s: ", indent, formula.GetName())
+	if shouldPrintDate {
+		fmt.Printf("%sdate: %s ", indent, formula.Data__.Get(i).GetDate())
+	}
+	// Dump Var Start
+    fmt.Printf("%s__anonymous_0: %.03f ", indent, formula.__anonymous_0.Get(i))
+    fmt.Printf("%s__anonymous_1: %.03f ", indent, formula.__anonymous_1.Get(i))
+    fmt.Printf("%sd: %.03f ", indent, formula.d.Get(i))
+    fmt.Printf("%se: %.03f ", indent, formula.e.Get(i))
+    fmt.Printf("%sf: %.03f ", indent, formula.f.Get(i))
+	// Dump Var End
+	fmt.Println("")
+    {
+        indexmap := formula.GetFormulaIndexMap(formula.formula_code1__macd)
+        formula.formula_code1__macd.DumpStateAt(indexmap.Get(i), false, indent + "  ")
+    }
+    {
+        indexmap := formula.GetFormulaIndexMap(formula.formula_code0_d1_macd)
+        formula.formula_code0_d1_macd.DumpStateAt(indexmap.Get(i), false, indent + "  ")
+    }
+    formula.formula_code0__macd.DumpStateAt(i, false, indent + "  ")
 }
 
 func init() {
