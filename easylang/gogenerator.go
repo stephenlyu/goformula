@@ -411,6 +411,11 @@ func (generator *GoGenerator) updateLastValueCodes(indent string, formulaName st
 	// Add Reference Formula UpdateLastValue Calls.
 	for _, f := range generator.context.refFormulas {
 		lines = append(lines, fmt.Sprintf("%sformula.%s.UpdateLastValue()", indent, f.String()))
+		varName := getRefDataVarName(f.code, f.period)
+		indexMapName := getIndexMapVarName(f.code, f.period)
+		if !strings.Contains(varName, "__data_code0___") {
+			lines = append(lines, fmt.Sprintf("%sformula.%s.UpdateLastValue()", indent, indexMapName))
+		}
 	}
 
 	// Add Var UpdateLastValue Calls

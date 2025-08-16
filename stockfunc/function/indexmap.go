@@ -16,6 +16,8 @@ type IndexMap[T float32 | float64] struct {
 	destData RVectorReader[T]
 
 	indexMap map[int]int
+	prevI    int
+	prevJ    int
 }
 
 func NewIndexMap[T float32 | float64](srcData RVectorReader[T], destData RVectorReader[T]) *IndexMap[T] {
@@ -43,6 +45,8 @@ func (this *IndexMap[T]) buildIndexMap() {
 
 		if srcDate <= destDate {
 			m[i] = j
+			this.prevI = i
+			this.prevJ = j
 			i++
 		} else {
 			j++
@@ -80,20 +84,21 @@ func (this *IndexMap[T]) UpdateLastValue() {
 	}
 	needTrimDate := this.destData.Period().Unit() != period.PERIOD_UNIT_MINUTE
 
-	srcDate := this.srcData.Get(i).GetUTCDate()
-	if needTrimDate {
-		srcDate = srcDate / DAY_MILLIS * DAY_MILLIS
-	}
-
-	for j >= 0 {
-		destDate := this.srcData.Get(j).GetUTCDate()
-		if destDate < srcDate {
-			break
+	for i, j := this.prevI, this.prevJ; i < this.srcData.Len() && j < this.destData.Len(); {
+		srcDate := this.srcData.Get(i).GetDate()
+		if needTrimDate {
+			srcDate = fmt.Sprintf("%s 00:00:00", srcDate[:8])
 		}
-		j--
-	}
 
-	if j+1 < this.destData.Len() {
-		this.indexMap[i] = j + 1
+		destDate := this.destData.Get(j).GetDate()
+
+		if srcDate <= destDate {
+			this.indexMap[i] = j
+			this.prevI = i
+			this.prevJ = j
+			i++
+		} else {
+			j++
+		}
 	}
 }
